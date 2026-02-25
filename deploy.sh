@@ -3,7 +3,7 @@
 set -e
 
 AWS_REGION="ap-northeast-2"
-ECR_REGISTRY="<YOUR_AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com"
+ECR_REGISTRY="985718216448.dkr.ecr.ap-northeast-2.amazonaws.com"
 ECR_REPOSITORY="linktrip"
 IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
 
