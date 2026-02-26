@@ -1,0 +1,94 @@
+package com.linktrip.input.http.controller.advice
+
+import com.linktrip.common.exception.LinktripException
+import com.linktrip.input.http.controller.dto.response.ExceptionResponse
+import jakarta.validation.ConstraintDeclarationException
+import jakarta.validation.ConstraintViolationException
+import mu.KotlinLogging
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.resource.NoResourceFoundException
+
+private val logger = KotlinLogging.logger {}
+
+@RestControllerAdvice
+class ExceptionAdvice {
+    @ExceptionHandler(LinktripException::class)
+    fun handleLinktripException(e: LinktripException): ResponseEntity<ExceptionResponse> {
+        logger.error(e) { "LinktripException 발생" }
+        return ResponseEntity
+            .status(e.statusCode)
+            .body(
+                ExceptionResponse(
+                    message = e.defaultMessage,
+                    cause = e.detailMessage,
+                    timestamp = System.currentTimeMillis(),
+                ),
+            )
+    }
+
+    @ExceptionHandler(
+        MethodArgumentNotValidException::class,
+        ConstraintViolationException::class,
+        ConstraintDeclarationException::class,
+    )
+    fun handleValidationException(e: Exception): ResponseEntity<ExceptionResponse> {
+        logger.error(e) { "Validation 실패" }
+
+        val cause =
+            when (e) {
+                is MethodArgumentNotValidException ->
+                    e.bindingResult.fieldErrors.joinToString(", ") {
+                        "${it.field}: ${it.defaultMessage}"
+                    }
+
+                is ConstraintViolationException ->
+                    e.constraintViolations.joinToString(", ") {
+                        "${it.propertyPath}: ${it.message}"
+                    }
+
+                else -> e.message
+            }
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ExceptionResponse(
+                    message = "요청 형식이 잘못되었습니다.",
+                    cause = cause,
+                    timestamp = System.currentTimeMillis(),
+                ),
+            )
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFound(e: NoResourceFoundException): ResponseEntity<ExceptionResponse> {
+        logger.error(e) { "리소스를 찾을 수 없음" }
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(
+                ExceptionResponse(
+                    message = "요청 경로가 잘못되었습니다.",
+                    cause = e.resourcePath,
+                    timestamp = System.currentTimeMillis(),
+                ),
+            )
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(e: Exception): ResponseEntity<ExceptionResponse> {
+        logger.error(e) { "예기치 못한 에러 발생" }
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(
+                ExceptionResponse(
+                    message = "예기치 못한 에러가 발생했습니다.",
+                    cause = null,
+                    timestamp = System.currentTimeMillis(),
+                ),
+            )
+    }
+}
