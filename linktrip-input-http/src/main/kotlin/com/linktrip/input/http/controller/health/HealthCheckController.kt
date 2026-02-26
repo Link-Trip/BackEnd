@@ -1,6 +1,8 @@
 package com.linktrip.input.http.controller.health
 
 import com.linktrip.application.port.input.HealthCheckUseCase
+import com.linktrip.input.http.controller.dto.response.ApiResponse
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -12,32 +14,25 @@ class HealthCheckController(
     private val healthCheckUseCase: HealthCheckUseCase,
 ) {
     @GetMapping("/api")
-    fun apiHealth(): ResponseEntity<HealthResponse> =
-        ResponseEntity.ok(
-            HealthResponse(
-                status = "UP",
-                service = "linktrip-api",
-            ),
+    fun apiHealth(): ApiResponse<HealthResponse> =
+        ApiResponse.ok(
+            HealthResponse(status = "UP", service = "linktrip-api"),
         )
 
     @GetMapping("/db")
-    fun dbHealth(): ResponseEntity<HealthResponse> {
+    fun dbHealth(): ResponseEntity<ApiResponse<HealthResponse>> {
         val isHealthy = healthCheckUseCase.checkDatabaseHealth()
-        return if (isHealthy) {
-            ResponseEntity.ok(
-                HealthResponse(
-                    status = "UP",
-                    service = "linktrip-db",
+        val httpStatus = if (isHealthy) HttpStatus.OK else HttpStatus.SERVICE_UNAVAILABLE
+        val healthStatus = if (isHealthy) "UP" else "DOWN"
+        return ResponseEntity
+            .status(httpStatus)
+            .body(
+                ApiResponse(
+                    status = httpStatus.value(),
+                    message = httpStatus.reasonPhrase,
+                    data = HealthResponse(status = healthStatus, service = "linktrip-db"),
                 ),
             )
-        } else {
-            ResponseEntity.internalServerError().body(
-                HealthResponse(
-                    status = "DOWN",
-                    service = "linktrip-db",
-                ),
-            )
-        }
     }
 
     data class HealthResponse(

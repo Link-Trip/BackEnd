@@ -18,4 +18,14 @@ class AsyncConfig {
             setThreadNamePrefix("AsyncAccessLog-")
             initialize()
         }
+
+    @Bean(name = ["NotificationExecutor"])
+    fun notificationExecutor(): Executor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 2
+            maxPoolSize = 2
+            queueCapacity = 100
+            setThreadNamePrefix("AsyncNotification-")
+            initialize()
+        }
 }

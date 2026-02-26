@@ -1,0 +1,24 @@
+package com.linktrip.common.exception
+
+enum class ExceptionCode(
+    val statusCode: Int,
+    val defaultMessage: String,
+) {
+    // 400
+    ILLEGAL_ARGUMENT(400, "요청 값이 올바르지 않습니다."),
+
+    // 401
+    UNAUTHORIZED(401, "인증이 필요합니다."),
+
+    // 403
+    ACCESS_DENIED(403, "해당 리소스에 접근할 수 없습니다."),
+
+    // 404
+    NOT_FOUND(404, "해당 리소스를 찾을 수 없습니다."),
+
+    // 409
+    CONFLICT(409, "해당 리소스가 중복됩니다."),
+
+    // 500
+    INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
+}
