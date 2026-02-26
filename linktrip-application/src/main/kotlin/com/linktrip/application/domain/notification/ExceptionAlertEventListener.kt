@@ -18,6 +18,13 @@ class ExceptionAlertEventListener(
         notificationPorts.forEach { port ->
             try {
                 port.sendExceptionAlert(event)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                logger.warn(e) {
+                    "알림 전송 인터럽트 (port=${port::class.simpleName}, " +
+                        "statusCode=${event.statusCode})"
+                }
+                return
             } catch (e: Exception) {
                 logger.warn(e) {
                     "알림 전송 실패 (port=${port::class.simpleName}, " +
