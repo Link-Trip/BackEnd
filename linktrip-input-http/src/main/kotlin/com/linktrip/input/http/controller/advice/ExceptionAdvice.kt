@@ -4,7 +4,6 @@ import com.linktrip.application.domain.notification.ExceptionAlertEvent
 import com.linktrip.common.config.event.Events
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.input.http.controller.dto.response.ExceptionResponse
-import jakarta.validation.ConstraintDeclarationException
 import jakarta.validation.ConstraintViolationException
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -21,6 +20,9 @@ class ExceptionAdvice {
     @ExceptionHandler(LinktripException::class)
     fun handleLinktripException(e: LinktripException): ResponseEntity<ExceptionResponse> {
         logger.error(e) { "LinktripException 발생" }
+        if (e.statusCode in 500..599) {
+            raiseExceptionAlert(e.defaultMessage, e.detailMessage, e.statusCode)
+        }
         return ResponseEntity
             .status(e.statusCode)
             .body(
@@ -35,7 +37,6 @@ class ExceptionAdvice {
     @ExceptionHandler(
         MethodArgumentNotValidException::class,
         ConstraintViolationException::class,
-        ConstraintDeclarationException::class,
     )
     fun handleValidationException(e: Exception): ResponseEntity<ExceptionResponse> {
         logger.error(e) { "Validation 실패" }
