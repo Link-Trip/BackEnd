@@ -19,9 +19,11 @@ private val logger = KotlinLogging.logger {}
 class ExceptionAdvice {
     @ExceptionHandler(LinktripException::class)
     fun handleLinktripException(e: LinktripException): ResponseEntity<ExceptionResponse> {
-        logger.error(e) { "LinktripException 발생" }
         if (e.statusCode in 500..599) {
+            logger.error(e) { "LinktripException 발생 (${e.statusCode})" }
             raiseExceptionAlert(e.defaultMessage, e.detailMessage, e.statusCode)
+        } else {
+            logger.warn { "LinktripException 발생 (${e.statusCode}) - ${e.defaultMessage}" }
         }
         return ResponseEntity
             .status(e.statusCode)
@@ -39,7 +41,7 @@ class ExceptionAdvice {
         ConstraintViolationException::class,
     )
     fun handleValidationException(e: Exception): ResponseEntity<ExceptionResponse> {
-        logger.error(e) { "Validation 실패" }
+        logger.warn { "Validation 실패 - ${e.message}" }
 
         val cause =
             when (e) {
@@ -69,7 +71,7 @@ class ExceptionAdvice {
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFound(e: NoResourceFoundException): ResponseEntity<ExceptionResponse> {
-        logger.error(e) { "리소스를 찾을 수 없음" }
+        logger.warn { "리소스를 찾을 수 없음 - ${e.resourcePath}" }
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(

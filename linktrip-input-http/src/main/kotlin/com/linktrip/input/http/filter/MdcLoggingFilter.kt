@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
 import org.slf4j.MDC
-import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import java.util.UUID
@@ -20,8 +19,12 @@ import java.util.UUID
 private val logger = KotlinLogging.logger {}
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(FilterOrder.MDC_LOGGING)
 class MdcLoggingFilter : Filter {
+    companion object {
+        private const val HEALTH_CHECK_PREFIX = "/api/health/"
+    }
+
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,
@@ -29,25 +32,30 @@ class MdcLoggingFilter : Filter {
     ) {
         val httpRequest = request as HttpServletRequest
         val httpResponse = response as HttpServletResponse
+        val uri = httpRequest.requestURI
+        val skipLogging = uri.startsWith(HEALTH_CHECK_PREFIX)
         val startTime = System.currentTimeMillis()
 
         try {
             MDC.put(MdcKey.REQUEST_ID, UUID.randomUUID().toString().substring(0, 8))
             MDC.put(MdcKey.REQUEST_METHOD, httpRequest.method)
-            MDC.put(MdcKey.REQUEST_URI, httpRequest.requestURI)
+            MDC.put(MdcKey.REQUEST_URI, uri)
             MDC.put(MdcKey.CLIENT_IP, getClientIp(httpRequest))
 
-            logger.info { ">>> ${httpRequest.method} ${httpRequest.requestURI}" }
+            if (!skipLogging) {
+                logger.info { ">>> ${httpRequest.method} $uri" }
+            }
 
             chain.doFilter(request, response)
 
             val duration = System.currentTimeMillis() - startTime
-            logger.info { "<<< ${httpRequest.method} ${httpRequest.requestURI} ${httpResponse.status} (${duration}ms)" }
-
-            raiseAccessLogEvent(httpResponse.status, duration)
+            if (!skipLogging) {
+                logger.info { "<<< ${httpRequest.method} $uri ${httpResponse.status} (${duration}ms)" }
+                raiseAccessLogEvent(httpResponse.status, duration)
+            }
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime
-            logger.error(e) { "!!! ${httpRequest.method} ${httpRequest.requestURI} 에러 (${duration}ms) - ${e.message}" }
+            logger.error(e) { "!!! ${httpRequest.method} $uri 에러 (${duration}ms) - ${e.message}" }
 
             raiseAccessLogEvent(500, duration, e.message)
             throw e
