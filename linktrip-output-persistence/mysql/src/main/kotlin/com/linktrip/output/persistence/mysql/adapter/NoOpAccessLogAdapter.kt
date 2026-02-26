@@ -14,8 +14,11 @@ private val logger = KotlinLogging.logger {}
 @Component
 class NoOpAccessLogAdapter : AccessLogPort {
     override fun save(accessLog: AccessLog) {
+        // ToDo 추후 ES 모듈로 옮긴 후, save 구현
         logger.debug {
-            "AccessLog 저장 미구현 (requestId=${accessLog.requestId}, ${accessLog.method} ${accessLog.uri} ${accessLog.statusCode} ${accessLog.durationMs}ms)"
+            "(requestId=${accessLog.requestId}, " +
+                "${accessLog.method} ${accessLog.uri} " +
+                "${accessLog.statusCode} ${accessLog.durationMs}ms)"
         }
     }
 }
