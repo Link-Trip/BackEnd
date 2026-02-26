@@ -9,9 +9,3 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
-    com.linktrip: debug
