@@ -15,3 +15,10 @@ services:
       - ./mysql/data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - linktrip-network
+
+networks:
+  linktrip-network:
+    name: linktrip-network
+    driver: bridge

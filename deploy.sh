@@ -21,7 +21,8 @@ echo ">>> 새 컨테이너 실행"
 docker run -d \
   --name linktrip-app \
   --restart unless-stopped \
-  --network host \
+  --network linktrip-network \
+  -p 8080:8080 \
   -e SPRING_PROFILES_ACTIVE=prod \
   -e MYSQL_ROOT_PASSWORD=12345678 \
   -e TZ=Asia/Seoul \
