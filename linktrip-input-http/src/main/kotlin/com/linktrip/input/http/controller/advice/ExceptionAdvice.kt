@@ -1,5 +1,7 @@
 package com.linktrip.input.http.controller.advice
 
+import com.linktrip.application.domain.notification.ExceptionAlertEvent
+import com.linktrip.common.config.event.Events
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.input.http.controller.dto.response.ExceptionResponse
 import jakarta.validation.ConstraintDeclarationException
@@ -81,6 +83,7 @@ class ExceptionAdvice {
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<ExceptionResponse> {
         logger.error(e) { "예기치 못한 에러 발생" }
+        raiseExceptionAlert("예기치 못한 에러가 발생했습니다.", e.message, 500)
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
@@ -90,5 +93,19 @@ class ExceptionAdvice {
                     timestamp = System.currentTimeMillis(),
                 ),
             )
+    }
+
+    private fun raiseExceptionAlert(
+        message: String,
+        cause: String?,
+        statusCode: Int,
+    ) {
+        Events.raise(
+            ExceptionAlertEvent(
+                message = message,
+                cause = cause,
+                statusCode = statusCode,
+            ),
+        )
     }
 }
