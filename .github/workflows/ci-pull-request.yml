@@ -59,7 +59,7 @@ jobs:
         with:
           script: |
             const status = '${{ steps.set_status.outputs.build_status }}';
-            const message = status === 'success' ? '✅ 빌드 성공 ✅\n🚀 출격 준비 완료 👨🏻‍🚀' : '❌❌ 빌드 실패 ❌❌\n😵😵‍💫 코드 확인이 필요해요 😵😵‍💫';
+            const message = status === 'success' ? '빌드 성공 \n‍🚀' : '❌❌ 빌드 실패 ❌❌\n 코드 확인이 필요해요😵‍💫';
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
