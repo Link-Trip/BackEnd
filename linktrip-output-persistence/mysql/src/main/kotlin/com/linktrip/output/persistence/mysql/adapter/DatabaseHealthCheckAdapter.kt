@@ -1,6 +1,6 @@
-package com.linktrip.adapter.output.persistence.health
+package com.linktrip.output.persistence.mysql.adapter
 
-import com.linktrip.application.port.output.DatabaseHealthCheckPort
+import com.linktrip.application.port.output.persistence.DatabaseHealthCheckPort
 import org.springframework.stereotype.Component
 import javax.sql.DataSource
 

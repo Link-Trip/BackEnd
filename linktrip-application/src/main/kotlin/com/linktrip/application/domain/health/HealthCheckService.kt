@@ -1,7 +1,7 @@
 package com.linktrip.application.domain.health
 
 import com.linktrip.application.port.input.HealthCheckUseCase
-import com.linktrip.application.port.output.DatabaseHealthCheckPort
+import com.linktrip.application.port.output.persistence.DatabaseHealthCheckPort
 import org.springframework.stereotype.Service
 
 @Service
