@@ -19,7 +19,9 @@ class AccessLogEventListener(
             try {
                 port.save(event.accessLog)
             } catch (e: Exception) {
-                logger.warn(e) { "AccessLog 저장 실패 (port=${port::class.simpleName}, requestId=${event.accessLog.requestId})" }
+                logger.warn(
+                    e,
+                ) { "AccessLog 저장 실패 (port=${port::class.simpleName}, requestId=${event.accessLog.requestId})" }
             }
         }
     }
