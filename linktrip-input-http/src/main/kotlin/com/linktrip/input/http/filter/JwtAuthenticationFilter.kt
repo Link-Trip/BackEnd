@@ -34,9 +34,12 @@ class JwtAuthenticationFilter(
             logger.warn { "인증 실패: uri=$uri" }
             httpResponse.status = HttpServletResponse.SC_UNAUTHORIZED
             httpResponse.contentType = "application/json;charset=UTF-8"
-            httpResponse.writer.write(
-                """{"message":"${ExceptionCode.UNAUTHORIZED.defaultMessage}","cause":null,"timestamp":${System.currentTimeMillis()}}""",
-            )
+            val body =
+                """
+                |{"message":"${ExceptionCode.UNAUTHORIZED.defaultMessage}",
+                |"cause":null,"timestamp":${System.currentTimeMillis()}}
+                """.trimMargin().replace("\n", "")
+            httpResponse.writer.write(body)
             return
         }
 

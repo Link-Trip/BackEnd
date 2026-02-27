@@ -13,6 +13,5 @@ class MemberAdapter(
     override fun findBySerialNumber(serialNumber: String): Member? =
         memberJpaRepository.findBySerialNumber(serialNumber)?.toDomain()
 
-    override fun save(member: Member): Member =
-        memberJpaRepository.save(MemberEntity.from(member)).toDomain()
+    override fun save(member: Member): Member = memberJpaRepository.save(MemberEntity.from(member)).toDomain()
 }
