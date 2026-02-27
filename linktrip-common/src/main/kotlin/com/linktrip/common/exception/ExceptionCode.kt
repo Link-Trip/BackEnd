@@ -9,6 +9,10 @@ enum class ExceptionCode(
 
     // 401
     UNAUTHORIZED(401, "인증이 필요합니다."),
+    TOKEN_EXPIRED(401, "만료된 토큰입니다."),
+    TOKEN_INVALID(401, "유효하지 않은 토큰입니다."),
+    TOKEN_MALFORMED(401, "토큰 형식이 올바르지 않습니다."),
+    AUTHENTICATION_FAILED(401, "인증 정보가 없습니다."),
 
     // 403
     ACCESS_DENIED(403, "해당 리소스에 접근할 수 없습니다."),
