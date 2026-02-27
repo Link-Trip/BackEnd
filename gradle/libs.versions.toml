@@ -6,7 +6,6 @@ jjwt = "0.12.6"
 ktLintPlugin = "12.1.1"
 gradleBuildScanPlugin = "3.18.1"
 javaVersion = "21"
-jjwt = "0.12.6"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
@@ -49,11 +48,6 @@ jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref =
 # Storage (AWS S3)
 aws-sdk-s3 = { group = "com.amazonaws", name = "aws-java-sdk-s3", version = "1.11.238" }
 
-# JWT
-jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
-jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
-jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
-
 # Test
 spring-boot-annotation-processor = { group = "org.springframework.boot", name = "spring-boot-configuration-processor" }
 spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
@@ -75,4 +69,3 @@ adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spr
 adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
-jwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
