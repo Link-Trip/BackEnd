@@ -2,6 +2,7 @@
 springBoot = "3.3.0"
 springDependencyManagement = "1.1.5"
 kotlinPlugin = "2.0.0"
+jjwt = "0.12.6"
 ktLintPlugin = "12.1.1"
 gradleBuildScanPlugin = "3.18.1"
 javaVersion = "21"
@@ -40,6 +41,11 @@ spring-boot-docs = { group = "org.springdoc", name = "springdoc-openapi-starter-
 # MySQL
 mysql = { group = "com.mysql", name = "mysql-connector-j" }
 
+# JWT
+jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
+
 # Storage (AWS S3)
 aws-sdk-s3 = { group = "com.amazonaws", name = "aws-java-sdk-s3", version = "1.11.238" }
 
@@ -65,7 +71,7 @@ test-runtime = ["junit"]
 # 모듈별
 bootstrap = ["spring-boot-starter-web", "spring-boot-starter-actuator"]
 domain-application = ["spring-boot-docs", "spring-transaction"]
-adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spring-boot-docs", "spring-boot-starter-validation"]
+adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spring-boot-docs", "spring-boot-starter-validation", "jjwt-api", "jjwt-impl", "jjwt-jackson"]
 adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
