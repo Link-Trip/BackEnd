@@ -69,3 +69,4 @@ adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spr
 adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
+adaptor-output-http = ["spring-web"]

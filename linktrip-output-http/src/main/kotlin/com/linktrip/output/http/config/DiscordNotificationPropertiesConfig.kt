@@ -1,0 +1,9 @@
+package com.linktrip.output.http.config
+
+import com.linktrip.output.http.properties.DiscordNotificationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+@EnableConfigurationProperties(DiscordNotificationProperties::class)
+class DiscordNotificationPropertiesConfig

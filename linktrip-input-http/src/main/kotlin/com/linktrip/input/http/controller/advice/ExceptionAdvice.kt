@@ -21,7 +21,12 @@ class ExceptionAdvice {
     fun handleLinktripException(e: LinktripException): ResponseEntity<ExceptionResponse> {
         if (e.statusCode in 500..599) {
             logger.error(e) { "LinktripException 발생 (${e.statusCode})" }
-            raiseExceptionAlert(e.defaultMessage, e.detailMessage, e.statusCode)
+            raiseExceptionAlert(
+                message = e.defaultMessage,
+                cause = e.detailMessage,
+                statusCode = e.statusCode,
+                stackTrace = e.stackTraceToString(),
+            )
         } else {
             logger.warn { "LinktripException 발생 (${e.statusCode}) - ${e.defaultMessage}" }
         }
@@ -86,7 +91,12 @@ class ExceptionAdvice {
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<ExceptionResponse> {
         logger.error(e) { "예기치 못한 에러 발생" }
-        raiseExceptionAlert("예기치 못한 에러가 발생했습니다.", e.message, 500)
+        raiseExceptionAlert(
+            message = "예기치 못한 에러가 발생했습니다.",
+            cause = e.message,
+            statusCode = 500,
+            stackTrace = e.stackTraceToString(),
+        )
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
@@ -102,12 +112,14 @@ class ExceptionAdvice {
         message: String,
         cause: String?,
         statusCode: Int,
+        stackTrace: String?,
     ) {
         Events.raise(
             ExceptionAlertEvent(
                 message = message,
                 cause = cause,
                 statusCode = statusCode,
+                stackTrace = stackTrace,
             ),
         )
     }
