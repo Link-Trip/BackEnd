@@ -20,3 +20,8 @@ server:
 jwt:
   secret-key: ${JWT_SECRET_KEY:Y8s3KfTx9QzVnW2pRmHdA7uBcEjL4gXo6iNtZw5yCrDqFvMb0hJlPkSaUeG1xOI}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+notification:
+  discord:
+    webhook-url-error: "${DISCORD_WEBHOOK_ERROR_URL}"
+    mention-user-id: "${DISCORD_MENTION_USER_ID}"

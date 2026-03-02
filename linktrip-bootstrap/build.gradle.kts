@@ -7,6 +7,7 @@ dependencies {
     implementation(project(":linktrip-output-persistence:mysql"))
 //    implementation(project(":linktrip-output-cache:redis"))
     implementation(project(":linktrip-output-storage:aws"))
+    implementation(project(":linktrip-output-http"))
 
     implementation(libs.bundles.bootstrap)
 
