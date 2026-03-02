@@ -67,8 +67,24 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_RELEASE_URL }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
         run: |
-          payload=$(jq -n --arg content "🚀 링크트립 백엔드 배포 완료\n태그: \`$RELEASE_TAG\`\n이름: $RELEASE_NAME" '{content: $content}')
+          payload=$(jq -n \
+            --arg content "@everyone\n🚀 링크트립 백엔드 배포 완료" \
+            --arg tag "$RELEASE_TAG" \
+            --arg name "$RELEASE_NAME" \
+            --arg body "$RELEASE_BODY" \
+            '{
+              content: $content,
+              allowed_mentions: { parse: ["everyone"] },
+              embeds: [
+                {
+                  title: ($name + " (" + $tag + ")"),
+                  description: $body,
+                  color: 5814783
+                }
+              ]
+            }')
           curl -X POST \
             -H "Content-Type: application/json" \
             -d "$payload" \
