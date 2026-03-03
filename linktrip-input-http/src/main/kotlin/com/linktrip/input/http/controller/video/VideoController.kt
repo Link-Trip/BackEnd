@@ -4,8 +4,10 @@ import com.linktrip.application.port.input.VideoAnalyzeUseCase
 import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
-import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
+import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptResponse
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,8 +22,10 @@ class VideoController(
     fun analyzeVideo(
         @AuthenticatedMember memberId: String,
         @Valid @RequestBody request: VideoAnalyzeRequest,
-    ): ApiResponse<VideoAnalyzeResponse> {
+    ): ResponseEntity<ApiResponse<VideoAnalyzeAcceptResponse>> {
         val result = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
-        return ApiResponse.ok(VideoAnalyzeResponse.from(result))
+        return ResponseEntity
+            .status(HttpStatus.ACCEPTED)
+            .body(ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(result)))
     }
 }
