@@ -25,3 +25,7 @@ notification:
   discord:
     webhook-url-error: "${DISCORD_WEBHOOK_ERROR_URL}"
     mention-user-id: "${DISCORD_MENTION_USER_ID}"
+
+gcp:
+  project-id: ${GCP_PROJECT_ID}
+  credentials-path: ${GCP_CREDENTIALS_PATH}
