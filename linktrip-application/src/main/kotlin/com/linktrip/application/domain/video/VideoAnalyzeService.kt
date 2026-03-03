@@ -1,25 +1,38 @@
 package com.linktrip.application.domain.video
 
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
-import com.linktrip.application.port.output.external.VideoAnalyzePort
+import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import com.linktrip.common.config.event.Events
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class VideoAnalyzeService(
-    private val videoAnalyzePort: VideoAnalyzePort,
+    private val videoSummaryPersistencePort: VideoSummaryPersistencePort,
 ) : VideoAnalyzeUseCase {
-    override fun analyzeVideo(youtubeUrl: String): VideoAnalysisResult {
+    @Transactional
+    override fun analyzeVideo(youtubeUrl: String): VideoSummary {
         validateYoutubeUrl(youtubeUrl)
 
-        val result = videoAnalyzePort.analyze(youtubeUrl)
-
-        if (!result.valid) {
-            throw LinktripException(ExceptionCode.INVALID_VIDEO)
+        videoSummaryPersistencePort.findByYoutubeUrl(youtubeUrl)?.let { existing ->
+            return when (existing.status) {
+                VideoSummaryStatus.PENDING -> existing
+                VideoSummaryStatus.COMPLETED -> existing
+                VideoSummaryStatus.FAILED -> {
+                    videoSummaryPersistencePort.updateStatus(existing.id, VideoSummaryStatus.PENDING)
+                    Events.raise(VideoAnalyzeEvent(existing.id, youtubeUrl))
+                    existing.copy(status = VideoSummaryStatus.PENDING)
+                }
+            }
         }
 
-        return result
+        val videoSummary = videoSummaryPersistencePort.save(VideoSummary.create(youtubeUrl))
+
+        Events.raise(VideoAnalyzeEvent(videoSummary.id, youtubeUrl))
+
+        return videoSummary
     }
 
     private fun validateYoutubeUrl(url: String) {

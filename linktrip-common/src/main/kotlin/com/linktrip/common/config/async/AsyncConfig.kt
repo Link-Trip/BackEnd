@@ -28,4 +28,14 @@ class AsyncConfig {
             setThreadNamePrefix("AsyncNotification-")
             initialize()
         }
+
+    @Bean(name = ["VideoAnalyzeExecutor"])
+    fun videoAnalyzeExecutor(): Executor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 2
+            maxPoolSize = 5
+            queueCapacity = 20
+            setThreadNamePrefix("AsyncVideoAnalyze-")
+            initialize()
+        }
 }
