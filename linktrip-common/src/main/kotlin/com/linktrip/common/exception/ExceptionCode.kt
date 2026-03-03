@@ -6,6 +6,8 @@ enum class ExceptionCode(
 ) {
     // 400
     ILLEGAL_ARGUMENT(400, "요청 값이 올바르지 않습니다."),
+    INVALID_YOUTUBE_URL(400, "유효한 유튜브 URL이 아닙니다."),
+    INVALID_VIDEO(400, "유효하지 않은 유튜브 영상입니다."),
 
     // 401
     UNAUTHORIZED(401, "인증이 필요합니다."),
@@ -25,5 +27,6 @@ enum class ExceptionCode(
 
     // 500
     INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
+    EXTERNAL_API_ERROR(502, "외부 API 호출 중 오류가 발생했습니다."),
     ERROR_TEST(500, "에러 테스트용 예외입니다."),
 }
