@@ -14,5 +14,7 @@ data class ApiResponse<T>(
         fun <T> ok(data: T): ApiResponse<T> = ApiResponse(status = 200, message = "OK", data = data)
 
         fun <T> created(data: T): ApiResponse<T> = ApiResponse(status = 201, message = "Created", data = data)
+
+        fun <T> accepted(data: T): ApiResponse<T> = ApiResponse(status = 202, message = "Accepted", data = data)
     }
 }
