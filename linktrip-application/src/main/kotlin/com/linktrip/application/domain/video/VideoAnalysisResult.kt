@@ -2,29 +2,25 @@ package com.linktrip.application.domain.video
 
 data class VideoAnalysisResult(
     val valid: Boolean,
-    val eats: List<EatInfo>,
-    val attractions: List<AttractionInfo>,
-    val shoppings: List<ShoppingInfo>,
-    val transportations: List<TransportationInfo>,
+    val days: List<DaySchedule>,
 ) {
-    data class EatInfo(
-        val restaurant: String,
-        val food: String,
-        val restaurantsAndFoodsTips: String?,
+    data class DaySchedule(
+        val day: Int,
+        val items: List<ScheduleItem>,
     )
 
-    data class AttractionInfo(
-        val attractions: String,
-        val attractionsTips: String?,
+    data class ScheduleItem(
+        val order: Int,
+        val category: Category,
+        val name: String,
+        val description: String?,
+        val tips: String?,
     )
 
-    data class ShoppingInfo(
-        val shopping: String,
-        val shoppingTips: String?,
-    )
-
-    data class TransportationInfo(
-        val transportation: String,
-        val transportationTips: String?,
-    )
+    enum class Category {
+        EAT,
+        ATTRACTION,
+        SHOPPING,
+        TRANSPORTATION,
+    }
 }

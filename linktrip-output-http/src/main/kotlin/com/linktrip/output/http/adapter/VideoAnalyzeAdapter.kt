@@ -36,7 +36,7 @@ class VideoAnalyzeAdapter(
                         null,
                     )
 
-                val jsonText = response.text()
+                val jsonText = stripMarkdownCodeBlock(response.text())
                 val aiResponse = objectMapper.readValue(jsonText, AiApiResponse::class.java)
                 return aiResponse.toDomain()
             }
@@ -68,7 +68,7 @@ class VideoAnalyzeAdapter(
         private const val VIDEO_MIME_TYPE = "video/mp4"
         private val DEFAULT_PROMPT =
             """
-            You are a travel video content analyzer specialized in extracting structured travel information.
+            You are a travel video content analyzer specialized in extracting structured travel itineraries.
 
             ============================================================
             CRITICAL: YOUR RESPONSE MUST BE ONLY A VALID JSON OBJECT
@@ -84,67 +84,53 @@ class VideoAnalyzeAdapter(
             Is this video travel-related? (travel vlog, food tour, sightseeing, travel tips, etc.)
 
             If NO (violence, adult content, unrelated topics, invalid link):
-            → Return: {"valid": false, "eats": null, "attractions": null, "shoppings": null, "transportations": null}
+            → Return: {"valid": false, "days": null}
 
             If YES → Proceed to STEP 2
 
             ============================================================
-            STEP 2: EXTRACT DATA INTO THIS EXACT JSON STRUCTURE
+            STEP 2: EXTRACT DAY-BY-DAY ITINERARY
             ============================================================
+            Extract the travel schedule in CHRONOLOGICAL ORDER, grouped by day.
+            Each item must have a category tag and appear in the order it was visited.
+
             {
               "valid": true,
-              "eats": [
+              "days": [
                 {
-                  "restaurant": "식당/가게명",
-                  "food": "먹은 음식",
-                  "restaurantsAndFoodsTips": "꿀팁 또는 null"
-                }
-              ],
-              "attractions": [
+                  "day": 1,
+                  "items": [
+                    {"order": 1, "category": "TRANSPORTATION", "name": "나리타 익스프레스", "description": "공항에서 도쿄역까지 이동", "tips": "JR패스 사용 가능"},
+                    {"order": 2, "category": "EAT", "name": "이치란 라멘", "description": "돈코츠 라멘", "tips": "오픈 전 줄서기 추천"},
+                    {"order": 3, "category": "ATTRACTION", "name": "센소지", "description": "아사쿠사의 대표 사찰", "tips": null},
+                    {"order": 4, "category": "SHOPPING", "name": "돈키호테", "description": "과자, 화장품 구매", "tips": "면세 가능"}
+                  ]
+                },
                 {
-                  "attractions": "관광지명",
-                  "attractionsTips": "꿀팁 또는 null"
-                }
-              ],
-              "shoppings": [
-                {
-                  "shopping": "쇼핑장소명",
-                  "shoppingTips": "꿀팁 또는 null"
-                }
-              ],
-              "transportations": [
-                {
-                  "transportation": "교통수단/방법",
-                  "transportationTips": "꿀팁 또는 null"
+                  "day": 2,
+                  "items": [...]
                 }
               ]
             }
 
             ============================================================
-            CATEGORY CLASSIFICATION RULES (IMPORTANT!)
+            DAY DETECTION RULES
             ============================================================
+            - If the video mentions "1일차", "첫째 날", "Day 1" etc., follow that structure
+            - If not explicitly mentioned, infer days from context (morning/night transitions, hotel check-in, sleeping scenes)
+            - If the video covers a single day or cannot determine days, use "day": 1 for all items
+            - order must be sequential within each day starting from 1
 
-            EATS - Include these:
-               Restaurants, cafes, bars
-               Convenience store food → eats, NOT shopping!
-               Street food vendors
-               Food markets where they ATE something
-               EXCLUDE: Airplane meals, in-flight food
-
-            ATTRACTIONS - Include these:
-               Specific landmarks (e.g., "센소지", "Tokyo Skytree", "남산타워")
-               Museums, temples, parks, beaches
-               EXCLUDE: Generic city names like "Seoul", "Tokyo", "Paris"
-
-            SHOPPINGS - Include these:
-               Stores where they bought NON-FOOD items (clothes, souvenirs, cosmetics)
-               Shopping malls, duty-free shops
-               EXCLUDE: If they bought FOOD at convenience store → goes to EATS
-
-            TRANSPORTATIONS - Include these:
-               Transportation methods (train, bus, taxi, rental car)
-               Transportation passes/cards (JR Pass, Suica, T-money)
-               Specific routes or lines
+            ============================================================
+            CATEGORY VALUES (use EXACTLY these strings)
+            ============================================================
+            - "EAT": Restaurants, cafes, bars, street food, convenience store food, food markets
+                     EXCLUDE: Airplane meals, in-flight food
+            - "ATTRACTION": Specific landmarks, museums, temples, parks, beaches
+                            EXCLUDE: Generic city names like "Seoul", "Tokyo", "Paris"
+            - "SHOPPING": Stores for NON-FOOD items (clothes, souvenirs, cosmetics), malls, duty-free
+                          EXCLUDE: Food at convenience store → use "EAT"
+            - "TRANSPORTATION": Train, bus, taxi, rental car, passes (JR Pass, Suica, T-money), routes
 
             ============================================================
             LANGUAGE RULES
@@ -154,20 +140,33 @@ class VideoAnalyzeAdapter(
             - Romanize Japanese/Chinese/Thai/Vietnamese to Korean pronunciation
               (e.g., ラーメン → "라멘", 火鍋 → "훠궈", センソジ → "센소지")
             - NO timestamps
-            - Use null for empty arrays or missing tips
+            - Use null for missing description or tips
 
             ============================================================
             OUTPUT VALIDATION CHECKLIST
             ============================================================
             Before responding, verify:
             - Response is ONLY a JSON object (no other text)
-            - All keys match exactly: valid, eats, attractions, shoppings, transportations
-            - Nested objects have correct keys
-            - Convenience store food is in "eats", not "shoppings"
+            - "days" is an array of day objects, each with "day" (int) and "items" (array)
+            - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
+            - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION
+            - Items are in chronological visit order within each day
+            - Convenience store food is "EAT", not "SHOPPING"
             - No airplane meals included
             - No generic city names in attractions
 
             NOW ANALYZE THE VIDEO AND RETURN THE JSON:
             """.trimIndent()
+
+        private fun stripMarkdownCodeBlock(text: String?): String {
+            if (text.isNullOrBlank()) return "{}"
+            val trimmed = text.trim()
+            if (!trimmed.startsWith("`")) return trimmed
+            return trimmed
+                .removePrefix("```json")
+                .removePrefix("```")
+                .removeSuffix("```")
+                .trim()
+        }
     }
 }
