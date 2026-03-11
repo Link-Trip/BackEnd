@@ -47,7 +47,6 @@ jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref =
 
 # Google Cloud
 google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
-google-auth = { group = "com.google.auth", name = "google-auth-library-oauth2-http", version = "1.23.0" }
 
 # Storage (AWS S3)
 aws-sdk-s3 = { group = "com.amazonaws", name = "aws-java-sdk-s3", version = "1.11.238" }
@@ -73,4 +72,4 @@ adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spr
 adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
-adaptor-output-http = ["spring-web", "google-genai", "google-auth"]
+adaptor-output-http = ["spring-web", "google-genai"]
