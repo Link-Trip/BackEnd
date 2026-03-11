@@ -2,6 +2,7 @@ package com.linktrip.application.domain.video
 
 data class VideoAnalysisResult(
     val valid: Boolean,
+    val destination: String?,
     val days: List<DaySchedule>,
 ) {
     data class DaySchedule(
@@ -16,11 +17,4 @@ data class VideoAnalysisResult(
         val description: String?,
         val tips: String?,
     )
-
-    enum class Category {
-        EAT,
-        ATTRACTION,
-        SHOPPING,
-        TRANSPORTATION,
-    }
 }
