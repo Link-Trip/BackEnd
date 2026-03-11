@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
 import com.linktrip.application.port.output.external.VideoAnalyzePort
 import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
 import mu.KotlinLogging
@@ -16,14 +17,13 @@ class VideoAnalyzeEventListener(
     private val videoSummaryPersistencePort: VideoSummaryPersistencePort,
     private val videoAnalysisResultSaver: VideoAnalysisResultSaver,
     private val placeEnrichService: PlaceEnrichService,
+    private val videoAnalysisNotificationPort: VideoAnalysisNotificationPort,
 ) {
     @Async("VideoAnalyzeExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handle(event: VideoAnalyzeEvent) {
         val startTime = System.currentTimeMillis()
         logger.info { "영상 분석 시작: id=${event.videoSummaryId}, url=${event.youtubeUrl}" }
-
-        var destination: String?
 
         try {
             val result = videoAnalyzePort.analyze(event.youtubeUrl)
@@ -38,22 +38,26 @@ class VideoAnalyzeEventListener(
                 return
             }
 
-            destination = result.destination
+            val destination: String? = result.destination
             val scheduleItems = toScheduleItems(event.videoSummaryId, result)
             videoAnalysisResultSaver.save(event.videoSummaryId, scheduleItems)
 
-            val elapsed = System.currentTimeMillis() - startTime
+            val analyzeElapsed = System.currentTimeMillis() - startTime
             logger.info {
                 "영상 분석 완료: id=${event.videoSummaryId}, destination=$destination, " +
-                    "${elapsed}ms, items=${scheduleItems.size}"
+                    "${analyzeElapsed}ms, items=${scheduleItems.size}"
             }
+
+            val enrichStartTime = System.currentTimeMillis()
+            placeEnrichService.enrichPlaces(event.videoSummaryId, destination)
+            val enrichElapsed = System.currentTimeMillis() - enrichStartTime
+            logger.info { "장소 보강 소요시간: id=${event.videoSummaryId}, ${enrichElapsed}ms" }
+
+            videoAnalysisNotificationPort.notifyAnalysisComplete(event.videoSummaryId)
         } catch (e: Exception) {
             logger.error(e) { "영상 분석 실패: id=${event.videoSummaryId}" }
             videoSummaryPersistencePort.updateStatus(event.videoSummaryId, VideoSummaryStatus.FAILED)
-            return
         }
-
-        placeEnrichService.enrichPlaces(event.videoSummaryId, destination)
     }
 
     private fun toScheduleItems(
