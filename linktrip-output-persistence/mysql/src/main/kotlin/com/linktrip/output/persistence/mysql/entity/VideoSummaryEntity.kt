@@ -1,5 +1,6 @@
 package com.linktrip.output.persistence.mysql.entity
 
+import com.linktrip.application.domain.video.VideoSummary
 import com.linktrip.application.domain.video.VideoSummaryStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -18,6 +19,7 @@ import jakarta.persistence.UniqueConstraint
     ],
     indexes = [
         Index(name = "idx_video_summary_youtube_url", columnList = "youtube_url"),
+        Index(name = "idx_video_summary_status", columnList = "status"),
     ],
 )
 class VideoSummaryEntity(
@@ -26,9 +28,27 @@ class VideoSummaryEntity(
     val id: String,
     @Column(name = "youtube_url", nullable = false, length = 512)
     val youtubeUrl: String,
-    @Column(name = "summary", columnDefinition = "TEXT")
-    var summary: String? = null,
+    @Column(name = "valid", nullable = false)
+    var valid: Boolean = false,
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     var status: VideoSummaryStatus = VideoSummaryStatus.PENDING,
-) : BaseTimeEntity()
+) : BaseTimeEntity() {
+    fun toDomain(): VideoSummary =
+        VideoSummary(
+            id = this.id,
+            youtubeUrl = this.youtubeUrl,
+            valid = this.valid,
+            status = this.status,
+        )
+
+    companion object {
+        fun from(videoSummary: VideoSummary): VideoSummaryEntity =
+            VideoSummaryEntity(
+                id = videoSummary.id,
+                youtubeUrl = videoSummary.youtubeUrl,
+                valid = videoSummary.valid,
+                status = videoSummary.status,
+            )
+    }
+}

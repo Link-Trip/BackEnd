@@ -27,5 +27,7 @@ notification:
     mention-user-id: "${DISCORD_MENTION_USER_ID}"
 
 gcp:
-  project-id: ${GCP_PROJECT_ID}
-  credentials-path: ${GCP_CREDENTIALS_PATH}
+  project-id: ${GCP_PROJECT_ID:}
+  credentials-path: ${GCP_CREDENTIALS_PATH:}
+  vertex-ai:
+    location: ${GCP_VERTEX_AI_LOCATION:us-central1}
