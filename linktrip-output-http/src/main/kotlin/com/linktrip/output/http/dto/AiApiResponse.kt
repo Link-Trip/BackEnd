@@ -1,11 +1,13 @@
 package com.linktrip.output.http.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.linktrip.application.domain.video.Category
 import com.linktrip.application.domain.video.VideoAnalysisResult
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AiApiResponse(
     val valid: Boolean,
+    val destination: String?,
     val days: List<DayDto>?,
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,11 +27,12 @@ data class AiApiResponse(
 
     fun toDomain(): VideoAnalysisResult =
         VideoAnalysisResult(
-            valid = valid,
+            valid = this.valid,
+            destination = this.destination,
             days =
-                days?.mapIndexed { index, dayDto ->
+                this.days?.mapIndexed { dayIndex, dayDto ->
                     VideoAnalysisResult.DaySchedule(
-                        day = dayDto.day ?: (index + 1),
+                        day = dayDto.day ?: (dayIndex + 1),
                         items =
                             dayDto.items?.mapIndexed { itemIndex, itemDto ->
                                 VideoAnalysisResult.ScheduleItem(
@@ -44,10 +47,10 @@ data class AiApiResponse(
                 } ?: emptyList(),
         )
 
-    private fun parseCategory(category: String?): VideoAnalysisResult.Category =
+    private fun parseCategory(category: String?): Category =
         try {
-            VideoAnalysisResult.Category.valueOf(category?.uppercase() ?: "EAT")
-        } catch (e: IllegalArgumentException) {
-            VideoAnalysisResult.Category.EAT
+            Category.valueOf(category?.uppercase() ?: "EAT")
+        } catch (_: IllegalArgumentException) {
+            Category.EAT
         }
 }

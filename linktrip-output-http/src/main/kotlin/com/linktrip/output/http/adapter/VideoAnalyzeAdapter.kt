@@ -84,18 +84,20 @@ class VideoAnalyzeAdapter(
             Is this video travel-related? (travel vlog, food tour, sightseeing, travel tips, etc.)
 
             If NO (violence, adult content, unrelated topics, invalid link):
-            → Return: {"valid": false, "days": null}
+            → Return: {"valid": false, "destination": null, "days": null}
 
             If YES → Proceed to STEP 2
 
             ============================================================
-            STEP 2: EXTRACT DAY-BY-DAY ITINERARY
+            STEP 2: EXTRACT DESTINATION AND DAY-BY-DAY ITINERARY
             ============================================================
-            Extract the travel schedule in CHRONOLOGICAL ORDER, grouped by day.
+            First, identify the main travel destination from the video.
+            Then extract the travel schedule in CHRONOLOGICAL ORDER, grouped by day.
             Each item must have a category tag and appear in the order it was visited.
 
             {
               "valid": true,
+              "destination": "도쿄, 일본",
               "days": [
                 {
                   "day": 1,
@@ -112,6 +114,15 @@ class VideoAnalyzeAdapter(
                 }
               ]
             }
+
+            ============================================================
+            DESTINATION RULES
+            ============================================================
+            - Extract the main travel destination in format: "도시, 국가" (e.g., "도쿄, 일본", "방콕, 태국", "파리, 프랑스")
+            - If multiple cities are visited, use the primary/most-visited city
+            - If the video covers an entire country or region, use "국가" only (e.g., "일본", "태국")
+            - Write in Korean
+            - Use null only if destination cannot be determined
 
             ============================================================
             DAY DETECTION RULES
@@ -133,6 +144,15 @@ class VideoAnalyzeAdapter(
             - "TRANSPORTATION": Train, bus, taxi, rental car, passes (JR Pass, Suica, T-money), routes
 
             ============================================================
+            DEDUPLICATION RULES
+            ============================================================
+            - NEVER repeat the same place in consecutive orders within a day
+            - Each item's "name" must be unique within the same day
+            - If the video mentions the same place multiple times in sequence, merge into ONE item
+            - Combine all relevant tips and descriptions into the single merged item
+            - If a place is genuinely revisited on a DIFFERENT day, it may appear again
+
+            ============================================================
             LANGUAGE RULES
             ============================================================
             - Write all values in Korean
@@ -147,6 +167,7 @@ class VideoAnalyzeAdapter(
             ============================================================
             Before responding, verify:
             - Response is ONLY a JSON object (no other text)
+            - "destination" is a string in "도시, 국가" format or null
             - "days" is an array of day objects, each with "day" (int) and "items" (array)
             - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
             - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION
@@ -154,6 +175,7 @@ class VideoAnalyzeAdapter(
             - Convenience store food is "EAT", not "SHOPPING"
             - No airplane meals included
             - No generic city names in attractions
+            - No duplicate names within the same day
 
             NOW ANALYZE THE VIDEO AND RETURN THE JSON:
             """.trimIndent()
