@@ -38,4 +38,14 @@ class AsyncConfig {
             setThreadNamePrefix("AsyncVideoAnalyze-")
             initialize()
         }
+
+    @Bean
+    fun placeEnrichExecutor(): Executor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 5
+            maxPoolSize = 10
+            queueCapacity = 50
+            setThreadNamePrefix("PlaceEnrich-")
+            initialize()
+        }
 }
