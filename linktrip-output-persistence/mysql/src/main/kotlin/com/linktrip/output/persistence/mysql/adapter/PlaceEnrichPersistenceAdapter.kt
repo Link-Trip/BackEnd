@@ -21,9 +21,10 @@ class PlaceEnrichPersistenceAdapter(
     ) {
         if (results.isEmpty()) return
 
-        val itemMap = videoScheduleItemJpaRepository
-            .findByVideoSummaryIdOrderByDayAscItemOrderAsc(videoSummaryId)
-            .associateBy { it.id }
+        val itemMap =
+            videoScheduleItemJpaRepository
+                .findByVideoSummaryIdOrderByDayAscItemOrderAsc(videoSummaryId)
+                .associateBy { it.id }
 
         results.forEach { result ->
             val itemEntity = itemMap[result.itemId] ?: return@forEach
