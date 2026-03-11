@@ -45,6 +45,9 @@ jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" 
 jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
 jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
 
+# Spring Batch
+spring-boot-starter-batch = { group = "org.springframework.boot", name = "spring-boot-starter-batch" }
+
 # Google Cloud
 google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
 
@@ -73,3 +76,4 @@ adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
 adaptor-output-http = ["spring-web", "google-genai"]
+adaptor-input-batch = ["spring-boot-starter-batch"]
