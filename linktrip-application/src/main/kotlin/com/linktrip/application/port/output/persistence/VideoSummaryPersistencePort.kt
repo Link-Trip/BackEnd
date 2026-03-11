@@ -1,6 +1,5 @@
 package com.linktrip.application.port.output.persistence
 
-import com.linktrip.application.domain.video.VideoAnalysisResult
 import com.linktrip.application.domain.video.VideoSummary
 import com.linktrip.application.domain.video.VideoSummaryStatus
 
@@ -11,14 +10,14 @@ interface VideoSummaryPersistencePort {
 
     fun findById(id: String): VideoSummary?
 
-    fun updateSummaryAndStatus(
+    fun updateStatus(
         id: String,
-        summary: VideoAnalysisResult,
         status: VideoSummaryStatus,
     )
 
-    fun updateStatus(
+    fun updateValidAndStatus(
         id: String,
+        valid: Boolean,
         status: VideoSummaryStatus,
     )
 }
