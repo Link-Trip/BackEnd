@@ -5,7 +5,7 @@ import com.linktrip.application.domain.common.IdGenerator
 data class VideoSummary(
     val id: String,
     val youtubeUrl: String,
-    val summary: VideoAnalysisResult?,
+    val valid: Boolean,
     val status: VideoSummaryStatus,
 ) {
     companion object {
@@ -13,7 +13,7 @@ data class VideoSummary(
             VideoSummary(
                 id = IdGenerator.generate(),
                 youtubeUrl = youtubeUrl,
-                summary = null,
+                valid = false,
                 status = VideoSummaryStatus.PENDING,
             )
     }
