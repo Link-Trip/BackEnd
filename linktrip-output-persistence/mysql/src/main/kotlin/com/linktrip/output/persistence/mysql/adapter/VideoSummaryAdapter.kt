@@ -3,6 +3,8 @@ package com.linktrip.output.persistence.mysql.adapter
 import com.linktrip.application.domain.video.VideoSummary
 import com.linktrip.application.domain.video.VideoSummaryStatus
 import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
 import com.linktrip.output.persistence.mysql.entity.VideoSummaryEntity
 import com.linktrip.output.persistence.mysql.repository.VideoSummaryJpaRepository
 import org.springframework.stereotype.Component
@@ -29,7 +31,7 @@ class VideoSummaryAdapter(
     ) {
         val entity =
             videoSummaryJpaRepository.findById(id).orElseThrow {
-                IllegalArgumentException("VideoSummary not found: id=$id")
+                LinktripException(ExceptionCode.NOT_FOUND, "VideoSummary not found: id=$id")
             }
         entity.status = status
     }
@@ -42,7 +44,7 @@ class VideoSummaryAdapter(
     ) {
         val entity =
             videoSummaryJpaRepository.findById(id).orElseThrow {
-                IllegalArgumentException("VideoSummary not found: id=$id")
+                LinktripException(ExceptionCode.NOT_FOUND, "VideoSummary not found: id=$id")
             }
         entity.valid = valid
         entity.status = status
