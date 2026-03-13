@@ -9,14 +9,12 @@ enum class PlaceStatus {
     ;
 
     companion object {
-        private const val MAX_PLACE_SEARCH_COUNT = 10
-
         fun from(item: VideoScheduleItem): PlaceStatus =
             when {
                 item.category == Category.TRANSPORTATION -> NOT_REQUIRED
                 item.placeId != null -> FOUND
                 item.placeSearchCount == 0 -> PENDING
-                item.placeSearchCount >= MAX_PLACE_SEARCH_COUNT -> NOT_FOUND
+                item.placeSearchCount >= VideoScheduleItem.MAX_PLACE_SEARCH_COUNT -> NOT_FOUND
                 else -> SEARCHING
             }
     }

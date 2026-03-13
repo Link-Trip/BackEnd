@@ -20,13 +20,10 @@ data class VideoScheduleItem(
             category != Category.TRANSPORTATION &&
             placeSearchCount < MAX_PLACE_SEARCH_COUNT
 
-    fun isResolved(): Boolean =
-        placeId != null ||
-            category == Category.TRANSPORTATION ||
-            placeSearchCount >= MAX_PLACE_SEARCH_COUNT
+    fun isResolved(): Boolean = !isRetryable()
 
     companion object {
-        private const val MAX_PLACE_SEARCH_COUNT = 10
+        const val MAX_PLACE_SEARCH_COUNT = 10
 
         fun from(
             videoSummaryId: String,
