@@ -56,7 +56,7 @@ data class VideoAnalyzeResponse(
                 youtubeUrl = videoSummary.youtubeUrl,
                 valid = videoSummary.valid,
                 status = videoSummary.status.name,
-                placeEnrichmentCompleted = items.isNotEmpty() && items.all { it.isResolved() },
+                placeEnrichmentCompleted = items.isEmpty() || items.all { it.isResolved() },
                 scheduleItems =
                     items.map { item ->
                         ScheduleItemResponse(
