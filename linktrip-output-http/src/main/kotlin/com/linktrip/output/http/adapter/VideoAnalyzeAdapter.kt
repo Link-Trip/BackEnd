@@ -122,7 +122,7 @@ class VideoAnalyzeAdapter(
             - If multiple cities are visited, use the primary/most-visited city
             - If the video covers an entire country or region, use "국가" only (e.g., "일본", "태국")
             - Write in Korean
-            - Use null only if destination cannot be determined
+            - "destination" is either: "도시, 국가" format, a country-only string when no single city is dominant, or null
 
             ============================================================
             DAY DETECTION RULES
@@ -147,9 +147,9 @@ class VideoAnalyzeAdapter(
             DEDUPLICATION RULES
             ============================================================
             - NEVER repeat the same place in consecutive orders within a day
-            - Each item's "name" must be unique within the same day
             - If the video mentions the same place multiple times in sequence, merge into ONE item
             - Combine all relevant tips and descriptions into the single merged item
+            - If a place is revisited later after other items on the same day, keep it as a separate item
             - If a place is genuinely revisited on a DIFFERENT day, it may appear again
 
             ============================================================
@@ -167,7 +167,7 @@ class VideoAnalyzeAdapter(
             ============================================================
             Before responding, verify:
             - Response is ONLY a JSON object (no other text)
-            - "destination" is a string in "도시, 국가" format or null
+            - "destination" is a string in "도시, 국가" format, a country-only string, or null
             - "days" is an array of day objects, each with "day" (int) and "items" (array)
             - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
             - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION
@@ -175,7 +175,7 @@ class VideoAnalyzeAdapter(
             - Convenience store food is "EAT", not "SHOPPING"
             - No airplane meals included
             - No generic city names in attractions
-            - No duplicate names within the same day
+            - No duplicate names in consecutive orders within the same day
 
             NOW ANALYZE THE VIDEO AND RETURN THE JSON:
             """.trimIndent()
