@@ -3,7 +3,6 @@ springBoot = "3.3.0"
 springDependencyManagement = "1.1.5"
 kotlinPlugin = "2.0.0"
 jjwt = "0.12.6"
-google-genai = "1.4.1"
 ktLintPlugin = "12.1.1"
 gradleBuildScanPlugin = "3.18.1"
 javaVersion = "21"
@@ -46,8 +45,11 @@ jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" 
 jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
 jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
 
-# Google Gemini AI
-google-genai = { group = "com.google.genai", name = "google-genai", version.ref = "google-genai" }
+# Spring Batch
+spring-boot-starter-batch = { group = "org.springframework.boot", name = "spring-boot-starter-batch" }
+
+# Google Cloud
+google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
 
 # Storage (AWS S3)
 aws-sdk-s3 = { group = "com.amazonaws", name = "aws-java-sdk-s3", version = "1.11.238" }
@@ -74,3 +76,4 @@ adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
 adaptor-output-http = ["spring-web", "google-genai"]
+adaptor-input-batch = ["spring-boot-starter-batch"]

@@ -2,23 +2,29 @@ package com.linktrip.output.http.adapter
 
 import com.linktrip.application.domain.notification.ExceptionAlertEvent
 import com.linktrip.application.port.output.notification.NotificationPort
-import com.linktrip.output.http.client.HttpClient
 import com.linktrip.output.http.properties.DiscordNotificationProperties
 import mu.KotlinLogging
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClient
 
 private val logger = KotlinLogging.logger {}
 
 @Component
 class DiscordNotificationAdapter(
     private val properties: DiscordNotificationProperties,
-    private val httpClient: HttpClient,
+    private val discordRestClient: RestClient,
 ) : NotificationPort {
     override fun sendExceptionAlert(event: ExceptionAlertEvent) {
         val message = buildMessage(event)
         val payload = mapOf("content" to message)
         runCatching {
-            httpClient.postJson(properties.webhookUrlError, payload)
+            discordRestClient.post()
+                .uri(properties.webhookUrlError)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(payload)
+                .retrieve()
+                .toBodilessEntity()
         }.onFailure { e ->
             logger.warn(e) {
                 "디스코드 웹훅 전송 실패 " +

@@ -20,6 +20,7 @@ class VideoAnalyzeService(
             return when (existing.status) {
                 VideoSummaryStatus.PENDING -> existing
                 VideoSummaryStatus.COMPLETED -> existing
+                VideoSummaryStatus.INVALID -> existing
                 VideoSummaryStatus.FAILED -> {
                     videoSummaryPersistencePort.updateStatus(existing.id, VideoSummaryStatus.PENDING)
                     Events.raise(VideoAnalyzeEvent(existing.id, youtubeUrl))
