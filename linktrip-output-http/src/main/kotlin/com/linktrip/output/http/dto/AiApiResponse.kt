@@ -34,11 +34,14 @@ data class AiApiResponse(
                     VideoAnalysisResult.DaySchedule(
                         day = dayDto.day ?: (dayIndex + 1),
                         items =
-                            dayDto.items?.mapIndexed { itemIndex, itemDto ->
+                            dayDto.items?.mapIndexedNotNull { itemIndex, itemDto ->
+                                val name = itemDto.name?.trim()
+                                if (name.isNullOrEmpty()) return@mapIndexedNotNull null
+
                                 VideoAnalysisResult.ScheduleItem(
                                     order = itemDto.order ?: (itemIndex + 1),
                                     category = parseCategory(itemDto.category),
-                                    name = itemDto.name ?: "",
+                                    name = name,
                                     description = itemDto.description,
                                     tips = itemDto.tips,
                                 )
@@ -49,7 +52,7 @@ data class AiApiResponse(
 
     private fun parseCategory(category: String?): Category =
         try {
-            Category.valueOf(category?.uppercase() ?: "EAT")
+            Category.valueOf(category?.trim()?.uppercase() ?: "EAT")
         } catch (_: IllegalArgumentException) {
             Category.EAT
         }
