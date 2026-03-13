@@ -4,7 +4,6 @@ import com.linktrip.application.domain.video.Place
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
@@ -13,9 +12,6 @@ import jakarta.persistence.UniqueConstraint
     name = "place",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_place_google_place_id", columnNames = ["google_place_id"]),
-    ],
-    indexes = [
-        Index(name = "idx_place_google_place_id", columnList = "google_place_id"),
     ],
 )
 class PlaceEntity(

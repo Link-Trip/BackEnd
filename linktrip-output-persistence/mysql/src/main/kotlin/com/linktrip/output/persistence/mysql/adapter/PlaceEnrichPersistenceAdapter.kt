@@ -6,8 +6,11 @@ import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePo
 import com.linktrip.output.persistence.mysql.entity.PlaceEntity
 import com.linktrip.output.persistence.mysql.repository.PlaceJpaRepository
 import com.linktrip.output.persistence.mysql.repository.VideoScheduleItemJpaRepository
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 class PlaceEnrichPersistenceAdapter(
@@ -27,7 +30,11 @@ class PlaceEnrichPersistenceAdapter(
                 .associateBy { it.id }
 
         results.forEach { result ->
-            val itemEntity = itemMap[result.itemId] ?: return@forEach
+            val itemEntity = itemMap[result.itemId]
+            if (itemEntity == null) {
+                logger.warn { "장소 보강 대상 아이템 없음: itemId=${result.itemId}" }
+                return@forEach
+            }
 
             val place = result.place
             if (result.success && place != null) {
