@@ -39,4 +39,4 @@ gcp:
     location: ${GCP_VERTEX_AI_LOCATION:us-central1}
 
 youtube:
-  api-key: ${YOUTUBE_API_KEY:}
+  api-key: ${YOUTUBE_API_KEY}
