@@ -37,3 +37,6 @@ gcp:
   credentials-path: ${GCP_CREDENTIALS_PATH:}
   vertex-ai:
     location: ${GCP_VERTEX_AI_LOCATION:us-central1}
+
+youtube:
+  api-key: ${YOUTUBE_API_KEY:}

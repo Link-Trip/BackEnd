@@ -1,10 +1,15 @@
 package com.linktrip.output.http.config
 
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
+import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestClient
 import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 @Configuration
 class RestClientConfig {
@@ -22,6 +27,17 @@ class RestClientConfig {
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()
 
+    @Bean("youtubeRestClient")
+    fun youtubeRestClient(): RestClient =
+        RestClient.builder()
+            .baseUrl(YOUTUBE_BASE_URL)
+            .defaultStatusHandler({ it.isError }) { request, response ->
+                logger.error { "YouTube API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
+                throw LinktripException(ExceptionCode.EXTERNAL_API_ERROR)
+            }
+            .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
+            .build()
+
     private fun clientHttpRequestFactory(
         connectTimeout: Duration,
         readTimeout: Duration,
@@ -34,6 +50,7 @@ class RestClientConfig {
         private const val GOOGLE_PLACES_BASE_URL = "https://places.googleapis.com/v1"
         private const val GOOGLE_PLACES_FIELD_MASK =
             "places.id,places.displayName,places.formattedAddress,places.location"
+        private const val YOUTUBE_BASE_URL = "https://www.googleapis.com/youtube/v3"
         private val CONNECT_TIMEOUT = Duration.ofSeconds(5)
         private val READ_TIMEOUT = Duration.ofSeconds(10)
     }
