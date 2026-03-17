@@ -17,10 +17,6 @@ import java.util.UUID
 private val logger = KotlinLogging.logger {}
 
 class MdcLoggingFilter : Filter {
-    companion object {
-        private const val HEALTH_CHECK_PREFIX = "/api/health/"
-    }
-
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,
@@ -29,7 +25,7 @@ class MdcLoggingFilter : Filter {
         val httpRequest = request as HttpServletRequest
         val httpResponse = response as HttpServletResponse
         val uri = httpRequest.requestURI
-        val skipLogging = uri.startsWith(HEALTH_CHECK_PREFIX)
+        val skipLogging = FilterPaths.LOGGING_SKIP.any { uri.startsWith(it) }
         val startTime = System.currentTimeMillis()
 
         try {

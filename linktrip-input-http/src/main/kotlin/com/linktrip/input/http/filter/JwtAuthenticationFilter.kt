@@ -49,7 +49,7 @@ class JwtAuthenticationFilter(
         chain.doFilter(request, response)
     }
 
-    private fun isWhitelisted(uri: String): Boolean = WHITELIST_PATHS.any { uri.startsWith(it) }
+    private fun isWhitelisted(uri: String): Boolean = FilterPaths.JWT_WHITELIST.any { uri.startsWith(it) }
 
     private fun extractToken(request: HttpServletRequest): String? {
         val header = request.getHeader(AUTHORIZATION_HEADER) ?: return null
@@ -64,15 +64,5 @@ class JwtAuthenticationFilter(
         const val MEMBER_ID_ATTRIBUTE = "authenticatedMemberId"
         private const val AUTHORIZATION_HEADER = "Authorization"
         private const val BEARER_PREFIX = "Bearer "
-
-        private val WHITELIST_PATHS =
-            listOf(
-                "/api/health",
-                "/api/auth/login",
-                "/api/swagger-ui",
-                "/api/api-docs",
-                "/api/v3/api-docs",
-                "/actuator",
-            )
     }
 }
