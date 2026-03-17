@@ -18,12 +18,20 @@ class RestClientConfig {
         RestClient.builder()
             .baseUrl(GOOGLE_PLACES_BASE_URL)
             .defaultHeader("X-Goog-FieldMask", GOOGLE_PLACES_FIELD_MASK)
+            .defaultStatusHandler({ it.isError }) { request, response ->
+                logger.error { "Google Places API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
+                throw LinktripException(ExceptionCode.API_ERROR_GOOGLE_PLACES)
+            }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()
 
     @Bean("discordRestClient")
     fun discordRestClient(): RestClient =
         RestClient.builder()
+            .defaultStatusHandler({ it.isError }) { request, response ->
+                logger.error { "Discord API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
+                throw LinktripException(ExceptionCode.API_ERROR_DISCORD)
+            }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()
 
@@ -33,7 +41,7 @@ class RestClientConfig {
             .baseUrl(YOUTUBE_BASE_URL)
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "YouTube API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
-                throw LinktripException(ExceptionCode.EXTERNAL_API_ERROR)
+                throw LinktripException(ExceptionCode.API_ERROR_YOUTUBE)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()

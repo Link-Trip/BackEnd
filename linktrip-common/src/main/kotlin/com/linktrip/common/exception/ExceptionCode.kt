@@ -30,5 +30,8 @@ enum class ExceptionCode(
     ERROR_TEST(500, "에러 테스트용 예외입니다."),
 
     // 502
-    EXTERNAL_API_ERROR(502, "외부 API 호출 중 오류가 발생했습니다."),
+    API_ERROR_YOUTUBE(502, "YouTube API 호출 중 오류가 발생했습니다."),
+    API_ERROR_GOOGLE_PLACES(502, "Google Places API 호출 중 오류가 발생했습니다."),
+    API_ERROR_GEMINI(502, "Gemini AI API 호출 중 오류가 발생했습니다."),
+    API_ERROR_DISCORD(502, "Discord API 호출 중 오류가 발생했습니다."),
 }
