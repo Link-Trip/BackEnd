@@ -19,7 +19,7 @@ class RestClientConfig {
             .baseUrl(GOOGLE_PLACES_BASE_URL)
             .defaultHeader("X-Goog-FieldMask", GOOGLE_PLACES_FIELD_MASK)
             .defaultStatusHandler({ it.isError }) { request, response ->
-                logger.error { "Google Places API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
+                logger.error { "Google Places API 호출 실패: method=${request.method} status=${response.statusCode}" }
                 throw LinktripException(ExceptionCode.API_ERROR_GOOGLE_PLACES)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
@@ -29,7 +29,7 @@ class RestClientConfig {
     fun discordRestClient(): RestClient =
         RestClient.builder()
             .defaultStatusHandler({ it.isError }) { request, response ->
-                logger.error { "Discord API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
+                logger.error { "Discord API 호출 실패: method=${request.method} status=${response.statusCode}" }
                 throw LinktripException(ExceptionCode.API_ERROR_DISCORD)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
@@ -40,7 +40,7 @@ class RestClientConfig {
         RestClient.builder()
             .baseUrl(YOUTUBE_BASE_URL)
             .defaultStatusHandler({ it.isError }) { request, response ->
-                logger.error { "YouTube API 호출 실패: ${request.method} ${request.uri} → ${response.statusCode}" }
+                logger.error { "YouTube API 호출 실패: method=${request.method} status=${response.statusCode}" }
                 throw LinktripException(ExceptionCode.API_ERROR_YOUTUBE)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
