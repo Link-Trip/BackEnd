@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.client.RestClientException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 
 private val logger = KotlinLogging.logger {}
@@ -83,6 +84,26 @@ class ExceptionAdvice {
                 ExceptionResponse(
                     message = "요청 경로가 잘못되었습니다.",
                     cause = e.resourcePath,
+                    timestamp = System.currentTimeMillis(),
+                ),
+            )
+    }
+
+    @ExceptionHandler(RestClientException::class)
+    fun handleRestClientException(e: RestClientException): ResponseEntity<ExceptionResponse> {
+        logger.error(e) { "외부 API 통신 에러 발생" }
+        raiseExceptionAlert(
+            message = "외부 API 통신 중 에러가 발생했습니다.",
+            cause = e.message,
+            statusCode = 502,
+            stackTrace = e.stackTraceToString(),
+        )
+        return ResponseEntity
+            .status(HttpStatus.BAD_GATEWAY)
+            .body(
+                ExceptionResponse(
+                    message = "외부 API 통신 중 에러가 발생했습니다.",
+                    cause = null,
                     timestamp = System.currentTimeMillis(),
                 ),
             )

@@ -44,7 +44,7 @@ class VideoAnalyzeAdapter(
             throw e
         } catch (e: Exception) {
             logger.error(e) { "Gemini AI 분석 실패: url=$youtubeUrl" }
-            throw LinktripException(ExceptionCode.EXTERNAL_API_ERROR)
+            throw LinktripException(ExceptionCode.API_ERROR_GEMINI)
         }
     }
 

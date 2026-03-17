@@ -4,13 +4,10 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.linktrip.application.domain.video.PlaceSearchResult
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.output.http.properties.GcpProperties
-import mu.KotlinLogging
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import java.io.FileInputStream
-
-private val logger = KotlinLogging.logger {}
 
 @Component
 class GooglePlacesAdapter(
@@ -26,39 +23,34 @@ class GooglePlacesAdapter(
         name: String,
         destination: String?,
     ): PlaceSearchResult? {
-        try {
-            val query = if (destination != null) "$name $destination" else name
+        val query = if (destination != null) "$name $destination" else name
 
-            credentials.refreshIfExpired()
-            val accessToken = credentials.accessToken.tokenValue
+        credentials.refreshIfExpired()
+        val accessToken = credentials.accessToken.tokenValue
 
-            val response =
-                googlePlacesRestClient.post()
-                    .uri(TEXT_SEARCH_URI)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer $accessToken")
-                    .body(
-                        mapOf(
-                            "textQuery" to query,
-                            "languageCode" to "ko",
-                        ),
-                    )
-                    .retrieve()
-                    .body(TextSearchResponse::class.java)
+        val response =
+            googlePlacesRestClient.post()
+                .uri(TEXT_SEARCH_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer $accessToken")
+                .body(
+                    mapOf(
+                        "textQuery" to query,
+                        "languageCode" to "ko",
+                    ),
+                )
+                .retrieve()
+                .body(TextSearchResponse::class.java)
 
-            val place = response?.places?.firstOrNull() ?: return null
+        val place = response?.places?.firstOrNull() ?: return null
 
-            return PlaceSearchResult(
-                googlePlaceId = place.id,
-                name = place.displayName?.text ?: name,
-                address = place.formattedAddress,
-                latitude = place.location?.latitude,
-                longitude = place.location?.longitude,
-            )
-        } catch (e: Exception) {
-            logger.warn(e) { "Google Places API 검색 실패: name=$name, destination=$destination" }
-            throw e
-        }
+        return PlaceSearchResult(
+            googlePlaceId = place.id,
+            name = place.displayName?.text ?: name,
+            address = place.formattedAddress,
+            latitude = place.location?.latitude,
+            longitude = place.location?.longitude,
+        )
     }
 
     companion object {
