@@ -58,35 +58,37 @@ class YouTubeAdapter(
     override fun getVideoDetails(videoIds: List<String>): List<YouTubeVideoDetail> {
         if (videoIds.isEmpty()) return emptyList()
 
-        val response =
-            youtubeRestClient.get()
-                .uri { builder ->
-                    builder
-                        .path(VIDEOS_URI)
-                        .queryParam("part", "snippet,statistics,contentDetails")
-                        .queryParam("id", videoIds.joinToString(","))
-                        .queryParam("key", youtubeProperties.apiKey)
-                        .build()
-                }
-                .retrieve()
-                .body<YouTubeVideoResponse>()
+        return videoIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
+            val response =
+                youtubeRestClient.get()
+                    .uri { builder ->
+                        builder
+                            .path(VIDEOS_URI)
+                            .queryParam("part", "snippet,statistics,contentDetails")
+                            .queryParam("id", chunk.joinToString(","))
+                            .queryParam("key", youtubeProperties.apiKey)
+                            .build()
+                    }
+                    .retrieve()
+                    .body<YouTubeVideoResponse>()
 
-        return response?.items?.map { item ->
-            YouTubeVideoDetail(
-                videoId = item.id,
-                title = item.snippet?.title.orEmpty(),
-                description = item.snippet?.description.orEmpty(),
-                thumbnailUrl =
-                    item.snippet?.thumbnails?.high?.url
-                        ?: item.snippet?.thumbnails?.medium?.url.orEmpty(),
-                channelId = item.snippet?.channelId.orEmpty(),
-                channelTitle = item.snippet?.channelTitle.orEmpty(),
-                viewCount = item.statistics?.viewCount?.toLongOrNull() ?: 0L,
-                likeCount = item.statistics?.likeCount?.toLongOrNull() ?: 0L,
-                duration = item.contentDetails?.duration.orEmpty(),
-                publishedAt = item.snippet?.publishedAt.orEmpty(),
-            )
-        } ?: emptyList()
+            response?.items?.map { item ->
+                YouTubeVideoDetail(
+                    videoId = item.id,
+                    title = item.snippet?.title.orEmpty(),
+                    description = item.snippet?.description.orEmpty(),
+                    thumbnailUrl =
+                        item.snippet?.thumbnails?.high?.url
+                            ?: item.snippet?.thumbnails?.medium?.url.orEmpty(),
+                    channelId = item.snippet?.channelId.orEmpty(),
+                    channelTitle = item.snippet?.channelTitle.orEmpty(),
+                    viewCount = item.statistics?.viewCount?.toLongOrNull() ?: 0L,
+                    likeCount = item.statistics?.likeCount?.toLongOrNull() ?: 0L,
+                    duration = item.contentDetails?.duration.orEmpty(),
+                    publishedAt = item.snippet?.publishedAt.orEmpty(),
+                )
+            } ?: emptyList()
+        }
     }
 
     override fun searchChannels(
@@ -120,31 +122,33 @@ class YouTubeAdapter(
     override fun getChannelDetails(channelIds: List<String>): List<YouTubeChannelDetail> {
         if (channelIds.isEmpty()) return emptyList()
 
-        val response =
-            youtubeRestClient.get()
-                .uri { builder ->
-                    builder
-                        .path(CHANNELS_URI)
-                        .queryParam("part", "snippet,statistics")
-                        .queryParam("id", channelIds.joinToString(","))
-                        .queryParam("key", youtubeProperties.apiKey)
-                        .build()
-                }
-                .retrieve()
-                .body<YouTubeChannelResponse>()
+        return channelIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
+            val response =
+                youtubeRestClient.get()
+                    .uri { builder ->
+                        builder
+                            .path(CHANNELS_URI)
+                            .queryParam("part", "snippet,statistics")
+                            .queryParam("id", chunk.joinToString(","))
+                            .queryParam("key", youtubeProperties.apiKey)
+                            .build()
+                    }
+                    .retrieve()
+                    .body<YouTubeChannelResponse>()
 
-        return response?.items?.map { item ->
-            YouTubeChannelDetail(
-                channelId = item.id,
-                title = item.snippet?.title.orEmpty(),
-                description = item.snippet?.description.orEmpty(),
-                thumbnailUrl =
-                    item.snippet?.thumbnails?.high?.url
-                        ?: item.snippet?.thumbnails?.medium?.url.orEmpty(),
-                subscriberCount = item.statistics?.subscriberCount?.toLongOrNull() ?: 0L,
-                videoCount = item.statistics?.videoCount?.toLongOrNull() ?: 0L,
-            )
-        } ?: emptyList()
+            response?.items?.map { item ->
+                YouTubeChannelDetail(
+                    channelId = item.id,
+                    title = item.snippet?.title.orEmpty(),
+                    description = item.snippet?.description.orEmpty(),
+                    thumbnailUrl =
+                        item.snippet?.thumbnails?.high?.url
+                            ?: item.snippet?.thumbnails?.medium?.url.orEmpty(),
+                    subscriberCount = item.statistics?.subscriberCount?.toLongOrNull() ?: 0L,
+                    videoCount = item.statistics?.videoCount?.toLongOrNull() ?: 0L,
+                )
+            } ?: emptyList()
+        }
     }
 
     companion object {
@@ -152,5 +156,6 @@ class YouTubeAdapter(
         private const val VIDEOS_URI = "/videos"
         private const val CHANNELS_URI = "/channels"
         private const val TRAVEL_CATEGORY_ID = "19"
+        private const val MAX_IDS_PER_REQUEST = 50
     }
 }
