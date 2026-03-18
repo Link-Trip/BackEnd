@@ -73,7 +73,7 @@ class YouTubeAdapter(
                     .body<YouTubeVideoResponse>()
 
             response?.items?.map { item ->
-                YouTubeVideoDetail(
+                YouTubeVideoDetail.create(
                     videoId = item.id,
                     title = item.snippet?.title.orEmpty(),
                     description = item.snippet?.description.orEmpty(),
@@ -86,6 +86,10 @@ class YouTubeAdapter(
                     likeCount = item.statistics?.likeCount?.toLongOrNull() ?: 0L,
                     duration = item.contentDetails?.duration.orEmpty(),
                     publishedAt = item.snippet?.publishedAt.orEmpty(),
+                    region = "",
+                    country = "",
+                    city = null,
+                    theme = null,
                 )
             } ?: emptyList()
         }
