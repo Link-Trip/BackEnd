@@ -1,6 +1,7 @@
 package com.linktrip.application.port.output.external
 
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
+import com.linktrip.application.domain.youtube.YouTubeRecentVideo
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
 import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 
@@ -40,11 +41,13 @@ interface YouTubePort {
      *
      * @param query 검색 키워드 (예: "여행 vlog", "travel creator")
      * @param maxResults 최대 반환 건수 (기본값 10, 최대 50)
+     * @param topicId YouTube 토픽 ID (예: "/m/07bxq" = Tourism). null이면 토픽 필터 미적용
      * @return 채널 상세 정보 목록 (구독자 수, 영상 수 포함)
      */
     fun searchChannels(
         query: String,
         maxResults: Int = 10,
+        topicId: String? = null,
     ): List<YouTubeChannelDetail>
 
     /**
@@ -56,4 +59,18 @@ interface YouTubePort {
      * @return 채널 상세 정보 목록 (구독자 수, 영상 수 포함)
      */
     fun getChannelDetails(channelIds: List<String>): List<YouTubeChannelDetail>
+
+    /**
+     * 채널의 최신 업로드 영상을 조회한다. (playlistItems.list)
+     * 채널 ID에서 업로드 플레이리스트 ID를 유도하여 (UC→UU) 최신 영상을 반환한다.
+     * quota 비용: 1 unit/회
+     *
+     * @param channelId YouTube 채널 ID
+     * @param maxResults 최대 반환 건수 (기본값 3)
+     * @return 최신 영상 목록 (videoId, 제목, 썸네일, 게시일)
+     */
+    fun getRecentVideos(
+        channelId: String,
+        maxResults: Int = 3,
+    ): List<YouTubeRecentVideo>
 }
