@@ -24,8 +24,12 @@ class YouTubeCollectJobScheduler(
 
         logger.info { "YouTube 영상 수집 Job 실행" }
         try {
-            jobLauncher.run(youTubeCollectJob, params)
-            logger.info { "YouTube 영상 수집 Job 완료" }
+            val execution = jobLauncher.run(youTubeCollectJob, params)
+            if (execution.status.isUnsuccessful) {
+                logger.error { "YouTube 영상 수집 Job 실패: status=${execution.status}, exitStatus=${execution.exitStatus}" }
+            } else {
+                logger.info { "YouTube 영상 수집 Job 완료: status=${execution.status}" }
+            }
         } catch (e: Exception) {
             logger.error(e) { "YouTube 영상 수집 Job 실패" }
         }
