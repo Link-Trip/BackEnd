@@ -1,5 +1,6 @@
 package com.linktrip.input.http.controller.dto.response
 
+import com.linktrip.application.domain.common.CursorPage
 import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 
 data class DiscoverVideoResponse(
@@ -46,6 +47,21 @@ data class DiscoverVideoResponses(
         fun from(details: List<YouTubeVideoDetail>): DiscoverVideoResponses =
             DiscoverVideoResponses(
                 videos = details.map { DiscoverVideoResponse.from(it) },
+            )
+    }
+}
+
+data class DiscoverVideoCursorResponse(
+    val videos: List<DiscoverVideoResponse>,
+    val nextCursor: String?,
+    val hasNext: Boolean,
+) {
+    companion object {
+        fun from(page: CursorPage<YouTubeVideoDetail>): DiscoverVideoCursorResponse =
+            DiscoverVideoCursorResponse(
+                videos = page.items.map { DiscoverVideoResponse.from(it) },
+                nextCursor = page.nextCursor,
+                hasNext = page.hasNext,
             )
     }
 }
