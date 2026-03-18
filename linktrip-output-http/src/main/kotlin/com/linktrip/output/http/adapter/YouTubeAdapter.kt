@@ -1,10 +1,12 @@
 package com.linktrip.output.http.adapter
 
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
+import com.linktrip.application.domain.youtube.YouTubeRecentVideo
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
 import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 import com.linktrip.application.port.output.external.YouTubePort
 import com.linktrip.output.http.dto.youtube.YouTubeChannelResponse
+import com.linktrip.output.http.dto.youtube.YouTubePlaylistItemResponse
 import com.linktrip.output.http.dto.youtube.YouTubeSearchResponse
 import com.linktrip.output.http.dto.youtube.YouTubeVideoResponse
 import com.linktrip.output.http.properties.YouTubeProperties
@@ -98,6 +100,7 @@ class YouTubeAdapter(
     override fun searchChannels(
         query: String,
         maxResults: Int,
+        topicId: String?,
     ): List<YouTubeChannelDetail> {
         val searchResponse =
             youtubeRestClient.get()
@@ -107,10 +110,14 @@ class YouTubeAdapter(
                         .queryParam("part", "snippet")
                         .queryParam("q", query)
                         .queryParam("type", "channel")
-                        .queryParam("order", "relevance")
+                        .queryParam("order", "viewCount")
                         .queryParam("maxResults", maxResults)
+                        .queryParam("relevanceLanguage", "ko")
                         .queryParam("key", youtubeProperties.apiKey)
-                        .build()
+                    if (topicId != null) {
+                        builder.queryParam("topicId", topicId)
+                    }
+                    builder.build()
                 }
                 .retrieve()
                 .body<YouTubeSearchResponse>()
@@ -155,11 +162,85 @@ class YouTubeAdapter(
         }
     }
 
+    override fun getRecentVideos(
+        channelId: String,
+        maxResults: Int,
+    ): List<YouTubeRecentVideo> {
+        val uploadsPlaylistId = channelId.replaceFirst("UC", "UU")
+
+        val response =
+            youtubeRestClient.get()
+                .uri { builder ->
+                    builder
+                        .path(PLAYLIST_ITEMS_URI)
+                        .queryParam("part", "snippet")
+                        .queryParam("playlistId", uploadsPlaylistId)
+                        .queryParam("maxResults", FETCH_VIDEOS_FOR_FILTERING)
+                        .queryParam("key", youtubeProperties.apiKey)
+                        .build()
+                }
+                .retrieve()
+                .body<YouTubePlaylistItemResponse>()
+
+        val candidates =
+            response?.items?.mapNotNull { item ->
+                val snippet = item.snippet ?: return@mapNotNull null
+                val videoId = snippet.resourceId?.videoId ?: return@mapNotNull null
+                YouTubeRecentVideo.create(
+                    channelId = channelId,
+                    videoId = videoId,
+                    title = snippet.title.orEmpty(),
+                    thumbnailUrl =
+                        snippet.thumbnails?.high?.url
+                            ?: snippet.thumbnails?.medium?.url.orEmpty(),
+                    publishedAt = snippet.publishedAt.orEmpty(),
+                )
+            } ?: emptyList()
+
+        if (candidates.isEmpty()) return emptyList()
+
+        val categoryMap = getVideoCategoryIds(candidates.map { it.videoId })
+
+        val travelVideos = candidates.filter { categoryMap[it.videoId] == TRAVEL_CATEGORY_ID }
+        if (travelVideos.size >= maxResults) {
+            return travelVideos.take(maxResults)
+        }
+
+        val nonTravelVideos = candidates.filter { categoryMap[it.videoId] != TRAVEL_CATEGORY_ID }
+        return (travelVideos + nonTravelVideos).take(maxResults)
+    }
+
+    private fun getVideoCategoryIds(videoIds: List<String>): Map<String, String> {
+        if (videoIds.isEmpty()) return emptyMap()
+
+        return videoIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
+            val response =
+                youtubeRestClient.get()
+                    .uri { builder ->
+                        builder
+                            .path(VIDEOS_URI)
+                            .queryParam("part", "snippet")
+                            .queryParam("id", chunk.joinToString(","))
+                            .queryParam("key", youtubeProperties.apiKey)
+                            .build()
+                    }
+                    .retrieve()
+                    .body<YouTubeVideoResponse>()
+
+            response?.items?.mapNotNull { item ->
+                val categoryId = item.snippet?.categoryId ?: return@mapNotNull null
+                item.id to categoryId
+            } ?: emptyList()
+        }.toMap()
+    }
+
     companion object {
         private const val SEARCH_URI = "/search"
         private const val VIDEOS_URI = "/videos"
         private const val CHANNELS_URI = "/channels"
+        private const val PLAYLIST_ITEMS_URI = "/playlistItems"
         private const val TRAVEL_CATEGORY_ID = "19"
         private const val MAX_IDS_PER_REQUEST = 50
+        private const val FETCH_VIDEOS_FOR_FILTERING = 10
     }
 }

@@ -1,4 +1,4 @@
-package com.linktrip.input.http.controller.health
+package com.linktrip.input.http.controller
 
 import com.linktrip.application.port.input.HealthCheckUseCase
 import com.linktrip.common.exception.ExceptionCode

@@ -1,4 +1,4 @@
-package com.linktrip.input.http.controller.advice
+package com.linktrip.input.http.controller
 
 import com.linktrip.application.domain.notification.ExceptionAlertEvent
 import com.linktrip.common.config.event.Events

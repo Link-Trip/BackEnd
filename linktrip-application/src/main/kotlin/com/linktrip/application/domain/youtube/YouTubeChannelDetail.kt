@@ -7,4 +7,5 @@ data class YouTubeChannelDetail(
     val thumbnailUrl: String,
     val subscriberCount: Long,
     val videoCount: Long,
+    val recentVideos: List<YouTubeRecentVideo> = emptyList(),
 )

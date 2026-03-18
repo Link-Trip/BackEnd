@@ -31,7 +31,9 @@ class YouTubeChannelEntity(
     @Column(name = "video_count", nullable = false)
     var videoCount: Long = 0L,
 ) : BaseTimeEntity() {
-    fun toDomain(): YouTubeChannelDetail =
+    fun toDomain(
+        recentVideos: List<com.linktrip.application.domain.youtube.YouTubeRecentVideo> = emptyList(),
+    ): YouTubeChannelDetail =
         YouTubeChannelDetail(
             channelId = this.channelId,
             title = this.title,
@@ -39,6 +41,7 @@ class YouTubeChannelEntity(
             thumbnailUrl = this.thumbnailUrl,
             subscriberCount = this.subscriberCount,
             videoCount = this.videoCount,
+            recentVideos = recentVideos,
         )
 
     fun updateFrom(detail: YouTubeChannelDetail) {
