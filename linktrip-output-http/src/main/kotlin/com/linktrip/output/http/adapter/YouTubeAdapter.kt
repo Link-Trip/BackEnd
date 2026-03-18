@@ -184,15 +184,16 @@ class YouTubeAdapter(
 
         val candidates =
             response?.items?.mapNotNull { item ->
-                val videoId = item.snippet?.resourceId?.videoId ?: return@mapNotNull null
+                val snippet = item.snippet ?: return@mapNotNull null
+                val videoId = snippet.resourceId?.videoId ?: return@mapNotNull null
                 YouTubeRecentVideo.create(
                     channelId = channelId,
                     videoId = videoId,
-                    title = item.snippet.title.orEmpty(),
+                    title = snippet.title.orEmpty(),
                     thumbnailUrl =
-                        item.snippet.thumbnails?.high?.url
-                            ?: item.snippet.thumbnails?.medium?.url.orEmpty(),
-                    publishedAt = item.snippet.publishedAt.orEmpty(),
+                        snippet.thumbnails?.high?.url
+                            ?: snippet.thumbnails?.medium?.url.orEmpty(),
+                    publishedAt = snippet.publishedAt.orEmpty(),
                 )
             } ?: emptyList()
 

@@ -17,6 +17,8 @@ class YouTubeChannelPersistenceAdapter(
 ) : YouTubeChannelPersistencePort {
     @Transactional
     override fun saveAll(channels: List<YouTubeChannelDetail>) {
+        if (channels.isEmpty()) return
+
         val channelIds = channels.map { it.channelId }
 
         // 채널 upsert
@@ -56,9 +58,12 @@ class YouTubeChannelPersistenceAdapter(
             youTubeRecentVideoJpaRepository.findAllByChannelIdIn(channelIds)
                 .map { it.toDomain() }
                 .groupBy { it.channelId }
+                .mapValues { (_, videos) ->
+                    videos.sortedByDescending { it.publishedAt }
+                }
 
         return channels.map { entity ->
-            entity.toDomain(recentVideos = recentVideosMap[entity.channelId] ?: emptyList())
+            entity.toDomain(recentVideos = recentVideosMap[entity.channelId].orEmpty())
         }
     }
 }

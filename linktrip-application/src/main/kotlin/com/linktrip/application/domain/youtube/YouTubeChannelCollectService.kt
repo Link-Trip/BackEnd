@@ -16,6 +16,7 @@ class YouTubeChannelCollectService(
         logger.info { "YouTube 채널 수집 시작" }
 
         val allChannels = mutableListOf<YouTubeChannelDetail>()
+        var failedKeywords = 0
 
         CHANNEL_SEARCH_KEYWORDS.forEach { keyword ->
             try {
@@ -45,11 +46,15 @@ class YouTubeChannelCollectService(
                     "키워드 '$keyword' 채널 수집: ${filtered.size}건 (${skipped}건 필터링)"
                 }
             } catch (e: Exception) {
+                failedKeywords++
                 logger.error(e) { "키워드 '$keyword' 채널 수집 실패" }
             }
         }
 
         if (allChannels.isEmpty()) {
+            if (failedKeywords == CHANNEL_SEARCH_KEYWORDS.size) {
+                throw IllegalStateException("YouTube 채널 수집 실패: 모든 키워드 조회 실패")
+            }
             logger.info { "YouTube 채널 수집 완료 - 신규 채널 없음" }
             return
         }
