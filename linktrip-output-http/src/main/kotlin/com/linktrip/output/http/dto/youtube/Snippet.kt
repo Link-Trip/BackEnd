@@ -10,6 +10,7 @@ data class Snippet(
     val channelId: String?,
     val channelTitle: String?,
     val publishedAt: String?,
+    val categoryId: String? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
