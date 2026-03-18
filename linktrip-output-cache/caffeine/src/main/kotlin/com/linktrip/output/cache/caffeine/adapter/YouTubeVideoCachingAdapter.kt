@@ -1,5 +1,6 @@
 package com.linktrip.output.cache.caffeine.adapter
 
+import com.linktrip.application.domain.common.CursorPage
 import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 import com.linktrip.application.port.output.persistence.YouTubeVideoPersistencePort
 import com.linktrip.output.cache.caffeine.config.CacheConfig
@@ -8,6 +9,7 @@ import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Primary
 @Component
@@ -30,4 +32,10 @@ class YouTubeVideoCachingAdapter(
 
     @Cacheable(value = [CacheConfig.DISCOVER_VIDEOS], key = "'region:' + #region")
     override fun findAllByRegion(region: String): List<YouTubeVideoDetail> = delegate.findAllByRegion(region)
+
+    override fun findAllByTheme(
+        theme: String,
+        cursor: LocalDateTime?,
+        size: Int,
+    ): CursorPage<YouTubeVideoDetail> = delegate.findAllByTheme(theme, cursor, size)
 }
