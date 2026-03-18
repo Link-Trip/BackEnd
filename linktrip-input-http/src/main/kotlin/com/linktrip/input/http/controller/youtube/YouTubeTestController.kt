@@ -1,6 +1,7 @@
 package com.linktrip.input.http.controller.youtube
 
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
+import com.linktrip.application.domain.youtube.YouTubeCollectService
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
 import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 import com.linktrip.application.port.output.external.YouTubePort
@@ -8,6 +9,7 @@ import com.linktrip.input.http.controller.dto.response.ApiResponse
 import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/test/youtube")
 class YouTubeTestController(
     private val youTubePort: YouTubePort,
+    private val youTubeCollectService: YouTubeCollectService,
 ) {
     @GetMapping("/search/videos")
     fun searchVideos(
@@ -41,4 +44,10 @@ class YouTubeTestController(
     fun getChannelDetails(
         @RequestParam ids: List<String>,
     ): ApiResponse<List<YouTubeChannelDetail>> = ApiResponse.ok(youTubePort.getChannelDetails(ids))
+
+    @PostMapping("/collect")
+    fun collectVideos(): ApiResponse<String> {
+        youTubeCollectService.collectVideos()
+        return ApiResponse.ok("YouTube 영상 수집 완료")
+    }
 }
