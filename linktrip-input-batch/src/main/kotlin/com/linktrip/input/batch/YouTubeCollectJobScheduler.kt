@@ -23,6 +23,11 @@ class YouTubeCollectJobScheduler(
                 .toJobParameters()
 
         logger.info { "YouTube 영상 수집 Job 실행" }
-        jobLauncher.run(youTubeCollectJob, params)
+        try {
+            jobLauncher.run(youTubeCollectJob, params)
+            logger.info { "YouTube 영상 수집 Job 완료" }
+        } catch (e: Exception) {
+            logger.error(e) { "YouTube 영상 수집 Job 실패" }
+        }
     }
 }
