@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
     implementation(project(":linktrip-application"))
+    implementation(libs.bundles.adaptor.cache.caffeine)
 }

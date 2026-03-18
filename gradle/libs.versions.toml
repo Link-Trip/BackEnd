@@ -48,6 +48,9 @@ jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref =
 # Spring Batch
 spring-boot-starter-batch = { group = "org.springframework.boot", name = "spring-boot-starter-batch" }
 
+# Cache
+caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.8" }
+
 # Google Cloud
 google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
 
@@ -74,6 +77,7 @@ domain-application = ["spring-boot-docs", "spring-transaction"]
 adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spring-boot-docs", "spring-boot-starter-validation", "jjwt-api", "jjwt-impl", "jjwt-jackson"]
 adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
+adaptor-cache-caffeine = ["spring-boot-starter-cache", "caffeine"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
 adaptor-output-http = ["spring-web", "google-genai"]
 adaptor-input-batch = ["spring-boot-starter-batch"]
