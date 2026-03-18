@@ -1,7 +1,9 @@
 package com.linktrip.input.http.controller.discover
 
+import com.linktrip.application.port.input.DiscoverChannelUseCase
 import com.linktrip.application.port.input.DiscoverVideoUseCase
 import com.linktrip.input.http.controller.dto.response.ApiResponse
+import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException
 @RequestMapping("/api/discover")
 class DiscoverController(
     private val discoverVideoUseCase: DiscoverVideoUseCase,
+    private val discoverChannelUseCase: DiscoverChannelUseCase,
 ) {
     @GetMapping("/videos")
     fun getVideos(
@@ -29,5 +32,11 @@ class DiscoverController(
                 else -> discoverVideoUseCase.getVideos()
             }
         return ApiResponse.ok(videos.map { DiscoverVideoResponse.from(it) })
+    }
+
+    @GetMapping("/channels")
+    fun getChannels(): ApiResponse<List<DiscoverChannelResponse>> {
+        val channels = discoverChannelUseCase.getChannels()
+        return ApiResponse.ok(channels.map { DiscoverChannelResponse.from(it) })
     }
 }
