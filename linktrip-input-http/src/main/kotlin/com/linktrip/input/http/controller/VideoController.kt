@@ -9,6 +9,7 @@ import com.linktrip.common.exception.LinktripException
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
+import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptResponse
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/video")
@@ -70,5 +72,19 @@ class VideoController(
     fun getChannels(): ApiResponse<DiscoverChannelResponses> {
         val channels = discoverChannelUseCase.getChannels()
         return ApiResponse.ok(DiscoverChannelResponses.from(channels))
+    }
+
+    @GetMapping("/discover/theme")
+    fun getVideosByTheme(
+        @RequestParam theme: String,
+        @RequestParam(required = false) cursor: String?,
+    ): ApiResponse<DiscoverVideoCursorResponse> {
+        val cursorDateTime = cursor?.let { LocalDateTime.parse(it) }
+        val result = discoverVideoUseCase.getVideosByTheme(theme.trim(), cursorDateTime, DEFAULT_PAGE_SIZE)
+        return ApiResponse.ok(DiscoverVideoCursorResponse.from(result))
+    }
+
+    companion object {
+        private const val DEFAULT_PAGE_SIZE = 40
     }
 }
