@@ -17,6 +17,7 @@ import jakarta.persistence.UniqueConstraint
     indexes = [
         Index(name = "idx_youtube_video_country", columnList = "country"),
         Index(name = "idx_youtube_video_region", columnList = "region"),
+        Index(name = "idx_youtube_video_theme_created", columnList = "theme, created_at"),
     ],
 )
 class YouTubeVideoEntity(
