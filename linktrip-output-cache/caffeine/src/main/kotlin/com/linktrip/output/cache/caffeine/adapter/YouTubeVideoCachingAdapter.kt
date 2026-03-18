@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Primary
 @Component
-open class YouTubeVideoCachingAdapter(
+class YouTubeVideoCachingAdapter(
     @param:Qualifier("youtubeVideoDbAdapter")
     private val delegate: YouTubeVideoPersistencePort,
 ) : YouTubeVideoPersistencePort {
@@ -20,8 +20,7 @@ open class YouTubeVideoCachingAdapter(
         delegate.saveAll(videos)
     }
 
-    override fun findExistingVideoIds(videoIds: List<String>): Set<String> =
-        delegate.findExistingVideoIds(videoIds)
+    override fun findExistingVideoIds(videoIds: List<String>): Set<String> = delegate.findExistingVideoIds(videoIds)
 
     @Cacheable(value = [CacheConfig.DISCOVER_VIDEOS])
     override fun findAll(): List<YouTubeVideoDetail> = delegate.findAll()
