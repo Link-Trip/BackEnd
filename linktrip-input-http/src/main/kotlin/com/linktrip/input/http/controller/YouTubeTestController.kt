@@ -1,4 +1,4 @@
-package com.linktrip.input.http.controller.youtube
+package com.linktrip.input.http.controller
 
 import com.linktrip.application.domain.youtube.YouTubeChannelCollectService
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail

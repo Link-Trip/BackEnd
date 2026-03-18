@@ -1,4 +1,4 @@
-package com.linktrip.input.http.controller.auth
+package com.linktrip.input.http.controller
 
 import com.linktrip.application.port.input.AuthUseCase
 import com.linktrip.input.http.controller.dto.request.AuthRequest
