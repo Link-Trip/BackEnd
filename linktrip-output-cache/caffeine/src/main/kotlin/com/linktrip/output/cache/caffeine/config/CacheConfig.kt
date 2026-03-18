@@ -25,7 +25,7 @@ class CacheConfig {
     companion object {
         const val DISCOVER_VIDEOS = "discoverVideos"
         const val DISCOVER_CHANNELS = "discoverChannels"
-        private const val CACHE_TTL_HOURS = 4L
+        private const val CACHE_TTL_HOURS = 7L
         private const val CACHE_MAX_SIZE = 100L
     }
 }

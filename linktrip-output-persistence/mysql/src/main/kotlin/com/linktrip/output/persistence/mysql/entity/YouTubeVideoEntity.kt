@@ -4,6 +4,7 @@ import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
@@ -12,6 +13,10 @@ import jakarta.persistence.UniqueConstraint
     name = "youtube_video",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_youtube_video_video_id", columnNames = ["video_id"]),
+    ],
+    indexes = [
+        Index(name = "idx_youtube_video_country", columnList = "country"),
+        Index(name = "idx_youtube_video_region", columnList = "region"),
     ],
 )
 class YouTubeVideoEntity(
@@ -38,9 +43,18 @@ class YouTubeVideoEntity(
     var duration: String,
     @Column(name = "published_at", nullable = false, length = 64)
     var publishedAt: String,
+    @Column(name = "region", nullable = false, length = 32)
+    var region: String = "",
+    @Column(name = "country", nullable = false, length = 64)
+    var country: String = "",
+    @Column(name = "city", length = 64)
+    var city: String? = null,
+    @Column(name = "theme", length = 32)
+    var theme: String? = null,
 ) : BaseTimeEntity() {
     fun toDomain(): YouTubeVideoDetail =
         YouTubeVideoDetail(
+            id = this.id,
             videoId = this.videoId,
             title = this.title,
             description = this.description,
@@ -51,6 +65,10 @@ class YouTubeVideoEntity(
             likeCount = this.likeCount,
             duration = this.duration,
             publishedAt = this.publishedAt,
+            region = this.region,
+            country = this.country,
+            city = this.city,
+            theme = this.theme,
         )
 
     fun updateFrom(detail: YouTubeVideoDetail) {
@@ -63,15 +81,16 @@ class YouTubeVideoEntity(
         this.likeCount = detail.likeCount
         this.duration = detail.duration
         this.publishedAt = detail.publishedAt
+        this.region = detail.region
+        this.country = detail.country
+        this.city = detail.city
+        this.theme = detail.theme
     }
 
     companion object {
-        fun from(
-            id: String,
-            detail: YouTubeVideoDetail,
-        ): YouTubeVideoEntity =
+        fun from(detail: YouTubeVideoDetail): YouTubeVideoEntity =
             YouTubeVideoEntity(
-                id = id,
+                id = detail.id,
                 videoId = detail.videoId,
                 title = detail.title,
                 description = detail.description,
@@ -82,6 +101,10 @@ class YouTubeVideoEntity(
                 likeCount = detail.likeCount,
                 duration = detail.duration,
                 publishedAt = detail.publishedAt,
+                region = detail.region,
+                country = detail.country,
+                city = detail.city,
+                theme = detail.theme,
             )
     }
 }
