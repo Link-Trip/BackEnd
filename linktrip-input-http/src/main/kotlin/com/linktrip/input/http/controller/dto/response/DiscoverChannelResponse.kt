@@ -44,3 +44,14 @@ data class DiscoverChannelResponse(
             )
     }
 }
+
+data class DiscoverChannelResponses(
+    val channels: List<DiscoverChannelResponse>,
+) {
+    companion object {
+        fun from(details: List<YouTubeChannelDetail>): DiscoverChannelResponses =
+            DiscoverChannelResponses(
+                channels = details.map { DiscoverChannelResponse.from(it) },
+            )
+    }
+}

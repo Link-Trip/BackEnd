@@ -38,3 +38,14 @@ data class DiscoverVideoResponse(
             )
     }
 }
+
+data class DiscoverVideoResponses(
+    val videos: List<DiscoverVideoResponse>,
+) {
+    companion object {
+        fun from(details: List<YouTubeVideoDetail>): DiscoverVideoResponses =
+            DiscoverVideoResponses(
+                videos = details.map { DiscoverVideoResponse.from(it) },
+            )
+    }
+}
