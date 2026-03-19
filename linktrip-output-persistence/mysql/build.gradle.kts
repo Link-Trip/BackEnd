@@ -5,6 +5,10 @@ plugins {
 dependencies {
     implementation(project(":linktrip-application"))
     implementation(libs.bundles.adaptor.persistence.mysql)
+
+    // QueryDSL (Jakarta)
+    implementation(variantOf(libs.querydsl.jpa) { classifier("jakarta") })
+    kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
 }
 
 allOpen {

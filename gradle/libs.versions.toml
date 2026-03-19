@@ -3,6 +3,7 @@ springBoot = "3.3.0"
 springDependencyManagement = "1.1.5"
 kotlinPlugin = "2.0.0"
 jjwt = "0.12.6"
+querydsl = "5.1.0"
 ktLintPlugin = "12.1.1"
 gradleBuildScanPlugin = "3.18.1"
 javaVersion = "21"
@@ -36,6 +37,10 @@ spring-boot-starter-cache = { group = "org.springframework.boot", name = "spring
 spring-boot-starter-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
 spring-boot-starter-redis = { group = "org.springframework.boot", name = "spring-boot-starter-data-redis" }
 spring-boot-docs = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version = "2.5.0" }
+
+# QueryDSL
+querydsl-jpa = { group = "com.querydsl", name = "querydsl-jpa", version.ref = "querydsl" }
+querydsl-apt = { group = "com.querydsl", name = "querydsl-apt", version.ref = "querydsl" }
 
 # MySQL
 mysql = { group = "com.mysql", name = "mysql-connector-j" }
