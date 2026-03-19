@@ -7,6 +7,7 @@ querydsl = "5.1.0"
 ktLintPlugin = "12.1.1"
 gradleBuildScanPlugin = "3.18.1"
 javaVersion = "21"
+fixture-monkey = "1.1.11"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
@@ -68,12 +69,13 @@ spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-
 kotlin-junit5 = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5" }
 junit = { group = "org.junit.platform", name = "junit-platform-launcher" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version = "5.4.0" }
+fixture-monkey-starter-kotlin = { group = "com.navercorp.fixturemonkey", name = "fixture-monkey-starter-kotlin", version.ref = "fixture-monkey" }
 
 [bundles]
 # 공통 (convention에서 사용)
 spring-common = ["spring-boot-starter-autoconfigure"]
 kotlin-spring = ["kotlin-reflect", "kotlin-jackson", "kotlin-logging"]
-test-implementation = ["spring-boot-starter-test", "kotlin-junit5", "mockito-kotlin"]
+test-implementation = ["spring-boot-starter-test", "kotlin-junit5", "mockito-kotlin", "fixture-monkey-starter-kotlin"]
 test-runtime = ["junit"]
 
 # 모듈별
