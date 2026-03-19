@@ -4,7 +4,7 @@ import com.linktrip.application.domain.common.CursorPage
 import com.linktrip.application.domain.youtube.YouTubeVideoDetail
 import com.linktrip.application.port.output.persistence.YouTubeVideoPersistencePort
 import com.linktrip.output.persistence.mysql.entity.YouTubeVideoEntity
-import com.linktrip.output.persistence.mysql.repository.YouTubeVideoJpaRepository
+import com.linktrip.output.persistence.mysql.repository.YouTubeVideoQuerydslRepository
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 @Component("youtubeVideoDbAdapter")
 class YouTubeVideoPersistenceAdapter(
-    private val youTubeVideoJpaRepository: YouTubeVideoJpaRepository,
+    private val querydslRepository: YouTubeVideoQuerydslRepository,
     private val entityManager: EntityManager,
 ) : YouTubeVideoPersistencePort {
     @Transactional
@@ -26,21 +26,21 @@ class YouTubeVideoPersistenceAdapter(
 
     @Transactional(readOnly = true)
     override fun findExistingVideoIds(videoIds: List<String>): Set<String> =
-        youTubeVideoJpaRepository.findVideoIdsByVideoIdIn(videoIds).toSet()
+        querydslRepository.findVideoIdsByVideoIdIn(videoIds).toSet()
 
     @Transactional(readOnly = true)
     override fun findAll(): List<YouTubeVideoDetail> =
-        youTubeVideoJpaRepository.findAllByOrderByViewCountDesc()
+        querydslRepository.findAllOrderByViewCountDesc()
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
     override fun findAllByCountry(country: String): List<YouTubeVideoDetail> =
-        youTubeVideoJpaRepository.findAllByCountryOrderByViewCountDesc(country)
+        querydslRepository.findAllByCountryOrderByViewCountDesc(country)
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
     override fun findAllByRegion(region: String): List<YouTubeVideoDetail> =
-        youTubeVideoJpaRepository.findAllByRegionOrderByViewCountDesc(region)
+        querydslRepository.findAllByRegionOrderByViewCountDesc(region)
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
@@ -53,9 +53,9 @@ class YouTubeVideoPersistenceAdapter(
 
         val entities =
             if (cursor != null) {
-                youTubeVideoJpaRepository.findAllByThemeAndCreatedAtBefore(theme, cursor, pageable)
+                querydslRepository.findAllByThemeAndCreatedAtBefore(theme, cursor, pageable)
             } else {
-                youTubeVideoJpaRepository.findAllByTheme(theme, pageable)
+                querydslRepository.findAllByTheme(theme, pageable)
             }
 
         val hasNext = entities.size > size
