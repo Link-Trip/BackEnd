@@ -126,16 +126,17 @@ class PlaceEnrichServiceTest {
 
     @Test
     fun `retryAll 중 하나의 영상에서 DB 오류가 발생해도_나머지 영상들은 계속 처리한다`() {
-        // given - 재검색 대상 videoSummaryId 2개
+        // given - 재검색 대상 videoSummaryId 2개, s1에서 DB 오류 발생
         whenever(videoScheduleItemPersistencePort.findVideoSummaryIdsWithRetryableItems())
             .thenReturn(listOf("s1", "s2"))
-        whenever(videoScheduleItemPersistencePort.findRetryableItems("s1")).thenReturn(emptyList())
+        whenever(videoScheduleItemPersistencePort.findRetryableItems("s1"))
+            .thenThrow(RuntimeException("DB 연결 오류"))
         whenever(videoScheduleItemPersistencePort.findRetryableItems("s2")).thenReturn(emptyList())
 
         // when - retryAll을 호출한다
         createService().retryAll()
 
-        // then - 각 videoSummaryId에 대해 enrichPlaces가 실행된다
+        // then - s1은 실패하지만 s2는 정상적으로 처리된다
         verify(videoScheduleItemPersistencePort).findRetryableItems("s1")
         verify(videoScheduleItemPersistencePort).findRetryableItems("s2")
     }

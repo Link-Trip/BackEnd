@@ -3,6 +3,7 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
 import com.linktrip.application.port.output.external.VideoAnalyzePort
 import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -136,9 +137,12 @@ class VideoAnalyzeEventListenerTest {
         verify(videoAnalysisResultSaver).save(eq("s1"), captor.capture())
 
         val savedItems = captor.firstValue
-        assert(savedItems.size == 3) { "Expected 3 items but got ${savedItems.size}" }
-        assert(savedItems[0].day == 1 && savedItems[0].name == "에펠탑")
-        assert(savedItems[1].day == 1 && savedItems[1].name == "카페")
-        assert(savedItems[2].day == 2 && savedItems[2].name == "샹젤리제")
+        assertEquals(3, savedItems.size)
+        assertEquals(1, savedItems[0].day)
+        assertEquals("에펠탑", savedItems[0].name)
+        assertEquals(1, savedItems[1].day)
+        assertEquals("카페", savedItems[1].name)
+        assertEquals(2, savedItems[2].day)
+        assertEquals("샹젤리제", savedItems[2].name)
     }
 }

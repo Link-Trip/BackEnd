@@ -9,6 +9,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -115,7 +116,9 @@ class YouTubeCollectServiceTest {
         }
 
         // when - 영상 수집을 실행한다
-        // then - 예외가 전파되지 않고 나머지 키워드는 정상 처리된다
         service.collectVideos()
+
+        // then - 예외가 전파되지 않고, 5개 키워드 모두 searchVideos가 호출된다
+        verify(youTubePort, times(5)).searchVideos(any(), any())
     }
 }

@@ -32,10 +32,12 @@ class SearchKeywordTest {
     }
 
     @Test
-    fun `사전 정의된 검색 키워드 목록은_비어있지 않다`() {
+    fun `사전 정의된 검색 키워드 목록은_pickRandom이 요구하는 최소 5개 이상이다`() {
         // given - SearchKeyword 클래스의 KEYWORDS 상수
 
-        // when & then - KEYWORDS가 비어있지 않다
-        assertTrue(SearchKeyword.KEYWORDS.isNotEmpty())
+        // when & then - pickRandom()이 5개를 뽑으므로 KEYWORDS는 최소 5개 이상이어야 한다
+        assertTrue(SearchKeyword.KEYWORDS.size >= 5) {
+            "KEYWORDS must have at least 5 items for pickRandom() to work"
+        }
     }
 }
