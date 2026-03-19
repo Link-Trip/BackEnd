@@ -5,7 +5,7 @@ import com.linktrip.application.domain.video.PlaceEnrichResult
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
 import com.linktrip.output.persistence.mysql.entity.PlaceEntity
 import com.linktrip.output.persistence.mysql.repository.PlaceJpaRepository
-import com.linktrip.output.persistence.mysql.repository.VideoScheduleItemJpaRepository
+import com.linktrip.output.persistence.mysql.repository.VideoScheduleItemQuerydslRepository
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger {}
 
 @Component
 class PlaceEnrichPersistenceAdapter(
-    private val videoScheduleItemJpaRepository: VideoScheduleItemJpaRepository,
+    private val scheduleItemQuerydslRepository: VideoScheduleItemQuerydslRepository,
     private val placeJpaRepository: PlaceJpaRepository,
 ) : PlaceEnrichPersistencePort {
     @Transactional
@@ -25,7 +25,7 @@ class PlaceEnrichPersistenceAdapter(
         if (results.isEmpty()) return
 
         val itemMap =
-            videoScheduleItemJpaRepository
+            scheduleItemQuerydslRepository
                 .findByVideoSummaryIdOrderByDayAscItemOrderAsc(videoSummaryId)
                 .associateBy { it.id }
 

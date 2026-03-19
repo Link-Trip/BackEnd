@@ -6,14 +6,18 @@ import com.linktrip.application.port.output.persistence.YouTubeChannelPersistenc
 import com.linktrip.output.persistence.mysql.entity.YouTubeChannelEntity
 import com.linktrip.output.persistence.mysql.entity.YouTubeRecentVideoEntity
 import com.linktrip.output.persistence.mysql.repository.YouTubeChannelJpaRepository
+import com.linktrip.output.persistence.mysql.repository.YouTubeChannelQuerydslRepository
 import com.linktrip.output.persistence.mysql.repository.YouTubeRecentVideoJpaRepository
+import com.linktrip.output.persistence.mysql.repository.YouTubeRecentVideoQuerydslRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component("youtubeChannelDbAdapter")
 class YouTubeChannelPersistenceAdapter(
-    private val youTubeChannelJpaRepository: YouTubeChannelJpaRepository,
-    private val youTubeRecentVideoJpaRepository: YouTubeRecentVideoJpaRepository,
+    private val channelJpaRepository: YouTubeChannelJpaRepository,
+    private val channelQuerydslRepository: YouTubeChannelQuerydslRepository,
+    private val recentVideoJpaRepository: YouTubeRecentVideoJpaRepository,
+    private val recentVideoQuerydslRepository: YouTubeRecentVideoQuerydslRepository,
 ) : YouTubeChannelPersistencePort {
     @Transactional
     override fun saveAll(channels: List<YouTubeChannelDetail>) {
@@ -23,7 +27,7 @@ class YouTubeChannelPersistenceAdapter(
 
         // 채널 upsert
         val existingMap =
-            youTubeChannelJpaRepository.findAllByChannelIdIn(channelIds)
+            channelQuerydslRepository.findAllByChannelIdIn(channelIds)
                 .associateBy { it.channelId }
 
         val entitiesToSave =
@@ -31,10 +35,10 @@ class YouTubeChannelPersistenceAdapter(
                 existingMap[detail.channelId]?.apply { updateFrom(detail) }
                     ?: YouTubeChannelEntity.from(IdGenerator.generate(), detail)
             }
-        youTubeChannelJpaRepository.saveAll(entitiesToSave)
+        channelJpaRepository.saveAll(entitiesToSave)
 
         // 최신 영상: 기존 삭제 후 새로 저장
-        youTubeRecentVideoJpaRepository.deleteAllByChannelIdIn(channelIds)
+        recentVideoQuerydslRepository.deleteAllByChannelIdIn(channelIds)
 
         val videoEntities =
             channels.flatMap { channel ->
@@ -43,19 +47,19 @@ class YouTubeChannelPersistenceAdapter(
                 }
             }
         if (videoEntities.isNotEmpty()) {
-            youTubeRecentVideoJpaRepository.saveAll(videoEntities)
+            recentVideoJpaRepository.saveAll(videoEntities)
         }
     }
 
     @Transactional(readOnly = true)
     override fun findAll(): List<YouTubeChannelDetail> {
-        val channels = youTubeChannelJpaRepository.findAllByOrderBySubscriberCountDesc()
+        val channels = channelQuerydslRepository.findAllOrderBySubscriberCountDesc()
         if (channels.isEmpty()) return emptyList()
 
         // N+1 방지: 채널 ID 목록으로 한번에 조회 후 그룹핑
         val channelIds = channels.map { it.channelId }
         val recentVideosMap =
-            youTubeRecentVideoJpaRepository.findAllByChannelIdIn(channelIds)
+            recentVideoQuerydslRepository.findAllByChannelIdIn(channelIds)
                 .map { it.toDomain() }
                 .groupBy { it.channelId }
                 .mapValues { (_, videos) ->
