@@ -20,12 +20,13 @@ class ExceptionAlertEventListenerTest {
         val port2 = mock<NotificationPort>()
         val listener = ExceptionAlertEventListener(listOf(port1, port2))
 
-        val event = ExceptionAlertEvent(
-            message = "에러 발생",
-            cause = "NullPointerException",
-            statusCode = 500,
-            stackTrace = "at com.linktrip...",
-        )
+        val event =
+            ExceptionAlertEvent(
+                message = "에러 발생",
+                cause = "NullPointerException",
+                statusCode = 500,
+                stackTrace = "at com.linktrip...",
+            )
 
         // when - 이벤트를 처리한다
         listener.handle(event)
@@ -42,12 +43,13 @@ class ExceptionAlertEventListenerTest {
         val port2 = mock<NotificationPort>()
         val listener = ExceptionAlertEventListener(listOf(port1, port2))
 
-        val event = ExceptionAlertEvent(
-            message = "에러",
-            cause = null,
-            statusCode = 500,
-            stackTrace = null,
-        )
+        val event =
+            ExceptionAlertEvent(
+                message = "에러",
+                cause = null,
+                statusCode = 500,
+                stackTrace = null,
+            )
 
         doAnswer { throw InterruptedException("중단") }.whenever(port1).sendExceptionAlert(event)
 
@@ -76,12 +78,13 @@ class ExceptionAlertEventListenerTest {
         val port3 = mock<NotificationPort>()
         val listener = ExceptionAlertEventListener(listOf(port1, port2, port3))
 
-        val event = ExceptionAlertEvent(
-            message = "에러",
-            cause = null,
-            statusCode = 500,
-            stackTrace = null,
-        )
+        val event =
+            ExceptionAlertEvent(
+                message = "에러",
+                cause = null,
+                statusCode = 500,
+                stackTrace = null,
+            )
 
         whenever(port2.sendExceptionAlert(event)).thenThrow(RuntimeException("전송 실패"))
 

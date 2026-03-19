@@ -17,14 +17,15 @@ class AccessLogEventListenerTest {
         val port2 = mock<AccessLogPort>()
         val listener = AccessLogEventListener(listOf(port1, port2))
 
-        val accessLog = AccessLog(
-            requestId = "req-1",
-            method = "GET",
-            uri = "/api/test",
-            clientIp = "127.0.0.1",
-            statusCode = 200,
-            durationMs = 50,
-        )
+        val accessLog =
+            AccessLog(
+                requestId = "req-1",
+                method = "GET",
+                uri = "/api/test",
+                clientIp = "127.0.0.1",
+                statusCode = 200,
+                durationMs = 50,
+            )
         val event = AccessLogEvent(accessLog)
 
         // when - 이벤트를 처리한다
@@ -42,14 +43,15 @@ class AccessLogEventListenerTest {
         val port2 = mock<AccessLogPort>()
         val listener = AccessLogEventListener(listOf(port1, port2))
 
-        val accessLog = AccessLog(
-            requestId = "req-1",
-            method = "POST",
-            uri = "/api/data",
-            clientIp = "10.0.0.1",
-            statusCode = 500,
-            durationMs = 100,
-        )
+        val accessLog =
+            AccessLog(
+                requestId = "req-1",
+                method = "POST",
+                uri = "/api/data",
+                clientIp = "10.0.0.1",
+                statusCode = 500,
+                durationMs = 100,
+            )
         val event = AccessLogEvent(accessLog)
 
         whenever(port1.save(accessLog)).thenThrow(RuntimeException("저장 실패"))

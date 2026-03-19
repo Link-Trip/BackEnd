@@ -29,12 +29,13 @@ class PlaceEnrichServiceTest {
 
     private val syncExecutor = Executor { it.run() }
 
-    private fun createService() = PlaceEnrichService(
-        googlePlacesPort = googlePlacesPort,
-        placeEnrichPersistencePort = placeEnrichPersistencePort,
-        videoScheduleItemPersistencePort = videoScheduleItemPersistencePort,
-        placeEnrichExecutor = syncExecutor,
-    )
+    private fun createService() =
+        PlaceEnrichService(
+            googlePlacesPort = googlePlacesPort,
+            placeEnrichPersistencePort = placeEnrichPersistencePort,
+            videoScheduleItemPersistencePort = videoScheduleItemPersistencePort,
+            placeEnrichExecutor = syncExecutor,
+        )
 
     @Test
     fun `재검색 가능한 일정 항목이 없으면_Google Places API를 호출하지 않는다`() {
@@ -52,10 +53,11 @@ class PlaceEnrichServiceTest {
     @Test
     fun `목적지 정보가 있으면_장소 검색 시 destination을 함께 전달하여 정확도를 높인다`() {
         // given - 보강 대상 항목 2개와 destination "도쿄"
-        val items = listOf(
-            createItem("item-1", "도쿄 타워"),
-            createItem("item-2", "시부야 스크램블"),
-        )
+        val items =
+            listOf(
+                createItem("item-1", "도쿄 타워"),
+                createItem("item-2", "시부야 스크램블"),
+            )
         whenever(videoScheduleItemPersistencePort.findRetryableItems("s1")).thenReturn(items)
 
         val placeResult = PlaceSearchResult("gp1", "도쿄 타워", "address", 35.0, 139.0)
@@ -80,11 +82,12 @@ class PlaceEnrichServiceTest {
     @Test
     fun `3개 장소 중 1개에서 API 예외가 발생해도_나머지 2개는 정상 처리되고_실패한 항목만 success=false가 된다`() {
         // given - 보강 대상 항목 3개, 2번째 항목에서 API 예외 발생
-        val items = listOf(
-            createItem("item-1", "장소1"),
-            createItem("item-2", "장소2"),
-            createItem("item-3", "장소3"),
-        )
+        val items =
+            listOf(
+                createItem("item-1", "장소1"),
+                createItem("item-2", "장소2"),
+                createItem("item-3", "장소3"),
+            )
         whenever(videoScheduleItemPersistencePort.findRetryableItems("s1")).thenReturn(items)
 
         whenever(googlePlacesPort.searchPlace("장소1", null))
@@ -137,7 +140,10 @@ class PlaceEnrichServiceTest {
         verify(videoScheduleItemPersistencePort).findRetryableItems("s2")
     }
 
-    private fun createItem(id: String, name: String) = VideoScheduleItem(
+    private fun createItem(
+        id: String,
+        name: String,
+    ) = VideoScheduleItem(
         id = id,
         videoSummaryId = "s1",
         day = 1,

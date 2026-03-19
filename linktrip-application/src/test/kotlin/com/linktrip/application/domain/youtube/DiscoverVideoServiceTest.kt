@@ -63,11 +63,12 @@ class DiscoverVideoServiceTest {
     fun `테마별 영상 조회 시_커서 기반 페이지네이션으로 결과를 반환한다`() {
         // given - "미식" 테마의 영상이 커서 기반으로 조회되는 상태
         val cursor = LocalDateTime.of(2024, 1, 1, 0, 0)
-        val page = CursorPage(
-            items = listOf(createVideo("v1")),
-            nextCursor = "next",
-            hasNext = true,
-        )
+        val page =
+            CursorPage(
+                items = listOf(createVideo("v1")),
+                nextCursor = "next",
+                hasNext = true,
+            )
         whenever(youTubeVideoPersistencePort.findAllByTheme("미식", cursor, 10)).thenReturn(page)
 
         // when - 커서와 함께 테마별 영상을 조회한다
@@ -78,21 +79,22 @@ class DiscoverVideoServiceTest {
         assertEquals(true, result.hasNext)
     }
 
-    private fun createVideo(videoId: String) = YouTubeVideoDetail(
-        id = "id-$videoId",
-        videoId = videoId,
-        title = "title",
-        description = "desc",
-        thumbnailUrl = "thumb",
-        channelId = "ch1",
-        channelTitle = "channel",
-        viewCount = 1000,
-        likeCount = 100,
-        duration = "PT10M",
-        publishedAt = "2024-01-01",
-        region = "아시아",
-        country = "일본",
-        city = "도쿄",
-        theme = null,
-    )
+    private fun createVideo(videoId: String) =
+        YouTubeVideoDetail(
+            id = "id-$videoId",
+            videoId = videoId,
+            title = "title",
+            description = "desc",
+            thumbnailUrl = "thumb",
+            channelId = "ch1",
+            channelTitle = "channel",
+            viewCount = 1000,
+            likeCount = 100,
+            duration = "PT10M",
+            publishedAt = "2024-01-01",
+            region = "아시아",
+            country = "일본",
+            city = "도쿄",
+            theme = null,
+        )
 }

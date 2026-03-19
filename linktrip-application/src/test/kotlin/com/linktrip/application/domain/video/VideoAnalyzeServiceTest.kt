@@ -50,10 +50,11 @@ class VideoAnalyzeServiceTest {
         // given - 아직 분석된 적 없는 새로운 YouTube URL
         val url = "https://www.youtube.com/watch?v=test123"
         whenever(videoSummaryPersistencePort.findByYoutubeUrl(url)).thenReturn(null)
-        val saved = Fixtures.monkey.giveMeBuilder<VideoSummary>()
-            .set("youtubeUrl", url)
-            .set("status", VideoSummaryStatus.PENDING)
-            .sample()
+        val saved =
+            Fixtures.monkey.giveMeBuilder<VideoSummary>()
+                .set("youtubeUrl", url)
+                .set("status", VideoSummaryStatus.PENDING)
+                .sample()
         whenever(videoSummaryPersistencePort.save(any())).thenReturn(saved)
 
         // when - 영상 분석을 요청한다
@@ -80,10 +81,11 @@ class VideoAnalyzeServiceTest {
     fun `이미 분석 중인 PENDING 상태의 URL로 요청하면_기존 VideoSummary를 그대로 반환하고_저장이나 이벤트 발행을 하지 않는다`() {
         // given - 이미 PENDING 상태로 분석 중인 URL
         val url = "https://youtube.com/watch?v=existing"
-        val existing = Fixtures.monkey.giveMeBuilder<VideoSummary>()
-            .set("youtubeUrl", url)
-            .set("status", VideoSummaryStatus.PENDING)
-            .sample()
+        val existing =
+            Fixtures.monkey.giveMeBuilder<VideoSummary>()
+                .set("youtubeUrl", url)
+                .set("status", VideoSummaryStatus.PENDING)
+                .sample()
         whenever(videoSummaryPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
 
         // when - 같은 URL로 다시 분석을 요청한다
@@ -102,10 +104,11 @@ class VideoAnalyzeServiceTest {
     fun `분석 완료된 COMPLETED 상태의 URL로 요청하면_기존 결과를 반환하고_재분석하지 않는다`() {
         // given - 이미 분석이 완료된 URL
         val url = "https://youtube.com/watch?v=completed"
-        val existing = Fixtures.monkey.giveMeBuilder<VideoSummary>()
-            .set("youtubeUrl", url)
-            .set("status", VideoSummaryStatus.COMPLETED)
-            .sample()
+        val existing =
+            Fixtures.monkey.giveMeBuilder<VideoSummary>()
+                .set("youtubeUrl", url)
+                .set("status", VideoSummaryStatus.COMPLETED)
+                .sample()
         whenever(videoSummaryPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
 
         // when - 완료된 URL로 다시 분석을 요청한다
@@ -122,10 +125,11 @@ class VideoAnalyzeServiceTest {
     fun `유효하지 않은 영상으로 판정된 INVALID URL로 요청하면_기존 결과를 그대로 반환한다`() {
         // given - 이전에 유효하지 않은 영상으로 판정된 URL
         val url = "https://youtube.com/watch?v=invalid"
-        val existing = Fixtures.monkey.giveMeBuilder<VideoSummary>()
-            .set("youtubeUrl", url)
-            .set("status", VideoSummaryStatus.INVALID)
-            .sample()
+        val existing =
+            Fixtures.monkey.giveMeBuilder<VideoSummary>()
+                .set("youtubeUrl", url)
+                .set("status", VideoSummaryStatus.INVALID)
+                .sample()
         whenever(videoSummaryPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
 
         // when - INVALID 상태의 URL로 다시 요청한다
@@ -140,11 +144,12 @@ class VideoAnalyzeServiceTest {
     fun `이전에 실패한 FAILED 상태의 URL로 요청하면_PENDING으로 상태를 변경하고_재분석 이벤트를 발행한다`() {
         // given - 이전 분석이 실패한 URL
         val url = "https://youtube.com/watch?v=failed"
-        val existing = Fixtures.monkey.giveMeBuilder<VideoSummary>()
-            .set("id", "failed-id")
-            .set("youtubeUrl", url)
-            .set("status", VideoSummaryStatus.FAILED)
-            .sample()
+        val existing =
+            Fixtures.monkey.giveMeBuilder<VideoSummary>()
+                .set("id", "failed-id")
+                .set("youtubeUrl", url)
+                .set("status", VideoSummaryStatus.FAILED)
+                .sample()
         whenever(videoSummaryPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
 
         // when - 실패한 URL로 재분석을 요청한다
@@ -168,9 +173,10 @@ class VideoAnalyzeServiceTest {
         // given - YouTube가 아닌 URL
 
         // when & then - INVALID_YOUTUBE_URL 예외가 발생한다
-        val exception = assertThrows<LinktripException> {
-            service.analyzeVideo("https://naver.com/video")
-        }
+        val exception =
+            assertThrows<LinktripException> {
+                service.analyzeVideo("https://naver.com/video")
+            }
         assertEquals(ExceptionCode.INVALID_YOUTUBE_URL.statusCode, exception.statusCode)
     }
 
@@ -189,10 +195,11 @@ class VideoAnalyzeServiceTest {
         // given - youtu.be 단축 URL
         val url = "https://youtu.be/test123"
         whenever(videoSummaryPersistencePort.findByYoutubeUrl(url)).thenReturn(null)
-        val saved = Fixtures.monkey.giveMeBuilder<VideoSummary>()
-            .set("youtubeUrl", url)
-            .set("status", VideoSummaryStatus.PENDING)
-            .sample()
+        val saved =
+            Fixtures.monkey.giveMeBuilder<VideoSummary>()
+                .set("youtubeUrl", url)
+                .set("status", VideoSummaryStatus.PENDING)
+                .sample()
         whenever(videoSummaryPersistencePort.save(any())).thenReturn(saved)
 
         // when - youtu.be URL로 분석을 요청한다

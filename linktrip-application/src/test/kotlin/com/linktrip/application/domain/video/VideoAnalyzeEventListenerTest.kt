@@ -39,25 +39,29 @@ class VideoAnalyzeEventListenerTest {
     fun `유효한 여행 영상이면_AI분석_결과저장_장소보강_완료알림 순서로 전체 파이프라인이 실행된다`() {
         // given - 유효한 여행 영상의 분석 이벤트
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
-        val analysisResult = VideoAnalysisResult(
-            valid = true,
-            destination = "도쿄",
-            days = listOf(
-                VideoAnalysisResult.DaySchedule(
-                    day = 1,
-                    items = listOf(
-                        VideoAnalysisResult.ScheduleItem(1, Category.EAT, "스시집", "맛있는 스시", null),
+        val analysisResult =
+            VideoAnalysisResult(
+                valid = true,
+                destination = "도쿄",
+                days =
+                    listOf(
+                        VideoAnalysisResult.DaySchedule(
+                            day = 1,
+                            items =
+                                listOf(
+                                    VideoAnalysisResult.ScheduleItem(1, Category.EAT, "스시집", "맛있는 스시", null),
+                                ),
+                        ),
                     ),
-                ),
-            ),
-        )
+            )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
 
         // when - 이벤트를 처리한다
         listener.handle(event)
 
         // then - AI분석 -> 결과저장 -> 장소보강 -> 완료알림 순서로 실행된다
-        val inOrder = inOrder(videoAnalyzePort, videoAnalysisResultSaver, placeEnrichService, videoAnalysisNotificationPort)
+        val inOrder =
+            inOrder(videoAnalyzePort, videoAnalysisResultSaver, placeEnrichService, videoAnalysisNotificationPort)
         inOrder.verify(videoAnalyzePort).analyze("https://youtube.com/1")
         inOrder.verify(videoAnalysisResultSaver).save(eq("s1"), any())
         inOrder.verify(placeEnrichService).enrichPlaces("s1", "도쿄")
@@ -99,25 +103,29 @@ class VideoAnalyzeEventListenerTest {
     fun `2일치 3개 일정 항목이 있는 분석 결과를_VideoScheduleItem으로 변환하면_day와 category와 순서가 정확히 매핑된다`() {
         // given - 2일치 3개 일정 항목이 포함된 분석 결과
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
-        val analysisResult = VideoAnalysisResult(
-            valid = true,
-            destination = "파리",
-            days = listOf(
-                VideoAnalysisResult.DaySchedule(
-                    day = 1,
-                    items = listOf(
-                        VideoAnalysisResult.ScheduleItem(1, Category.ATTRACTION, "에펠탑", null, null),
-                        VideoAnalysisResult.ScheduleItem(2, Category.EAT, "카페", null, null),
+        val analysisResult =
+            VideoAnalysisResult(
+                valid = true,
+                destination = "파리",
+                days =
+                    listOf(
+                        VideoAnalysisResult.DaySchedule(
+                            day = 1,
+                            items =
+                                listOf(
+                                    VideoAnalysisResult.ScheduleItem(1, Category.ATTRACTION, "에펠탑", null, null),
+                                    VideoAnalysisResult.ScheduleItem(2, Category.EAT, "카페", null, null),
+                                ),
+                        ),
+                        VideoAnalysisResult.DaySchedule(
+                            day = 2,
+                            items =
+                                listOf(
+                                    VideoAnalysisResult.ScheduleItem(1, Category.SHOPPING, "샹젤리제", null, null),
+                                ),
+                        ),
                     ),
-                ),
-                VideoAnalysisResult.DaySchedule(
-                    day = 2,
-                    items = listOf(
-                        VideoAnalysisResult.ScheduleItem(1, Category.SHOPPING, "샹젤리제", null, null),
-                    ),
-                ),
-            ),
-        )
+            )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
 
         // when - 이벤트를 처리한다

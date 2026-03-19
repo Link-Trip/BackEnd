@@ -23,18 +23,19 @@ class VideoAnalysisResultSaverTest {
     @Test
     fun `분석 결과를 저장하면_일정 항목들이 DB에 저장되고_VideoSummary 상태가 COMPLETED로 변경된다`() {
         // given - 저장할 일정 항목 목록
-        val items = listOf(
-            VideoScheduleItem(
-                id = "item-1",
-                videoSummaryId = "summary-1",
-                day = 1,
-                itemOrder = 1,
-                category = Category.EAT,
-                name = "맛집",
-                description = null,
-                tips = null,
-            ),
-        )
+        val items =
+            listOf(
+                VideoScheduleItem(
+                    id = "item-1",
+                    videoSummaryId = "summary-1",
+                    day = 1,
+                    itemOrder = 1,
+                    category = Category.EAT,
+                    name = "맛집",
+                    description = null,
+                    tips = null,
+                ),
+            )
 
         // when - 분석 결과를 저장한다
         saver.save("summary-1", items)

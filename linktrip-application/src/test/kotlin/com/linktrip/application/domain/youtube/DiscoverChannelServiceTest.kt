@@ -69,12 +69,13 @@ class DiscoverChannelServiceTest {
         assertEquals(10, result.size)
     }
 
-    private fun createChannel(channelId: String) = YouTubeChannelDetail(
-        channelId = channelId,
-        title = "Channel $channelId",
-        description = "desc",
-        thumbnailUrl = "thumb",
-        subscriberCount = 100_000,
-        videoCount = 50,
-    )
+    private fun createChannel(channelId: String) =
+        YouTubeChannelDetail(
+            channelId = channelId,
+            title = "Channel $channelId",
+            description = "desc",
+            thumbnailUrl = "thumb",
+            subscriberCount = 100_000,
+            videoCount = 50,
+        )
 }

@@ -63,17 +63,19 @@ class VideoScheduleItemTest {
     @Test
     fun `AI 분석 결과를 VideoScheduleItem으로 변환하면_day와 category와 name 등 모든 필드가 정확히 매핑된다`() {
         // given - VideoAnalysisResult의 DaySchedule과 ScheduleItem
-        val daySchedule = VideoAnalysisResult.DaySchedule(
-            day = 2,
-            items = emptyList(),
-        )
-        val scheduleItem = VideoAnalysisResult.ScheduleItem(
-            order = 3,
-            category = Category.SHOPPING,
-            name = "명동 쇼핑",
-            description = "한국 화장품 쇼핑",
-            tips = "카드 결제 가능",
-        )
+        val daySchedule =
+            VideoAnalysisResult.DaySchedule(
+                day = 2,
+                items = emptyList(),
+            )
+        val scheduleItem =
+            VideoAnalysisResult.ScheduleItem(
+                order = 3,
+                category = Category.SHOPPING,
+                name = "명동 쇼핑",
+                description = "한국 화장품 쇼핑",
+                tips = "카드 결제 가능",
+            )
 
         // when - from 메서드로 변환한다
         val result = VideoScheduleItem.from("summary-1", daySchedule, scheduleItem)

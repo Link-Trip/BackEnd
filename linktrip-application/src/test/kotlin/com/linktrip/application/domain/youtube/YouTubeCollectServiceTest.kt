@@ -8,7 +8,6 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -29,35 +28,37 @@ class YouTubeCollectServiceTest {
         // given - YouTube 검색 결과 신규 영상 1개, DB에 중복 없음
         // SearchKeyword.pickRandom()은 내부적으로 호출되므로
         // YouTubePort의 searchVideos가 호출될 때 결과를 반환하도록 설정
-        val searchResult = YouTubeSearchResult(
-            videoId = "v1",
-            title = "도쿄 여행",
-            description = "desc",
-            thumbnailUrl = "thumb",
-            channelId = "ch1",
-            channelTitle = "channel",
-            publishedAt = "2024-01-01",
-        )
+        val searchResult =
+            YouTubeSearchResult(
+                videoId = "v1",
+                title = "도쿄 여행",
+                description = "desc",
+                thumbnailUrl = "thumb",
+                channelId = "ch1",
+                channelTitle = "channel",
+                publishedAt = "2024-01-01",
+            )
         whenever(youTubePort.searchVideos(any(), any())).thenReturn(listOf(searchResult))
         whenever(youTubeVideoPersistencePort.findExistingVideoIds(any())).thenReturn(emptySet())
 
-        val videoDetail = YouTubeVideoDetail(
-            id = "id-1",
-            videoId = "v1",
-            title = "도쿄 여행",
-            description = "desc",
-            thumbnailUrl = "thumb",
-            channelId = "ch1",
-            channelTitle = "channel",
-            viewCount = 1000,
-            likeCount = 100,
-            duration = "PT10M",
-            publishedAt = "2024-01-01",
-            region = "",
-            country = "",
-            city = null,
-            theme = null,
-        )
+        val videoDetail =
+            YouTubeVideoDetail(
+                id = "id-1",
+                videoId = "v1",
+                title = "도쿄 여행",
+                description = "desc",
+                thumbnailUrl = "thumb",
+                channelId = "ch1",
+                channelTitle = "channel",
+                viewCount = 1000,
+                likeCount = 100,
+                duration = "PT10M",
+                publishedAt = "2024-01-01",
+                region = "",
+                country = "",
+                city = null,
+                theme = null,
+            )
         whenever(youTubePort.getVideoDetails(any())).thenReturn(listOf(videoDetail))
 
         // when - 영상 수집을 실행한다
@@ -70,15 +71,16 @@ class YouTubeCollectServiceTest {
     @Test
     fun `검색된 영상이 모두 DB에 이미 존재하면_저장을 수행하지 않는다`() {
         // given - 검색 결과의 videoId가 이미 DB에 존재하는 상태
-        val searchResult = YouTubeSearchResult(
-            videoId = "v1",
-            title = "title",
-            description = "desc",
-            thumbnailUrl = "thumb",
-            channelId = "ch1",
-            channelTitle = "channel",
-            publishedAt = "2024-01-01",
-        )
+        val searchResult =
+            YouTubeSearchResult(
+                videoId = "v1",
+                title = "title",
+                description = "desc",
+                thumbnailUrl = "thumb",
+                channelId = "ch1",
+                channelTitle = "channel",
+                publishedAt = "2024-01-01",
+            )
         whenever(youTubePort.searchVideos(any(), any())).thenReturn(listOf(searchResult))
         whenever(youTubeVideoPersistencePort.findExistingVideoIds(any())).thenReturn(setOf("v1"))
 

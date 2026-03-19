@@ -27,10 +27,26 @@ class VideoScheduleServiceTest {
     @Test
     fun `존재하는 영상 ID로 일정을 조회하면_VideoSummary와 일정 항목 목록을 함께 반환한다`() {
         // given - DB에 존재하는 VideoSummary와 일정 항목
-        val summary = VideoSummary(id = "s1", youtubeUrl = "https://youtube.com/1", valid = true, status = VideoSummaryStatus.COMPLETED)
-        val items = listOf(
-            VideoScheduleItem(id = "i1", videoSummaryId = "s1", day = 1, itemOrder = 1, category = Category.EAT, name = "맛집", description = null, tips = null),
-        )
+        val summary =
+            VideoSummary(
+                id = "s1",
+                youtubeUrl = "https://youtube.com/1",
+                valid = true,
+                status = VideoSummaryStatus.COMPLETED,
+            )
+        val items =
+            listOf(
+                VideoScheduleItem(
+                    id = "i1",
+                    videoSummaryId = "s1",
+                    day = 1,
+                    itemOrder = 1,
+                    category = Category.EAT,
+                    name = "맛집",
+                    description = null,
+                    tips = null,
+                ),
+            )
         whenever(videoSummaryPersistencePort.findById("s1")).thenReturn(summary)
         whenever(videoScheduleItemPersistencePort.findByVideoSummaryIdWithPlace("s1")).thenReturn(items)
 
@@ -48,9 +64,10 @@ class VideoScheduleServiceTest {
         whenever(videoSummaryPersistencePort.findById("not-exist")).thenReturn(null)
 
         // when - 존재하지 않는 ID로 조회한다
-        val exception = assertThrows<LinktripException> {
-            service.getVideoSchedule("not-exist")
-        }
+        val exception =
+            assertThrows<LinktripException> {
+                service.getVideoSchedule("not-exist")
+            }
 
         // then - NOT_FOUND 예외가 발생한다
         assertEquals(ExceptionCode.NOT_FOUND.statusCode, exception.statusCode)
