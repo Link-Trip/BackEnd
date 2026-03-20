@@ -15,7 +15,9 @@ class TravelItineraryItemQuerydslRepository(
     private val itineraryItem = QTravelItineraryItemEntity.travelItineraryItemEntity
     private val place = QPlaceEntity.placeEntity
 
-    fun findByVideoAnalysisTaskIdOrderByDayAscItemOrderAsc(videoAnalysisTaskId: String): List<TravelItineraryItemEntity> =
+    fun findByVideoAnalysisTaskIdOrderByDayAscItemOrderAsc(
+        videoAnalysisTaskId: String,
+    ): List<TravelItineraryItemEntity> =
         queryFactory
             .selectFrom(itineraryItem)
             .where(itineraryItem.videoAnalysisTaskId.eq(videoAnalysisTaskId))

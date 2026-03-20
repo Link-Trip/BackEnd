@@ -28,7 +28,9 @@ class PlaceEnrichService(
             return
         }
 
-        logger.info { "장소 보강 시작: videoAnalysisTaskId=$videoAnalysisTaskId, destination=$destination, items=${items.size}" }
+        logger.info {
+            "장소 보강 시작: videoAnalysisTaskId=$videoAnalysisTaskId, destination=$destination, items=${items.size}"
+        }
 
         // Phase 1: 병렬 Google Places API 호출
         val futures =

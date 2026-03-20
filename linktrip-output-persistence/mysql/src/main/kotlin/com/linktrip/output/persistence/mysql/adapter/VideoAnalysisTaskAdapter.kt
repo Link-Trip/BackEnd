@@ -22,7 +22,10 @@ class VideoAnalysisTaskAdapter(
     override fun findByYoutubeUrl(youtubeUrl: String): VideoAnalysisTask? =
         videoAnalysisTaskJpaRepository.findByYoutubeUrl(youtubeUrl)?.toDomain()
 
-    override fun findById(id: String): VideoAnalysisTask? = videoAnalysisTaskJpaRepository.findById(id).orElse(null)?.toDomain()
+    override fun findById(id: String): VideoAnalysisTask? =
+        videoAnalysisTaskJpaRepository.findById(
+            id,
+        ).orElse(null)?.toDomain()
 
     @Transactional
     override fun updateStatus(

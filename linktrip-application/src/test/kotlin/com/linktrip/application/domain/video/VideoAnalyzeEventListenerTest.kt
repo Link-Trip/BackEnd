@@ -80,7 +80,9 @@ class VideoAnalyzeEventListenerTest {
         listener.handle(event)
 
         // then - INVALID 상태로 변경하고, 저장과 보강은 수행하지 않는다
-        verify(videoAnalysisTaskPersistencePort).updateValidAndStatus("s1", valid = false, VideoAnalysisTaskStatus.INVALID)
+        verify(
+            videoAnalysisTaskPersistencePort,
+        ).updateValidAndStatus("s1", valid = false, VideoAnalysisTaskStatus.INVALID)
         verify(videoAnalysisResultSaver, never()).save(any(), any())
         verify(placeEnrichService, never()).enrichPlaces(any(), any())
         verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any())
