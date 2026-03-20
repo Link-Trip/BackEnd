@@ -2,7 +2,7 @@ package com.linktrip.application.domain.video
 
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
-import com.linktrip.application.port.output.persistence.VideoScheduleItemPersistencePort
+import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
@@ -14,21 +14,23 @@ private val logger = KotlinLogging.logger {}
 class PlaceEnrichService(
     private val googlePlacesPort: GooglePlacesPort,
     private val placeEnrichPersistencePort: PlaceEnrichPersistencePort,
-    private val videoScheduleItemPersistencePort: VideoScheduleItemPersistencePort,
+    private val travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort,
     private val placeEnrichExecutor: Executor,
 ) {
     fun enrichPlaces(
-        videoSummaryId: String,
+        videoAnalysisTaskId: String,
         destination: String? = null,
     ) {
-        val items = videoScheduleItemPersistencePort.findRetryableItems(videoSummaryId)
+        val items = travelItineraryItemPersistencePort.findRetryableItems(videoAnalysisTaskId)
 
         if (items.isEmpty()) {
-            logger.info { "장소 보강 대상 없음: videoSummaryId=$videoSummaryId" }
+            logger.info { "장소 보강 대상 없음: videoAnalysisTaskId=$videoAnalysisTaskId" }
             return
         }
 
-        logger.info { "장소 보강 시작: videoSummaryId=$videoSummaryId, destination=$destination, items=${items.size}" }
+        logger.info {
+            "장소 보강 시작: videoAnalysisTaskId=$videoAnalysisTaskId, destination=$destination, items=${items.size}"
+        }
 
         // Phase 1: 병렬 Google Places API 호출
         val futures =
@@ -47,26 +49,26 @@ class PlaceEnrichService(
         val results = futures.map { it.join() }
 
         // Phase 2: 트랜잭션 안 - DB 저장 (Place + ScheduleItem)
-        placeEnrichPersistencePort.applyResults(videoSummaryId, results)
+        placeEnrichPersistencePort.applyResults(videoAnalysisTaskId, results)
 
-        logger.info { "장소 보강 완료: videoSummaryId=$videoSummaryId" }
+        logger.info { "장소 보강 완료: videoAnalysisTaskId=$videoAnalysisTaskId" }
     }
 
     fun retryAll() {
-        val videoSummaryIds = videoScheduleItemPersistencePort.findVideoSummaryIdsWithRetryableItems()
+        val videoAnalysisTaskIds = travelItineraryItemPersistencePort.findVideoAnalysisTaskIdsWithRetryableItems()
 
-        if (videoSummaryIds.isEmpty()) {
+        if (videoAnalysisTaskIds.isEmpty()) {
             logger.info { "장소 보강 리트라이 대상 없음" }
             return
         }
 
-        logger.info { "장소 보강 리트라이 시작: ${videoSummaryIds.size}건" }
+        logger.info { "장소 보강 리트라이 시작: ${videoAnalysisTaskIds.size}건" }
 
-        videoSummaryIds.forEach { videoSummaryId ->
+        videoAnalysisTaskIds.forEach { videoAnalysisTaskId ->
             try {
-                enrichPlaces(videoSummaryId)
+                enrichPlaces(videoAnalysisTaskId)
             } catch (e: Exception) {
-                logger.error(e) { "장소 보강 리트라이 실패: videoSummaryId=$videoSummaryId" }
+                logger.error(e) { "장소 보강 리트라이 실패: videoAnalysisTaskId=$videoAnalysisTaskId" }
             }
         }
 

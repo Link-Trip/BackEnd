@@ -2,7 +2,7 @@ package com.linktrip.application.domain.video
 
 import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
 import com.linktrip.application.port.output.external.VideoAnalyzePort
-import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -22,7 +22,7 @@ class VideoAnalyzeEventListenerTest {
     lateinit var videoAnalyzePort: VideoAnalyzePort
 
     @Mock
-    lateinit var videoSummaryPersistencePort: VideoSummaryPersistencePort
+    lateinit var videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort
 
     @Mock
     lateinit var videoAnalysisResultSaver: VideoAnalysisResultSaver
@@ -80,7 +80,9 @@ class VideoAnalyzeEventListenerTest {
         listener.handle(event)
 
         // then - INVALID 상태로 변경하고, 저장과 보강은 수행하지 않는다
-        verify(videoSummaryPersistencePort).updateValidAndStatus("s1", valid = false, VideoSummaryStatus.INVALID)
+        verify(
+            videoAnalysisTaskPersistencePort,
+        ).updateValidAndStatus("s1", valid = false, VideoAnalysisTaskStatus.INVALID)
         verify(videoAnalysisResultSaver, never()).save(any(), any())
         verify(placeEnrichService, never()).enrichPlaces(any(), any())
         verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any())
@@ -96,12 +98,12 @@ class VideoAnalyzeEventListenerTest {
         listener.handle(event)
 
         // then - FAILED 상태로 변경하고, 결과 저장은 수행하지 않는다
-        verify(videoSummaryPersistencePort).updateStatus("s1", VideoSummaryStatus.FAILED)
+        verify(videoAnalysisTaskPersistencePort).updateStatus("s1", VideoAnalysisTaskStatus.FAILED)
         verify(videoAnalysisResultSaver, never()).save(any(), any())
     }
 
     @Test
-    fun `2일치 3개 일정 항목이 있는 분석 결과를_VideoScheduleItem으로 변환하면_day와 category와 순서가 정확히 매핑된다`() {
+    fun `2일치 3개 일정 항목이 있는 분석 결과를_TravelItineraryItem으로 변환하면_day와 category와 순서가 정확히 매핑된다`() {
         // given - 2일치 3개 일정 항목이 포함된 분석 결과
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
         val analysisResult =
@@ -133,7 +135,7 @@ class VideoAnalyzeEventListenerTest {
         listener.handle(event)
 
         // then - 3개 항목이 day와 category와 순서가 정확히 매핑되어 저장된다
-        val captor = org.mockito.kotlin.argumentCaptor<List<VideoScheduleItem>>()
+        val captor = org.mockito.kotlin.argumentCaptor<List<TravelItineraryItem>>()
         verify(videoAnalysisResultSaver).save(eq("s1"), captor.capture())
 
         val savedItems = captor.firstValue

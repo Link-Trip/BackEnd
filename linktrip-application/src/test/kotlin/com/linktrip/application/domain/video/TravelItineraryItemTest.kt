@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class VideoScheduleItemTest {
+class TravelItineraryItemTest {
     @Test
     fun `장소 미확정이고_교통편이 아니고_검색 횟수가 10회 미만이면_재검색 가능 상태이다`() {
         // given - placeId가 null이고, EAT 카테고리이고, 검색 횟수가 0인 항목
@@ -61,7 +61,7 @@ class VideoScheduleItemTest {
     }
 
     @Test
-    fun `AI 분석 결과를 VideoScheduleItem으로 변환하면_day와 category와 name 등 모든 필드가 정확히 매핑된다`() {
+    fun `AI 분석 결과를 TravelItineraryItem으로 변환하면_day와 category와 name 등 모든 필드가 정확히 매핑된다`() {
         // given - VideoAnalysisResult의 DaySchedule과 ScheduleItem
         val daySchedule =
             VideoAnalysisResult.DaySchedule(
@@ -78,11 +78,11 @@ class VideoScheduleItemTest {
             )
 
         // when - from 메서드로 변환한다
-        val result = VideoScheduleItem.from("summary-1", daySchedule, scheduleItem)
+        val result = TravelItineraryItem.from("summary-1", daySchedule, scheduleItem)
 
         // then - 모든 필드가 정확히 매핑된다
         assertNotNull(result.id)
-        assertEquals("summary-1", result.videoSummaryId)
+        assertEquals("summary-1", result.videoAnalysisTaskId)
         assertEquals(2, result.day)
         assertEquals(3, result.itemOrder)
         assertEquals(Category.SHOPPING, result.category)
@@ -98,9 +98,9 @@ class VideoScheduleItemTest {
         placeId: String? = null,
         category: Category = Category.EAT,
         placeSearchCount: Int = 0,
-    ) = VideoScheduleItem(
+    ) = TravelItineraryItem(
         id = "item-1",
-        videoSummaryId = "summary-1",
+        videoAnalysisTaskId = "summary-1",
         day = 1,
         itemOrder = 1,
         category = category,

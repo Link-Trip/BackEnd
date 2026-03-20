@@ -1,7 +1,7 @@
 package com.linktrip.output.persistence.mysql.entity
 
 import com.linktrip.application.domain.video.Category
-import com.linktrip.application.domain.video.VideoScheduleItem
+import com.linktrip.application.domain.video.TravelItineraryItem
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -12,17 +12,17 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(
-    name = "video_schedule_item",
+    name = "travel_itinerary_item",
     indexes = [
-        Index(name = "idx_schedule_item_video_summary_id", columnList = "video_summary_id"),
+        Index(name = "idx_itinerary_item_video_analysis_task_id", columnList = "video_analysis_task_id"),
     ],
 )
-class VideoScheduleItemEntity(
+class TravelItineraryItemEntity(
     @Id
     @Column(length = 36)
     val id: String,
-    @Column(name = "video_summary_id", nullable = false, length = 36)
-    val videoSummaryId: String,
+    @Column(name = "video_analysis_task_id", nullable = false, length = 36)
+    val videoAnalysisTaskId: String,
     @Column(name = "day", nullable = false)
     val day: Int,
     @Column(name = "item_order", nullable = false)
@@ -41,10 +41,10 @@ class VideoScheduleItemEntity(
     @Column(name = "place_search_count", nullable = false)
     var placeSearchCount: Int = 0,
 ) : BaseTimeEntity() {
-    fun toDomain(): VideoScheduleItem =
-        VideoScheduleItem(
+    fun toDomain(): TravelItineraryItem =
+        TravelItineraryItem(
             id = this.id,
-            videoSummaryId = this.videoSummaryId,
+            videoAnalysisTaskId = this.videoAnalysisTaskId,
             day = this.day,
             itemOrder = this.itemOrder,
             category = this.category,
@@ -56,10 +56,10 @@ class VideoScheduleItemEntity(
         )
 
     companion object {
-        fun from(item: VideoScheduleItem): VideoScheduleItemEntity =
-            VideoScheduleItemEntity(
+        fun from(item: TravelItineraryItem): TravelItineraryItemEntity =
+            TravelItineraryItemEntity(
                 id = item.id,
-                videoSummaryId = item.videoSummaryId,
+                videoAnalysisTaskId = item.videoAnalysisTaskId,
                 day = item.day,
                 itemOrder = item.itemOrder,
                 category = item.category,

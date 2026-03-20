@@ -2,7 +2,7 @@ package com.linktrip.application.domain.youtube
 
 import com.linktrip.application.domain.common.IdGenerator
 
-data class YouTubeVideoDetail(
+data class YouTubeVideoMeta(
     val id: String,
     val videoId: String,
     val title: String,
@@ -35,8 +35,8 @@ data class YouTubeVideoDetail(
             country: String,
             city: String?,
             theme: String?,
-        ): YouTubeVideoDetail =
-            YouTubeVideoDetail(
+        ): YouTubeVideoMeta =
+            YouTubeVideoMeta(
                 id = IdGenerator.generate(),
                 videoId = videoId,
                 title = title,

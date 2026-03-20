@@ -1,7 +1,7 @@
 package com.linktrip.output.persistence.mysql.adapter
 
 import com.linktrip.application.domain.common.CursorPage
-import com.linktrip.application.domain.youtube.YouTubeVideoDetail
+import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 import com.linktrip.application.port.output.persistence.YouTubeVideoPersistencePort
 import com.linktrip.output.persistence.mysql.entity.YouTubeVideoEntity
 import com.linktrip.output.persistence.mysql.repository.YouTubeVideoQuerydslRepository
@@ -17,7 +17,7 @@ class YouTubeVideoPersistenceAdapter(
     private val entityManager: EntityManager,
 ) : YouTubeVideoPersistencePort {
     @Transactional
-    override fun saveAll(videos: List<YouTubeVideoDetail>) {
+    override fun saveAll(videos: List<YouTubeVideoMeta>) {
         val deduped = videos.associateBy { it.videoId }.values
         deduped.forEach { detail ->
             entityManager.persist(YouTubeVideoEntity.from(detail))
@@ -29,17 +29,17 @@ class YouTubeVideoPersistenceAdapter(
         querydslRepository.findVideoIdsByVideoIdIn(videoIds).toSet()
 
     @Transactional(readOnly = true)
-    override fun findAll(): List<YouTubeVideoDetail> =
+    override fun findAll(): List<YouTubeVideoMeta> =
         querydslRepository.findAllOrderByViewCountDesc()
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
-    override fun findAllByCountry(country: String): List<YouTubeVideoDetail> =
+    override fun findAllByCountry(country: String): List<YouTubeVideoMeta> =
         querydslRepository.findAllByCountryOrderByViewCountDesc(country)
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
-    override fun findAllByRegion(region: String): List<YouTubeVideoDetail> =
+    override fun findAllByRegion(region: String): List<YouTubeVideoMeta> =
         querydslRepository.findAllByRegionOrderByViewCountDesc(region)
             .map { it.toDomain() }
 
@@ -48,7 +48,7 @@ class YouTubeVideoPersistenceAdapter(
         theme: String,
         cursor: LocalDateTime?,
         size: Int,
-    ): CursorPage<YouTubeVideoDetail> {
+    ): CursorPage<YouTubeVideoMeta> {
         val pageable = PageRequest.of(0, size + 1)
 
         val entities =

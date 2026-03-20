@@ -1,13 +1,13 @@
 package com.linktrip.application.port.input
 
-import com.linktrip.application.domain.video.VideoScheduleItem
-import com.linktrip.application.domain.video.VideoSummary
+import com.linktrip.application.domain.video.TravelItineraryItem
+import com.linktrip.application.domain.video.VideoAnalysisTask
 
 interface VideoScheduleUseCase {
-    fun getVideoSchedule(videoSummaryId: String): VideoScheduleResult
+    fun getVideoSchedule(videoAnalysisTaskId: String): VideoScheduleResult
 }
 
 data class VideoScheduleResult(
-    val videoSummary: VideoSummary,
-    val items: List<VideoScheduleItem>,
+    val videoAnalysisTask: VideoAnalysisTask,
+    val items: List<TravelItineraryItem>,
 )

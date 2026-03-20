@@ -1,7 +1,7 @@
 package com.linktrip.output.persistence.mysql.entity
 
-import com.linktrip.application.domain.video.VideoSummary
-import com.linktrip.application.domain.video.VideoSummaryStatus
+import com.linktrip.application.domain.video.VideoAnalysisTask
+import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -13,16 +13,16 @@ import jakarta.persistence.UniqueConstraint
 
 @Entity
 @Table(
-    name = "video_summary",
+    name = "video_analysis_task",
     uniqueConstraints = [
-        UniqueConstraint(name = "uk_video_summary_youtube_url", columnNames = ["youtube_url"]),
+        UniqueConstraint(name = "uk_video_analysis_task_youtube_url", columnNames = ["youtube_url"]),
     ],
     indexes = [
-        Index(name = "idx_video_summary_youtube_url", columnList = "youtube_url"),
-        Index(name = "idx_video_summary_status", columnList = "status"),
+        Index(name = "idx_video_analysis_task_youtube_url", columnList = "youtube_url"),
+        Index(name = "idx_video_analysis_task_status", columnList = "status"),
     ],
 )
-class VideoSummaryEntity(
+class VideoAnalysisTaskEntity(
     @Id
     @Column(length = 36)
     val id: String,
@@ -32,10 +32,10 @@ class VideoSummaryEntity(
     var valid: Boolean = false,
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    var status: VideoSummaryStatus = VideoSummaryStatus.PENDING,
+    var status: VideoAnalysisTaskStatus = VideoAnalysisTaskStatus.PENDING,
 ) : BaseTimeEntity() {
-    fun toDomain(): VideoSummary =
-        VideoSummary(
+    fun toDomain(): VideoAnalysisTask =
+        VideoAnalysisTask(
             id = this.id,
             youtubeUrl = this.youtubeUrl,
             valid = this.valid,
@@ -43,12 +43,12 @@ class VideoSummaryEntity(
         )
 
     companion object {
-        fun from(videoSummary: VideoSummary): VideoSummaryEntity =
-            VideoSummaryEntity(
-                id = videoSummary.id,
-                youtubeUrl = videoSummary.youtubeUrl,
-                valid = videoSummary.valid,
-                status = videoSummary.status,
+        fun from(videoAnalysisTask: VideoAnalysisTask): VideoAnalysisTaskEntity =
+            VideoAnalysisTaskEntity(
+                id = videoAnalysisTask.id,
+                youtubeUrl = videoAnalysisTask.youtubeUrl,
+                valid = videoAnalysisTask.valid,
+                status = videoAnalysisTask.status,
             )
     }
 }

@@ -2,7 +2,7 @@ package com.linktrip.application.domain.video
 
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
-import com.linktrip.application.port.output.persistence.VideoScheduleItemPersistencePort
+import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,7 +25,7 @@ class PlaceEnrichServiceTest {
     lateinit var placeEnrichPersistencePort: PlaceEnrichPersistencePort
 
     @Mock
-    lateinit var videoScheduleItemPersistencePort: VideoScheduleItemPersistencePort
+    lateinit var travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort
 
     private val syncExecutor = Executor { it.run() }
 
@@ -33,14 +33,14 @@ class PlaceEnrichServiceTest {
         PlaceEnrichService(
             googlePlacesPort = googlePlacesPort,
             placeEnrichPersistencePort = placeEnrichPersistencePort,
-            videoScheduleItemPersistencePort = videoScheduleItemPersistencePort,
+            travelItineraryItemPersistencePort = travelItineraryItemPersistencePort,
             placeEnrichExecutor = syncExecutor,
         )
 
     @Test
     fun `재검색 가능한 일정 항목이 없으면_Google Places API를 호출하지 않는다`() {
         // given - 재검색 대상 항목이 없는 상태
-        whenever(videoScheduleItemPersistencePort.findRetryableItems("s1")).thenReturn(emptyList())
+        whenever(travelItineraryItemPersistencePort.findRetryableItems("s1")).thenReturn(emptyList())
 
         // when - 장소 보강을 실행한다
         createService().enrichPlaces("s1", "도쿄")
@@ -58,7 +58,7 @@ class PlaceEnrichServiceTest {
                 createItem("item-1", "도쿄 타워"),
                 createItem("item-2", "시부야 스크램블"),
             )
-        whenever(videoScheduleItemPersistencePort.findRetryableItems("s1")).thenReturn(items)
+        whenever(travelItineraryItemPersistencePort.findRetryableItems("s1")).thenReturn(items)
 
         val placeResult = PlaceSearchResult("gp1", "도쿄 타워", "address", 35.0, 139.0)
         whenever(googlePlacesPort.searchPlace("도쿄 타워", "도쿄")).thenReturn(placeResult)
@@ -88,7 +88,7 @@ class PlaceEnrichServiceTest {
                 createItem("item-2", "장소2"),
                 createItem("item-3", "장소3"),
             )
-        whenever(videoScheduleItemPersistencePort.findRetryableItems("s1")).thenReturn(items)
+        whenever(travelItineraryItemPersistencePort.findRetryableItems("s1")).thenReturn(items)
 
         whenever(googlePlacesPort.searchPlace("장소1", null))
             .thenReturn(PlaceSearchResult("gp1", "장소1", null, null, null))
@@ -113,40 +113,40 @@ class PlaceEnrichServiceTest {
 
     @Test
     fun `retryAll 호출 시 재검색 대상이 없으면_아무 처리도 하지 않는다`() {
-        // given - 재검색 대상 videoSummaryId가 없는 상태
-        whenever(videoScheduleItemPersistencePort.findVideoSummaryIdsWithRetryableItems())
+        // given - 재검색 대상 videoAnalysisTaskId가 없는 상태
+        whenever(travelItineraryItemPersistencePort.findVideoAnalysisTaskIdsWithRetryableItems())
             .thenReturn(emptyList())
 
         // when - retryAll을 호출한다
         createService().retryAll()
 
         // then - 개별 항목 조회를 수행하지 않는다
-        verify(videoScheduleItemPersistencePort, never()).findRetryableItems(any())
+        verify(travelItineraryItemPersistencePort, never()).findRetryableItems(any())
     }
 
     @Test
     fun `retryAll 중 하나의 영상에서 DB 오류가 발생해도_나머지 영상들은 계속 처리한다`() {
-        // given - 재검색 대상 videoSummaryId 2개, s1에서 DB 오류 발생
-        whenever(videoScheduleItemPersistencePort.findVideoSummaryIdsWithRetryableItems())
+        // given - 재검색 대상 videoAnalysisTaskId 2개, s1에서 DB 오류 발생
+        whenever(travelItineraryItemPersistencePort.findVideoAnalysisTaskIdsWithRetryableItems())
             .thenReturn(listOf("s1", "s2"))
-        whenever(videoScheduleItemPersistencePort.findRetryableItems("s1"))
+        whenever(travelItineraryItemPersistencePort.findRetryableItems("s1"))
             .thenThrow(RuntimeException("DB 연결 오류"))
-        whenever(videoScheduleItemPersistencePort.findRetryableItems("s2")).thenReturn(emptyList())
+        whenever(travelItineraryItemPersistencePort.findRetryableItems("s2")).thenReturn(emptyList())
 
         // when - retryAll을 호출한다
         createService().retryAll()
 
         // then - s1은 실패하지만 s2는 정상적으로 처리된다
-        verify(videoScheduleItemPersistencePort).findRetryableItems("s1")
-        verify(videoScheduleItemPersistencePort).findRetryableItems("s2")
+        verify(travelItineraryItemPersistencePort).findRetryableItems("s1")
+        verify(travelItineraryItemPersistencePort).findRetryableItems("s2")
     }
 
     private fun createItem(
         id: String,
         name: String,
-    ) = VideoScheduleItem(
+    ) = TravelItineraryItem(
         id = id,
-        videoSummaryId = "s1",
+        videoAnalysisTaskId = "s1",
         day = 1,
         itemOrder = 1,
         category = Category.ATTRACTION,

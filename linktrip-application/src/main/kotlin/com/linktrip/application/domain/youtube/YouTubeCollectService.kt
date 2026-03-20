@@ -16,7 +16,7 @@ class YouTubeCollectService(
         val keywords = SearchKeyword.pickRandom()
         logger.info { "YouTube 영상 수집 시작 - 선택된 키워드: ${keywords.map { it.query }}" }
 
-        val allVideos = mutableListOf<YouTubeVideoDetail>()
+        val allVideos = mutableListOf<YouTubeVideoMeta>()
 
         keywords.forEach { keyword ->
             try {

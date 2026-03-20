@@ -2,9 +2,9 @@ package com.linktrip.application.domain.video
 
 import com.linktrip.application.domain.common.IdGenerator
 
-data class VideoScheduleItem(
+data class TravelItineraryItem(
     val id: String,
-    val videoSummaryId: String,
+    val videoAnalysisTaskId: String,
     val day: Int,
     val itemOrder: Int,
     val category: Category,
@@ -26,13 +26,13 @@ data class VideoScheduleItem(
         const val MAX_PLACE_SEARCH_COUNT = 10
 
         fun from(
-            videoSummaryId: String,
+            videoAnalysisTaskId: String,
             daySchedule: VideoAnalysisResult.DaySchedule,
             item: VideoAnalysisResult.ScheduleItem,
-        ): VideoScheduleItem =
-            VideoScheduleItem(
+        ): TravelItineraryItem =
+            TravelItineraryItem(
                 id = IdGenerator.generate(),
-                videoSummaryId = videoSummaryId,
+                videoAnalysisTaskId = videoAnalysisTaskId,
                 day = daySchedule.day,
                 itemOrder = item.order,
                 category = item.category,

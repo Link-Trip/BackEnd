@@ -3,7 +3,7 @@ package com.linktrip.application.port.output.external
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
 import com.linktrip.application.domain.youtube.YouTubeRecentVideo
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
-import com.linktrip.application.domain.youtube.YouTubeVideoDetail
+import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 
 /**
  * YouTube Data API v3 호출을 위한 출력 포트.
@@ -32,7 +32,7 @@ interface YouTubePort {
      * @param videoIds 조회할 YouTube 영상 ID 목록 (최대 50개)
      * @return 영상 상세 정보 목록 (조회수, 좋아요, 영상 길이 포함)
      */
-    fun getVideoDetails(videoIds: List<String>): List<YouTubeVideoDetail>
+    fun getVideoDetails(videoIds: List<String>): List<YouTubeVideoMeta>
 
     /**
      * 키워드로 YouTube 채널을 검색한다. (search.list, type=channel → channels.list)

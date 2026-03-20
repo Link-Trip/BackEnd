@@ -4,7 +4,7 @@ import com.linktrip.application.domain.video.PlaceEnrichResult
 
 interface PlaceEnrichPersistencePort {
     fun applyResults(
-        videoSummaryId: String,
+        videoAnalysisTaskId: String,
         results: List<PlaceEnrichResult>,
     )
 }

@@ -1,7 +1,7 @@
 package com.linktrip.application.port.input
 
-import com.linktrip.application.domain.video.VideoSummary
+import com.linktrip.application.domain.video.VideoAnalysisTask
 
 interface VideoAnalyzeUseCase {
-    fun analyzeVideo(youtubeUrl: String): VideoSummary
+    fun analyzeVideo(youtubeUrl: String): VideoAnalysisTask
 }

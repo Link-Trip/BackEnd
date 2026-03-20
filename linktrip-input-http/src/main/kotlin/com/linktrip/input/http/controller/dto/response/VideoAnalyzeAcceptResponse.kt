@@ -1,6 +1,6 @@
 package com.linktrip.input.http.controller.dto.response
 
-import com.linktrip.application.domain.video.VideoSummary
+import com.linktrip.application.domain.video.VideoAnalysisTask
 
 data class VideoAnalyzeAcceptResponse(
     val id: String,
@@ -8,11 +8,11 @@ data class VideoAnalyzeAcceptResponse(
     val status: String,
 ) {
     companion object {
-        fun from(videoSummary: VideoSummary): VideoAnalyzeAcceptResponse =
+        fun from(videoAnalysisTask: VideoAnalysisTask): VideoAnalyzeAcceptResponse =
             VideoAnalyzeAcceptResponse(
-                id = videoSummary.id,
-                youtubeUrl = videoSummary.youtubeUrl,
-                status = videoSummary.status.name,
+                id = videoAnalysisTask.id,
+                youtubeUrl = videoAnalysisTask.youtubeUrl,
+                status = videoAnalysisTask.status.name,
             )
     }
 }
