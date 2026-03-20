@@ -2,8 +2,8 @@ package com.linktrip.input.http.controller.dto.response
 
 import com.linktrip.application.domain.video.Place
 import com.linktrip.application.domain.video.PlaceStatus
-import com.linktrip.application.domain.video.VideoScheduleItem
-import com.linktrip.application.domain.video.VideoSummary
+import com.linktrip.application.domain.video.TravelItineraryItem
+import com.linktrip.application.domain.video.VideoAnalysisTask
 
 data class VideoAnalyzeResponse(
     val id: String,
@@ -11,7 +11,7 @@ data class VideoAnalyzeResponse(
     val valid: Boolean,
     val status: String,
     val placeEnrichmentCompleted: Boolean,
-    val scheduleItems: List<ScheduleItemResponse>,
+    val itineraryItems: List<ScheduleItemResponse>,
 ) {
     data class ScheduleItemResponse(
         val id: String,
@@ -48,16 +48,16 @@ data class VideoAnalyzeResponse(
 
     companion object {
         fun from(
-            videoSummary: VideoSummary,
-            items: List<VideoScheduleItem>,
+            videoAnalysisTask: VideoAnalysisTask,
+            items: List<TravelItineraryItem>,
         ): VideoAnalyzeResponse =
             VideoAnalyzeResponse(
-                id = videoSummary.id,
-                youtubeUrl = videoSummary.youtubeUrl,
-                valid = videoSummary.valid,
-                status = videoSummary.status.name,
+                id = videoAnalysisTask.id,
+                youtubeUrl = videoAnalysisTask.youtubeUrl,
+                valid = videoAnalysisTask.valid,
+                status = videoAnalysisTask.status.name,
                 placeEnrichmentCompleted = items.isEmpty() || items.all { it.isResolved() },
-                scheduleItems =
+                itineraryItems =
                     items.map { item ->
                         ScheduleItemResponse(
                             id = item.id,

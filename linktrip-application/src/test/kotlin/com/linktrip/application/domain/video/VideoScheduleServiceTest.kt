@@ -1,7 +1,7 @@
 package com.linktrip.application.domain.video
 
-import com.linktrip.application.port.output.persistence.VideoScheduleItemPersistencePort
-import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -16,29 +16,29 @@ import org.mockito.kotlin.whenever
 @ExtendWith(MockitoExtension::class)
 class VideoScheduleServiceTest {
     @Mock
-    lateinit var videoSummaryPersistencePort: VideoSummaryPersistencePort
+    lateinit var videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort
 
     @Mock
-    lateinit var videoScheduleItemPersistencePort: VideoScheduleItemPersistencePort
+    lateinit var travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort
 
     @InjectMocks
     lateinit var service: VideoScheduleService
 
     @Test
-    fun `존재하는 영상 ID로 일정을 조회하면_VideoSummary와 일정 항목 목록을 함께 반환한다`() {
-        // given - DB에 존재하는 VideoSummary와 일정 항목
+    fun `존재하는 영상 ID로 일정을 조회하면_VideoAnalysisTask와 일정 항목 목록을 함께 반환한다`() {
+        // given - DB에 존재하는 VideoAnalysisTask와 일정 항목
         val summary =
-            VideoSummary(
+            VideoAnalysisTask(
                 id = "s1",
                 youtubeUrl = "https://youtube.com/1",
                 valid = true,
-                status = VideoSummaryStatus.COMPLETED,
+                status = VideoAnalysisTaskStatus.COMPLETED,
             )
         val items =
             listOf(
-                VideoScheduleItem(
+                TravelItineraryItem(
                     id = "i1",
-                    videoSummaryId = "s1",
+                    videoAnalysisTaskId = "s1",
                     day = 1,
                     itemOrder = 1,
                     category = Category.EAT,
@@ -47,21 +47,21 @@ class VideoScheduleServiceTest {
                     tips = null,
                 ),
             )
-        whenever(videoSummaryPersistencePort.findById("s1")).thenReturn(summary)
-        whenever(videoScheduleItemPersistencePort.findByVideoSummaryIdWithPlace("s1")).thenReturn(items)
+        whenever(videoAnalysisTaskPersistencePort.findById("s1")).thenReturn(summary)
+        whenever(travelItineraryItemPersistencePort.findByVideoAnalysisTaskIdWithPlace("s1")).thenReturn(items)
 
         // when - 영상 ID로 일정을 조회한다
         val result = service.getVideoSchedule("s1")
 
-        // then - VideoSummary와 일정 항목 목록을 함께 반환한다
-        assertEquals(summary, result.videoSummary)
+        // then - VideoAnalysisTask와 일정 항목 목록을 함께 반환한다
+        assertEquals(summary, result.videoAnalysisTask)
         assertEquals(1, result.items.size)
     }
 
     @Test
     fun `존재하지 않는 영상 ID로 일정을 조회하면_NOT_FOUND 예외가 발생한다`() {
         // given - DB에 존재하지 않는 ID
-        whenever(videoSummaryPersistencePort.findById("not-exist")).thenReturn(null)
+        whenever(videoAnalysisTaskPersistencePort.findById("not-exist")).thenReturn(null)
 
         // when - 존재하지 않는 ID로 조회한다
         val exception =

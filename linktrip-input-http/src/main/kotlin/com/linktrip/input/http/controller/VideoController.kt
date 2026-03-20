@@ -35,17 +35,17 @@ class VideoController(
     fun analyzeVideo(
         @Valid @RequestBody request: VideoAnalyzeRequest,
     ): ApiResponse<VideoAnalyzeAcceptResponse> {
-        val videoSummary = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
-        return ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(videoSummary))
+        val videoAnalysisTask = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
+        return ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(videoAnalysisTask))
     }
 
-    @GetMapping("/{videoSummaryId}/schedule")
+    @GetMapping("/{videoAnalysisTaskId}/schedule")
     fun getVideoSchedule(
-        @PathVariable videoSummaryId: String,
+        @PathVariable videoAnalysisTaskId: String,
     ): ApiResponse<VideoAnalyzeResponse> {
-        val result = videoScheduleUseCase.getVideoSchedule(videoSummaryId)
+        val result = videoScheduleUseCase.getVideoSchedule(videoAnalysisTaskId)
         return ApiResponse.ok(
-            VideoAnalyzeResponse.from(result.videoSummary, result.items),
+            VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items),
         )
     }
 
