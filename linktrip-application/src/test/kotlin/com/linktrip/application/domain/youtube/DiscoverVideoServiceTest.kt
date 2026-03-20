@@ -80,7 +80,7 @@ class DiscoverVideoServiceTest {
     }
 
     private fun createVideo(videoId: String) =
-        YouTubeVideoDetail(
+        YouTubeVideoMeta(
             id = "id-$videoId",
             videoId = videoId,
             title = "title",

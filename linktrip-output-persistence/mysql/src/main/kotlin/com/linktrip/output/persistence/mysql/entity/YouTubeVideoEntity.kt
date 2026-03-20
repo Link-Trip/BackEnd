@@ -1,6 +1,6 @@
 package com.linktrip.output.persistence.mysql.entity
 
-import com.linktrip.application.domain.youtube.YouTubeVideoDetail
+import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -53,8 +53,8 @@ class YouTubeVideoEntity(
     @Column(name = "theme", length = 32)
     var theme: String? = null,
 ) : BaseTimeEntity() {
-    fun toDomain(): YouTubeVideoDetail =
-        YouTubeVideoDetail(
+    fun toDomain(): YouTubeVideoMeta =
+        YouTubeVideoMeta(
             id = this.id,
             videoId = this.videoId,
             title = this.title,
@@ -72,7 +72,7 @@ class YouTubeVideoEntity(
             theme = this.theme,
         )
 
-    fun updateFrom(detail: YouTubeVideoDetail) {
+    fun updateFrom(detail: YouTubeVideoMeta) {
         this.title = detail.title
         this.description = detail.description
         this.thumbnailUrl = detail.thumbnailUrl
@@ -89,7 +89,7 @@ class YouTubeVideoEntity(
     }
 
     companion object {
-        fun from(detail: YouTubeVideoDetail): YouTubeVideoEntity =
+        fun from(detail: YouTubeVideoMeta): YouTubeVideoEntity =
             YouTubeVideoEntity(
                 id = detail.id,
                 videoId = detail.videoId,

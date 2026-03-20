@@ -43,7 +43,7 @@ class YouTubeCollectServiceTest {
         whenever(youTubeVideoPersistencePort.findExistingVideoIds(any())).thenReturn(emptySet())
 
         val videoDetail =
-            YouTubeVideoDetail(
+            YouTubeVideoMeta(
                 id = "id-1",
                 videoId = "v1",
                 title = "도쿄 여행",

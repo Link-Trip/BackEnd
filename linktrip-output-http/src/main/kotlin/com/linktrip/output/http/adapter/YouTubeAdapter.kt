@@ -3,7 +3,7 @@ package com.linktrip.output.http.adapter
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
 import com.linktrip.application.domain.youtube.YouTubeRecentVideo
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
-import com.linktrip.application.domain.youtube.YouTubeVideoDetail
+import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 import com.linktrip.application.port.output.external.YouTubePort
 import com.linktrip.output.http.dto.youtube.YouTubeChannelResponse
 import com.linktrip.output.http.dto.youtube.YouTubePlaylistItemResponse
@@ -57,7 +57,7 @@ class YouTubeAdapter(
             } ?: emptyList()
     }
 
-    override fun getVideoDetails(videoIds: List<String>): List<YouTubeVideoDetail> {
+    override fun getVideoDetails(videoIds: List<String>): List<YouTubeVideoMeta> {
         if (videoIds.isEmpty()) return emptyList()
 
         return videoIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
@@ -75,7 +75,7 @@ class YouTubeAdapter(
                     .body<YouTubeVideoResponse>()
 
             response?.items?.map { item ->
-                YouTubeVideoDetail.create(
+                YouTubeVideoMeta.create(
                     videoId = item.id,
                     title = item.snippet?.title.orEmpty(),
                     description = item.snippet?.description.orEmpty(),

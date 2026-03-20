@@ -4,7 +4,7 @@ import com.linktrip.application.domain.youtube.YouTubeChannelCollectService
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
 import com.linktrip.application.domain.youtube.YouTubeCollectService
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
-import com.linktrip.application.domain.youtube.YouTubeVideoDetail
+import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 import com.linktrip.application.port.output.external.YouTubePort
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import io.swagger.v3.oas.annotations.Hidden
@@ -34,7 +34,7 @@ class YouTubeTestController(
     @GetMapping("/videos")
     fun getVideoDetails(
         @RequestParam ids: List<String>,
-    ): ApiResponse<List<YouTubeVideoDetail>> = ApiResponse.ok(youTubePort.getVideoDetails(ids))
+    ): ApiResponse<List<YouTubeVideoMeta>> = ApiResponse.ok(youTubePort.getVideoDetails(ids))
 
     @GetMapping("/search/channels")
     fun searchChannels(
