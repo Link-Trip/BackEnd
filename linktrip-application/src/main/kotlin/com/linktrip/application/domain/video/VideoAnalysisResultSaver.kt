@@ -1,25 +1,25 @@
 package com.linktrip.application.domain.video
 
-import com.linktrip.application.port.output.persistence.VideoScheduleItemPersistencePort
-import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
 class VideoAnalysisResultSaver(
-    private val videoScheduleItemPersistencePort: VideoScheduleItemPersistencePort,
-    private val videoSummaryPersistencePort: VideoSummaryPersistencePort,
+    private val travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort,
+    private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
 ) {
     @Transactional
     fun save(
-        videoSummaryId: String,
-        scheduleItems: List<VideoScheduleItem>,
+        videoAnalysisTaskId: String,
+        itineraryItems: List<TravelItineraryItem>,
     ) {
-        videoScheduleItemPersistencePort.saveAll(scheduleItems)
-        videoSummaryPersistencePort.updateValidAndStatus(
-            videoSummaryId,
+        travelItineraryItemPersistencePort.saveAll(itineraryItems)
+        videoAnalysisTaskPersistencePort.updateValidAndStatus(
+            videoAnalysisTaskId,
             valid = true,
-            VideoSummaryStatus.COMPLETED,
+            VideoAnalysisTaskStatus.COMPLETED,
         )
     }
 }

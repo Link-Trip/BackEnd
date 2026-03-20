@@ -1,7 +1,7 @@
 package com.linktrip.application.domain.video
 
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
-import com.linktrip.application.port.output.persistence.VideoSummaryPersistencePort
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import com.linktrip.common.config.event.Events
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
@@ -10,30 +10,30 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class VideoAnalyzeService(
-    private val videoSummaryPersistencePort: VideoSummaryPersistencePort,
+    private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
 ) : VideoAnalyzeUseCase {
     @Transactional
-    override fun analyzeVideo(youtubeUrl: String): VideoSummary {
+    override fun analyzeVideo(youtubeUrl: String): VideoAnalysisTask {
         validateYoutubeUrl(youtubeUrl)
 
-        videoSummaryPersistencePort.findByYoutubeUrl(youtubeUrl)?.let { existing ->
+        videoAnalysisTaskPersistencePort.findByYoutubeUrl(youtubeUrl)?.let { existing ->
             return when (existing.status) {
-                VideoSummaryStatus.PENDING -> existing
-                VideoSummaryStatus.COMPLETED -> existing
-                VideoSummaryStatus.INVALID -> existing
-                VideoSummaryStatus.FAILED -> {
-                    videoSummaryPersistencePort.updateStatus(existing.id, VideoSummaryStatus.PENDING)
+                VideoAnalysisTaskStatus.PENDING -> existing
+                VideoAnalysisTaskStatus.COMPLETED -> existing
+                VideoAnalysisTaskStatus.INVALID -> existing
+                VideoAnalysisTaskStatus.FAILED -> {
+                    videoAnalysisTaskPersistencePort.updateStatus(existing.id, VideoAnalysisTaskStatus.PENDING)
                     Events.raise(VideoAnalyzeEvent(existing.id, youtubeUrl))
-                    existing.copy(status = VideoSummaryStatus.PENDING)
+                    existing.copy(status = VideoAnalysisTaskStatus.PENDING)
                 }
             }
         }
 
-        val videoSummary = videoSummaryPersistencePort.save(VideoSummary.create(youtubeUrl))
+        val videoAnalysisTask = videoAnalysisTaskPersistencePort.save(VideoAnalysisTask.create(youtubeUrl))
 
-        Events.raise(VideoAnalyzeEvent(videoSummary.id, youtubeUrl))
+        Events.raise(VideoAnalyzeEvent(videoAnalysisTask.id, youtubeUrl))
 
-        return videoSummary
+        return videoAnalysisTask
     }
 
     private fun validateYoutubeUrl(url: String) {
