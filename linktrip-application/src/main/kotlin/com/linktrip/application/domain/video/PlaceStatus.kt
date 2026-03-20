@@ -9,12 +9,12 @@ enum class PlaceStatus {
     ;
 
     companion object {
-        fun from(item: VideoScheduleItem): PlaceStatus =
+        fun from(item: TravelItineraryItem): PlaceStatus =
             when {
                 item.category == Category.TRANSPORTATION -> NOT_REQUIRED
                 item.placeId != null -> FOUND
                 item.placeSearchCount == 0 -> PENDING
-                item.placeSearchCount >= VideoScheduleItem.MAX_PLACE_SEARCH_COUNT -> NOT_FOUND
+                item.placeSearchCount >= TravelItineraryItem.MAX_PLACE_SEARCH_COUNT -> NOT_FOUND
                 else -> SEARCHING
             }
     }
