@@ -14,7 +14,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import java.util.concurrent.Executor
+import kotlinx.coroutines.Dispatchers
 
 @ExtendWith(MockitoExtension::class)
 class PlaceEnrichServiceTest {
@@ -27,14 +27,12 @@ class PlaceEnrichServiceTest {
     @Mock
     lateinit var travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort
 
-    private val syncExecutor = Executor { it.run() }
-
     private fun createService() =
         PlaceEnrichService(
             googlePlacesPort = googlePlacesPort,
             placeEnrichPersistencePort = placeEnrichPersistencePort,
             travelItineraryItemPersistencePort = travelItineraryItemPersistencePort,
-            placeEnrichExecutor = syncExecutor,
+            placeEnrichDispatcher = Dispatchers.Unconfined,
         )
 
     @Test
