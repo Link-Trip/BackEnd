@@ -37,10 +37,13 @@ class VideoAnalyzeService(
     }
 
     private fun validateYoutubeUrl(url: String) {
-        val isYoutubeUrl =
-            url.contains("youtube.com") || url.contains("youtu.be")
-        if (!isYoutubeUrl) {
+        if (!YOUTUBE_URL_REGEX.matches(url)) {
             throw LinktripException(ExceptionCode.INVALID_YOUTUBE_URL)
         }
+    }
+
+    companion object {
+        private val YOUTUBE_URL_REGEX =
+            Regex("^https?://(www\\.|m\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)[\\w-]+.*$")
     }
 }
