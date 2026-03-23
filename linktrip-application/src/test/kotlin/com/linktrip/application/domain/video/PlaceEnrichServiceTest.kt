@@ -3,6 +3,7 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
+import kotlinx.coroutines.Dispatchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -14,7 +15,6 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import java.util.concurrent.Executor
 
 @ExtendWith(MockitoExtension::class)
 class PlaceEnrichServiceTest {
@@ -27,14 +27,12 @@ class PlaceEnrichServiceTest {
     @Mock
     lateinit var travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort
 
-    private val syncExecutor = Executor { it.run() }
-
     private fun createService() =
         PlaceEnrichService(
             googlePlacesPort = googlePlacesPort,
             placeEnrichPersistencePort = placeEnrichPersistencePort,
             travelItineraryItemPersistencePort = travelItineraryItemPersistencePort,
-            placeEnrichExecutor = syncExecutor,
+            placeEnrichDispatcher = Dispatchers.Unconfined,
         )
 
     @Test

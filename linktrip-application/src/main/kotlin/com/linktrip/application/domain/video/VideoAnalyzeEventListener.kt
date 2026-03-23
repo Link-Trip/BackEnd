@@ -25,6 +25,8 @@ class VideoAnalyzeEventListener(
         val startTime = System.currentTimeMillis()
         logger.info { "영상 분석 시작: id=${event.videoAnalysisTaskId}, url=${event.youtubeUrl}" }
 
+        val destination: String?
+
         try {
             val result = videoAnalyzePort.analyze(event.youtubeUrl)
 
@@ -38,7 +40,7 @@ class VideoAnalyzeEventListener(
                 return
             }
 
-            val destination: String? = result.destination
+            destination = result.destination
             val itineraryItems = toItineraryItems(event.videoAnalysisTaskId, result)
             videoAnalysisResultSaver.save(event.videoAnalysisTaskId, itineraryItems)
 
@@ -47,16 +49,27 @@ class VideoAnalyzeEventListener(
                 "영상 분석 완료: id=${event.videoAnalysisTaskId}, destination=$destination, " +
                     "${analyzeElapsed}ms, items=${itineraryItems.size}"
             }
-
-            val enrichStartTime = System.currentTimeMillis()
-            placeEnrichService.enrichPlaces(event.videoAnalysisTaskId, destination)
-            val enrichElapsed = System.currentTimeMillis() - enrichStartTime
-            logger.info { "장소 보강 소요시간: id=${event.videoAnalysisTaskId}, ${enrichElapsed}ms" }
-
-            videoAnalysisNotificationPort.notifyAnalysisComplete(event.videoAnalysisTaskId)
         } catch (e: Exception) {
             logger.error(e) { "영상 분석 실패: id=${event.videoAnalysisTaskId}" }
             videoAnalysisTaskPersistencePort.updateStatus(event.videoAnalysisTaskId, VideoAnalysisTaskStatus.FAILED)
+            return
+        }
+
+        enrichPlaces(event.videoAnalysisTaskId, destination)
+        videoAnalysisNotificationPort.notifyAnalysisComplete(event.videoAnalysisTaskId)
+    }
+
+    private fun enrichPlaces(
+        videoAnalysisTaskId: String,
+        destination: String?,
+    ) {
+        try {
+            val startTime = System.currentTimeMillis()
+            placeEnrichService.enrichPlaces(videoAnalysisTaskId, destination)
+            val elapsed = System.currentTimeMillis() - startTime
+            logger.info { "장소 보강 소요시간: id=$videoAnalysisTaskId, ${elapsed}ms" }
+        } catch (e: Exception) {
+            logger.warn(e) { "장소 보강 실패, 분석 결과는 유지: id=$videoAnalysisTaskId" }
         }
     }
 

@@ -57,6 +57,9 @@ spring-boot-starter-batch = { group = "org.springframework.boot", name = "spring
 # Cache
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.8" }
 
+# Coroutines
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.10.2" }
+
 # Google Cloud
 google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
 
@@ -80,7 +83,7 @@ test-runtime = ["junit"]
 
 # 모듈별
 bootstrap = ["spring-boot-starter-web", "spring-boot-starter-actuator"]
-domain-application = ["spring-boot-docs", "spring-transaction"]
+domain-application = ["spring-boot-docs", "spring-transaction", "kotlinx-coroutines-core"]
 adaptor-input-http = ["spring-boot-starter-web", "spring-boot-starter-aop", "spring-boot-docs", "spring-boot-starter-validation", "jjwt-api", "jjwt-impl", "jjwt-jackson"]
 adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
