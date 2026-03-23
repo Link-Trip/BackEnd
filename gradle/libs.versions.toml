@@ -58,7 +58,7 @@ spring-boot-starter-batch = { group = "org.springframework.boot", name = "spring
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.8" }
 
 # Coroutines
-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.8.1" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.10.2" }
 
 # Google Cloud
 google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
