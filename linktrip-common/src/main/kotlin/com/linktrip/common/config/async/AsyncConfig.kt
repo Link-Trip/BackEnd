@@ -1,5 +1,7 @@
 package com.linktrip.common.config.async
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
@@ -40,12 +42,12 @@ class AsyncConfig {
         }
 
     @Bean
-    fun placeEnrichExecutor(): Executor =
+    fun placeEnrichDispatcher(): CoroutineDispatcher =
         ThreadPoolTaskExecutor().apply {
             corePoolSize = 5
             maxPoolSize = 10
             queueCapacity = 50
             setThreadNamePrefix("PlaceEnrich-")
             initialize()
-        }
+        }.asCoroutineDispatcher()
 }
