@@ -16,13 +16,13 @@ object IdGenerator {
         val randomBytes = ByteArray(10).also { random.nextBytes(it) }
 
         val msb =
-            (timestamp shl 16) or              // 상위 48비트: 타임스탬프
-                (0x7000L) or                   // version 7
+            (timestamp shl 16) or // 상위 48비트: 타임스탬프
+                (0x7000L) or // version 7
                 (randomBytes[0].toLong() and 0x0FL shl 8) or
                 (randomBytes[1].toLong() and 0xFFL)
 
         val lsb =
-            (0x80L shl 56) or                  // variant 10
+            (0x80L shl 56) or // variant 10
                 (randomBytes[2].toLong() and 0x3FL shl 56) or
                 (randomBytes[3].toLong() and 0xFFL shl 48) or
                 (randomBytes[4].toLong() and 0xFFL shl 40) or

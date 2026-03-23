@@ -49,7 +49,6 @@ class VideoAnalyzeEventListener(
                 "영상 분석 완료: id=${event.videoAnalysisTaskId}, destination=$destination, " +
                     "${analyzeElapsed}ms, items=${itineraryItems.size}"
             }
-
         } catch (e: Exception) {
             logger.error(e) { "영상 분석 실패: id=${event.videoAnalysisTaskId}" }
             videoAnalysisTaskPersistencePort.updateStatus(event.videoAnalysisTaskId, VideoAnalysisTaskStatus.FAILED)

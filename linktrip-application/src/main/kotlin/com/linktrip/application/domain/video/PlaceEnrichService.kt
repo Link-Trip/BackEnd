@@ -34,11 +34,12 @@ class PlaceEnrichService(
             "장소 보강 시작: videoAnalysisTaskId=$videoAnalysisTaskId, destination=$destination, items=${items.size}"
         }
 
-        val results = runBlocking(placeEnrichDispatcher) {
-            items.map { item ->
-                async { searchPlace(item, destination) }
-            }.awaitAll()
-        }
+        val results =
+            runBlocking(placeEnrichDispatcher) {
+                items.map { item ->
+                    async { searchPlace(item, destination) }
+                }.awaitAll()
+            }
 
         placeEnrichPersistencePort.applyResults(videoAnalysisTaskId, results)
 
