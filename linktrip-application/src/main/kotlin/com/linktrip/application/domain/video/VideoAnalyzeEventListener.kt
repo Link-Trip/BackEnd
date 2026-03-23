@@ -50,7 +50,6 @@ class VideoAnalyzeEventListener(
                     "${analyzeElapsed}ms, items=${itineraryItems.size}"
             }
 
-            videoAnalysisNotificationPort.notifyAnalysisComplete(event.videoAnalysisTaskId)
         } catch (e: Exception) {
             logger.error(e) { "영상 분석 실패: id=${event.videoAnalysisTaskId}" }
             videoAnalysisTaskPersistencePort.updateStatus(event.videoAnalysisTaskId, VideoAnalysisTaskStatus.FAILED)
@@ -58,6 +57,7 @@ class VideoAnalyzeEventListener(
         }
 
         enrichPlaces(event.videoAnalysisTaskId, destination)
+        videoAnalysisNotificationPort.notifyAnalysisComplete(event.videoAnalysisTaskId)
     }
 
     private fun enrichPlaces(
