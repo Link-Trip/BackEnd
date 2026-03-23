@@ -25,8 +25,10 @@ class VideoAnalyzeAdapter(
     private val objectMapper: ObjectMapper,
 ) : VideoAnalyzePort {
     private val credentials: GoogleCredentials by lazy {
-        GoogleCredentials.fromStream(FileInputStream(gcpProperties.credentialsPath))
-            .createScoped("https://www.googleapis.com/auth/cloud-platform")
+        FileInputStream(gcpProperties.credentialsPath).use { stream ->
+            GoogleCredentials.fromStream(stream)
+                .createScoped("https://www.googleapis.com/auth/cloud-platform")
+        }
     }
 
     private val client: Client by lazy {
