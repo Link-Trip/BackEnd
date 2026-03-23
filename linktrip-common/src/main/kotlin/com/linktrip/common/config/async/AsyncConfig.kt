@@ -2,6 +2,7 @@ package com.linktrip.common.config.async
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
+import org.springframework.beans.factory.DisposableBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
@@ -10,7 +11,7 @@ import java.util.concurrent.Executor
 
 @EnableAsync
 @Configuration
-class AsyncConfig {
+class AsyncConfig : DisposableBean {
     @Bean(name = ["AccessLogExecutor"])
     fun accessLogExecutor(): Executor =
         ThreadPoolTaskExecutor().apply {
@@ -41,13 +42,24 @@ class AsyncConfig {
             initialize()
         }
 
+    private lateinit var placeEnrichTaskExecutor: ThreadPoolTaskExecutor
+
     @Bean
-    fun placeEnrichDispatcher(): CoroutineDispatcher =
-        ThreadPoolTaskExecutor().apply {
-            corePoolSize = 5
-            maxPoolSize = 10
-            queueCapacity = 50
-            setThreadNamePrefix("PlaceEnrich-")
-            initialize()
-        }.asCoroutineDispatcher()
+    fun placeEnrichDispatcher(): CoroutineDispatcher {
+        placeEnrichTaskExecutor =
+            ThreadPoolTaskExecutor().apply {
+                corePoolSize = 5
+                maxPoolSize = 10
+                queueCapacity = 50
+                setThreadNamePrefix("PlaceEnrich-")
+                initialize()
+            }
+        return placeEnrichTaskExecutor.asCoroutineDispatcher()
+    }
+
+    override fun destroy() {
+        if (::placeEnrichTaskExecutor.isInitialized) {
+            placeEnrichTaskExecutor.shutdown()
+        }
+    }
 }
