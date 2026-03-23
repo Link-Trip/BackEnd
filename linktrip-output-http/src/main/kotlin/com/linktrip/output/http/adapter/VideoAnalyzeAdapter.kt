@@ -15,6 +15,7 @@ import com.linktrip.output.http.properties.GcpProperties
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.FileInputStream
+import javax.annotation.PreDestroy
 
 private val logger = KotlinLogging.logger {}
 
@@ -23,36 +24,13 @@ class VideoAnalyzeAdapter(
     private val gcpProperties: GcpProperties,
     private val objectMapper: ObjectMapper,
 ) : VideoAnalyzePort {
-    override fun analyze(youtubeUrl: String): VideoAnalysisResult {
-        try {
-            newClient().use { client ->
-                val response =
-                    client.models.generateContent(
-                        MODEL,
-                        Content.fromParts(
-                            Part.fromText(DEFAULT_PROMPT),
-                            Part.fromUri(youtubeUrl, VIDEO_MIME_TYPE),
-                        ),
-                        null,
-                    )
-
-                val jsonText = stripMarkdownCodeBlock(response.text())
-                val aiResponse = objectMapper.readValue(jsonText, AiApiResponse::class.java)
-                return aiResponse.toDomain()
-            }
-        } catch (e: LinktripException) {
-            throw e
-        } catch (e: Exception) {
-            logger.error(e) { "Gemini AI 분석 실패: url=$youtubeUrl" }
-            throw LinktripException(ExceptionCode.API_ERROR_GEMINI)
-        }
+    private val credentials: GoogleCredentials by lazy {
+        GoogleCredentials.fromStream(FileInputStream(gcpProperties.credentialsPath))
+            .createScoped("https://www.googleapis.com/auth/cloud-platform")
     }
 
-    private fun newClient(): Client {
-        val credentials =
-            GoogleCredentials.fromStream(FileInputStream(gcpProperties.credentialsPath))
-                .createScoped("https://www.googleapis.com/auth/cloud-platform")
-        return Client
+    private val client: Client by lazy {
+        Client
             .builder()
             .vertexAI(true)
             .project(gcpProperties.projectId)
@@ -60,6 +38,35 @@ class VideoAnalyzeAdapter(
             .httpOptions(HttpOptions.builder().apiVersion(API_VERSION).build())
             .credentials(credentials)
             .build()
+    }
+
+    @PreDestroy
+    fun close() {
+        runCatching { client.close() }
+            .onFailure { logger.warn(it) { "Gemini Client 종료 중 에러 발생" } }
+    }
+
+    override fun analyze(youtubeUrl: String): VideoAnalysisResult {
+        try {
+            val response =
+                client.models.generateContent(
+                    MODEL,
+                    Content.fromParts(
+                        Part.fromText(DEFAULT_PROMPT),
+                        Part.fromUri(youtubeUrl, VIDEO_MIME_TYPE),
+                    ),
+                    null,
+                )
+
+            val jsonText = stripMarkdownCodeBlock(response.text())
+            val aiResponse = objectMapper.readValue(jsonText, AiApiResponse::class.java)
+            return aiResponse.toDomain()
+        } catch (e: LinktripException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error(e) { "Gemini AI 분석 실패: url=$youtubeUrl" }
+            throw LinktripException(ExceptionCode.API_ERROR_GEMINI)
+        }
     }
 
     companion object {
