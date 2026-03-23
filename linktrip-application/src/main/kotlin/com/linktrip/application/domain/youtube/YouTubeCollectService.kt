@@ -13,7 +13,7 @@ class YouTubeCollectService(
     private val youTubeVideoPersistencePort: YouTubeVideoPersistencePort,
 ) {
     fun collectVideos() {
-        val keywords = SearchKeyword.pickRandom()
+        val keywords = SearchKeywordLoader.pickRandom()
         logger.info { "YouTube 영상 수집 시작 - 선택된 키워드: ${keywords.map { it.query }}" }
 
         val allVideos = mutableListOf<YouTubeVideoMeta>()

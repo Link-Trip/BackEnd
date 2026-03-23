@@ -1,0 +1,310 @@
+[
+  {"query": "도쿄 여행 브이로그", "region": "아시아", "country": "일본", "city": "도쿄", "theme": "일본"},
+  {"query": "오사카 여행 브이로그", "region": "아시아", "country": "일본", "city": "오사카", "theme": "일본"},
+  {"query": "후쿠오카 여행 브이로그", "region": "아시아", "country": "일본", "city": "후쿠오카", "theme": "일본"},
+  {"query": "삿포로 여행 브이로그", "region": "아시아", "country": "일본", "city": "삿포로", "theme": "일본"},
+  {"query": "교토 여행 브이로그", "region": "아시아", "country": "일본", "city": "교토", "theme": "일본"},
+  {"query": "나고야 여행 브이로그", "region": "아시아", "country": "일본", "city": "나고야", "theme": "일본"},
+  {"query": "오키나와 여행 브이로그", "region": "아시아", "country": "일본", "city": "오키나와", "theme": "일본"},
+  {"query": "나라 여행 브이로그", "region": "아시아", "country": "일본", "city": "나라", "theme": "일본"},
+  {"query": "일본 여행 브이로그", "region": "아시아", "country": "일본", "city": null, "theme": "일본"},
+
+  {"query": "다낭 여행 브이로그", "region": "아시아", "country": "베트남", "city": "다낭", "theme": "베트남"},
+  {"query": "호치민 여행 브이로그", "region": "아시아", "country": "베트남", "city": "호치민", "theme": "베트남"},
+  {"query": "하노이 여행 브이로그", "region": "아시아", "country": "베트남", "city": "하노이", "theme": "베트남"},
+  {"query": "나트랑 여행 브이로그", "region": "아시아", "country": "베트남", "city": "나트랑", "theme": "베트남"},
+  {"query": "푸꾸옥 여행 브이로그", "region": "아시아", "country": "베트남", "city": "푸꾸옥", "theme": "베트남"},
+  {"query": "달랏 여행 브이로그", "region": "아시아", "country": "베트남", "city": "달랏", "theme": "베트남"},
+  {"query": "베트남 여행 브이로그", "region": "아시아", "country": "베트남", "city": null, "theme": "베트남"},
+
+  {"query": "상하이 여행 브이로그", "region": "아시아", "country": "중국", "city": "상하이", "theme": "중국"},
+  {"query": "베이징 여행 브이로그", "region": "아시아", "country": "중국", "city": "베이징", "theme": "중국"},
+  {"query": "칭다오 여행 브이로그", "region": "아시아", "country": "중국", "city": "칭다오", "theme": "중국"},
+  {"query": "광저우 여행 브이로그", "region": "아시아", "country": "중국", "city": "광저우", "theme": "중국"},
+  {"query": "선전 여행 브이로그", "region": "아시아", "country": "중국", "city": "선전", "theme": "중국"},
+  {"query": "하얼빈 여행 브이로그", "region": "아시아", "country": "중국", "city": "하얼빈", "theme": "중국"},
+  {"query": "장가계 여행 브이로그", "region": "아시아", "country": "중국", "city": "장가계", "theme": "중국"},
+  {"query": "청두 여행 브이로그", "region": "아시아", "country": "중국", "city": "청두", "theme": "중국"},
+  {"query": "중국 여행 브이로그", "region": "아시아", "country": "중국", "city": null, "theme": "중국"},
+
+  {"query": "방콕 여행 브이로그", "region": "아시아", "country": "태국", "city": "방콕", "theme": "태국"},
+  {"query": "치앙마이 여행 브이로그", "region": "아시아", "country": "태국", "city": "치앙마이", "theme": "태국"},
+  {"query": "푸켓 여행 브이로그", "region": "아시아", "country": "태국", "city": "푸켓", "theme": "태국"},
+  {"query": "파타야 여행 브이로그", "region": "아시아", "country": "태국", "city": "파타야", "theme": "태국"},
+  {"query": "끄라비 여행 브이로그", "region": "아시아", "country": "태국", "city": "끄라비", "theme": "태국"},
+  {"query": "태국 여행 브이로그", "region": "아시아", "country": "태국", "city": null, "theme": "태국"},
+
+  {"query": "세부 여행 브이로그", "region": "아시아", "country": "필리핀", "city": "세부", "theme": "필리핀"},
+  {"query": "마닐라 여행 브이로그", "region": "아시아", "country": "필리핀", "city": "마닐라", "theme": "필리핀"},
+  {"query": "보라카이 여행 브이로그", "region": "아시아", "country": "필리핀", "city": "보라카이", "theme": "필리핀"},
+  {"query": "보홀 여행 브이로그", "region": "아시아", "country": "필리핀", "city": "보홀", "theme": "필리핀"},
+  {"query": "팔라완 여행 브이로그", "region": "아시아", "country": "필리핀", "city": "팔라완", "theme": "필리핀"},
+  {"query": "필리핀 여행 브이로그", "region": "아시아", "country": "필리핀", "city": null, "theme": "필리핀"},
+
+  {"query": "타이베이 여행 브이로그", "region": "아시아", "country": "대만", "city": "타이베이", "theme": "대만"},
+  {"query": "가오슝 여행 브이로그", "region": "아시아", "country": "대만", "city": "가오슝", "theme": "대만"},
+  {"query": "타이중 여행 브이로그", "region": "아시아", "country": "대만", "city": "타이중", "theme": "대만"},
+  {"query": "화롄 여행 브이로그", "region": "아시아", "country": "대만", "city": "화롄", "theme": "대만"},
+  {"query": "지우펀 여행 브이로그", "region": "아시아", "country": "대만", "city": "지우펀", "theme": "대만"},
+  {"query": "대만 여행 브이로그", "region": "아시아", "country": "대만", "city": null, "theme": "대만"},
+
+  {"query": "홍콩 여행 브이로그", "region": "아시아", "country": "홍콩", "city": "홍콩", "theme": "홍콩"},
+  {"query": "싱가포르 여행 브이로그", "region": "아시아", "country": "싱가포르", "city": "싱가포르", "theme": "싱가포르"},
+
+  {"query": "쿠알라룸푸르 여행 브이로그", "region": "아시아", "country": "말레이시아", "city": "쿠알라룸푸르", "theme": "말레이시아"},
+  {"query": "코타키나발루 여행 브이로그", "region": "아시아", "country": "말레이시아", "city": "코타키나발루", "theme": "말레이시아"},
+  {"query": "랑카위 여행 브이로그", "region": "아시아", "country": "말레이시아", "city": "랑카위", "theme": "말레이시아"},
+  {"query": "페낭 여행 브이로그", "region": "아시아", "country": "말레이시아", "city": "페낭", "theme": "말레이시아"},
+  {"query": "조호르바루 여행 브이로그", "region": "아시아", "country": "말레이시아", "city": "조호르바루", "theme": "말레이시아"},
+  {"query": "말레이시아 여행 브이로그", "region": "아시아", "country": "말레이시아", "city": null, "theme": "말레이시아"},
+
+  {"query": "발리 여행 브이로그", "region": "아시아", "country": "인도네시아", "city": "발리", "theme": "인도네시아"},
+  {"query": "자카르타 여행 브이로그", "region": "아시아", "country": "인도네시아", "city": "자카르타", "theme": "인도네시아"},
+  {"query": "족자카르타 여행 브이로그", "region": "아시아", "country": "인도네시아", "city": "족자카르타", "theme": "인도네시아"},
+  {"query": "롬복 여행 브이로그", "region": "아시아", "country": "인도네시아", "city": "롬복", "theme": "인도네시아"},
+  {"query": "인도네시아 여행 브이로그", "region": "아시아", "country": "인도네시아", "city": null, "theme": "인도네시아"},
+
+  {"query": "마카오 여행 브이로그", "region": "아시아", "country": "마카오", "city": "마카오", "theme": "마카오"},
+
+  {"query": "시엠립 여행 브이로그", "region": "아시아", "country": "캄보디아", "city": "시엠립", "theme": "캄보디아"},
+  {"query": "프놈펜 여행 브이로그", "region": "아시아", "country": "캄보디아", "city": "프놈펜", "theme": "캄보디아"},
+  {"query": "캄보디아 여행 브이로그", "region": "아시아", "country": "캄보디아", "city": null, "theme": "캄보디아"},
+
+  {"query": "울란바토르 여행 브이로그", "region": "아시아", "country": "몽골", "city": "울란바토르", "theme": "몽골"},
+  {"query": "테를지 여행 브이로그", "region": "아시아", "country": "몽골", "city": "테를지", "theme": "몽골"},
+  {"query": "몽골 여행 브이로그", "region": "아시아", "country": "몽골", "city": null, "theme": "몽골"},
+
+  {"query": "콜롬보 여행 브이로그", "region": "아시아", "country": "스리랑카", "city": "콜롬보", "theme": "스리랑카"},
+  {"query": "시기리야 여행 브이로그", "region": "아시아", "country": "스리랑카", "city": "시기리야", "theme": "스리랑카"},
+  {"query": "캔디 여행 브이로그", "region": "아시아", "country": "스리랑카", "city": "캔디", "theme": "스리랑카"},
+  {"query": "스리랑카 여행 브이로그", "region": "아시아", "country": "스리랑카", "city": null, "theme": "스리랑카"},
+
+  {"query": "루앙프라방 여행 브이로그", "region": "아시아", "country": "라오스", "city": "루앙프라방", "theme": "라오스"},
+  {"query": "비엔티안 여행 브이로그", "region": "아시아", "country": "라오스", "city": "비엔티안", "theme": "라오스"},
+  {"query": "라오스 여행 브이로그", "region": "아시아", "country": "라오스", "city": null, "theme": "라오스"},
+
+  {"query": "델리 여행 브이로그", "region": "아시아", "country": "인도", "city": "델리", "theme": "인도"},
+  {"query": "아그라 여행 브이로그", "region": "아시아", "country": "인도", "city": "아그라", "theme": "인도"},
+  {"query": "자이푸르 여행 브이로그", "region": "아시아", "country": "인도", "city": "자이푸르", "theme": "인도"},
+  {"query": "인도 여행 브이로그", "region": "아시아", "country": "인도", "city": null, "theme": "인도"},
+
+  {"query": "말레 여행 브이로그", "region": "아시아", "country": "몰디브", "city": "말레", "theme": "몰디브"},
+  {"query": "몰디브 여행 브이로그", "region": "아시아", "country": "몰디브", "city": null, "theme": "몰디브"},
+
+  {"query": "사마르칸트 여행 브이로그", "region": "중앙아시아", "country": "우즈베키스탄", "city": "사마르칸트", "theme": "우즈베키스탄"},
+  {"query": "타슈켄트 여행 브이로그", "region": "중앙아시아", "country": "우즈베키스탄", "city": "타슈켄트", "theme": "우즈베키스탄"},
+  {"query": "우즈베키스탄 여행 브이로그", "region": "중앙아시아", "country": "우즈베키스탄", "city": null, "theme": "우즈베키스탄"},
+
+  {"query": "두바이 여행 브이로그", "region": "중동", "country": "아랍에미리트", "city": "두바이", "theme": "아랍에미리트"},
+  {"query": "아부다비 여행 브이로그", "region": "중동", "country": "아랍에미리트", "city": "아부다비", "theme": "아랍에미리트"},
+  {"query": "아랍에미리트 여행 브이로그", "region": "중동", "country": "아랍에미리트", "city": null, "theme": "아랍에미리트"},
+
+  {"query": "파리 여행 브이로그", "region": "유럽", "country": "프랑스", "city": "파리", "theme": "프랑스"},
+  {"query": "니스 여행 브이로그", "region": "유럽", "country": "프랑스", "city": "니스", "theme": "프랑스"},
+  {"query": "스트라스부르 여행 브이로그", "region": "유럽", "country": "프랑스", "city": "스트라스부르", "theme": "프랑스"},
+  {"query": "리옹 여행 브이로그", "region": "유럽", "country": "프랑스", "city": "리옹", "theme": "프랑스"},
+  {"query": "프랑스 여행 브이로그", "region": "유럽", "country": "프랑스", "city": null, "theme": "프랑스"},
+
+  {"query": "로마 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": "로마", "theme": "이탈리아"},
+  {"query": "피렌체 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": "피렌체", "theme": "이탈리아"},
+  {"query": "베네치아 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": "베네치아", "theme": "이탈리아"},
+  {"query": "밀라노 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": "밀라노", "theme": "이탈리아"},
+  {"query": "나폴리 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": "나폴리", "theme": "이탈리아"},
+  {"query": "아말피 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": "아말피", "theme": "이탈리아"},
+  {"query": "이탈리아 여행 브이로그", "region": "유럽", "country": "이탈리아", "city": null, "theme": "이탈리아"},
+
+  {"query": "바르셀로나 여행 브이로그", "region": "유럽", "country": "스페인", "city": "바르셀로나", "theme": "스페인"},
+  {"query": "마드리드 여행 브이로그", "region": "유럽", "country": "스페인", "city": "마드리드", "theme": "스페인"},
+  {"query": "세비야 여행 브이로그", "region": "유럽", "country": "스페인", "city": "세비야", "theme": "스페인"},
+  {"query": "그라나다 여행 브이로그", "region": "유럽", "country": "스페인", "city": "그라나다", "theme": "스페인"},
+  {"query": "말라가 여행 브이로그", "region": "유럽", "country": "스페인", "city": "말라가", "theme": "스페인"},
+  {"query": "스페인 여행 브이로그", "region": "유럽", "country": "스페인", "city": null, "theme": "스페인"},
+
+  {"query": "런던 여행 브이로그", "region": "유럽", "country": "영국", "city": "런던", "theme": "영국"},
+  {"query": "에든버러 여행 브이로그", "region": "유럽", "country": "영국", "city": "에든버러", "theme": "영국"},
+  {"query": "맨체스터 여행 브이로그", "region": "유럽", "country": "영국", "city": "맨체스터", "theme": "영국"},
+  {"query": "영국 여행 브이로그", "region": "유럽", "country": "영국", "city": null, "theme": "영국"},
+
+  {"query": "뮌헨 여행 브이로그", "region": "유럽", "country": "독일", "city": "뮌헨", "theme": "독일"},
+  {"query": "베를린 여행 브이로그", "region": "유럽", "country": "독일", "city": "베를린", "theme": "독일"},
+  {"query": "프랑크푸르트 여행 브이로그", "region": "유럽", "country": "독일", "city": "프랑크푸르트", "theme": "독일"},
+  {"query": "하이델베르크 여행 브이로그", "region": "유럽", "country": "독일", "city": "하이델베르크", "theme": "독일"},
+  {"query": "독일 여행 브이로그", "region": "유럽", "country": "독일", "city": null, "theme": "독일"},
+
+  {"query": "취리히 여행 브이로그", "region": "유럽", "country": "스위스", "city": "취리히", "theme": "스위스"},
+  {"query": "루체른 여행 브이로그", "region": "유럽", "country": "스위스", "city": "루체른", "theme": "스위스"},
+  {"query": "인터라켄 여행 브이로그", "region": "유럽", "country": "스위스", "city": "인터라켄", "theme": "스위스"},
+  {"query": "체르마트 여행 브이로그", "region": "유럽", "country": "스위스", "city": "체르마트", "theme": "스위스"},
+  {"query": "베른 여행 브이로그", "region": "유럽", "country": "스위스", "city": "베른", "theme": "스위스"},
+  {"query": "스위스 여행 브이로그", "region": "유럽", "country": "스위스", "city": null, "theme": "스위스"},
+
+  {"query": "빈 여행 브이로그", "region": "유럽", "country": "오스트리아", "city": "빈", "theme": "오스트리아"},
+  {"query": "잘츠부르크 여행 브이로그", "region": "유럽", "country": "오스트리아", "city": "잘츠부르크", "theme": "오스트리아"},
+  {"query": "할슈타트 여행 브이로그", "region": "유럽", "country": "오스트리아", "city": "할슈타트", "theme": "오스트리아"},
+  {"query": "인스부르크 여행 브이로그", "region": "유럽", "country": "오스트리아", "city": "인스부르크", "theme": "오스트리아"},
+  {"query": "오스트리아 여행 브이로그", "region": "유럽", "country": "오스트리아", "city": null, "theme": "오스트리아"},
+
+  {"query": "이스탄불 여행 브이로그", "region": "유럽", "country": "튀르키예", "city": "이스탄불", "theme": "튀르키예"},
+  {"query": "카파도키아 여행 브이로그", "region": "유럽", "country": "튀르키예", "city": "카파도키아", "theme": "튀르키예"},
+  {"query": "안탈리아 여행 브이로그", "region": "유럽", "country": "튀르키예", "city": "안탈리아", "theme": "튀르키예"},
+  {"query": "파묵칼레 여행 브이로그", "region": "유럽", "country": "튀르키예", "city": "파묵칼레", "theme": "튀르키예"},
+  {"query": "튀르키예 여행 브이로그", "region": "유럽", "country": "튀르키예", "city": null, "theme": "튀르키예"},
+
+  {"query": "프라하 여행 브이로그", "region": "유럽", "country": "체코", "city": "프라하", "theme": "체코"},
+  {"query": "체스키크룸로프 여행 브이로그", "region": "유럽", "country": "체코", "city": "체스키크룸로프", "theme": "체코"},
+  {"query": "체코 여행 브이로그", "region": "유럽", "country": "체코", "city": null, "theme": "체코"},
+
+  {"query": "부다페스트 여행 브이로그", "region": "유럽", "country": "헝가리", "city": "부다페스트", "theme": "헝가리"},
+  {"query": "헝가리 여행 브이로그", "region": "유럽", "country": "헝가리", "city": null, "theme": "헝가리"},
+
+  {"query": "두브로브니크 여행 브이로그", "region": "유럽", "country": "크로아티아", "city": "두브로브니크", "theme": "크로아티아"},
+  {"query": "스플리트 여행 브이로그", "region": "유럽", "country": "크로아티아", "city": "스플리트", "theme": "크로아티아"},
+  {"query": "자그레브 여행 브이로그", "region": "유럽", "country": "크로아티아", "city": "자그레브", "theme": "크로아티아"},
+  {"query": "플리트비체 여행 브이로그", "region": "유럽", "country": "크로아티아", "city": "플리트비체", "theme": "크로아티아"},
+  {"query": "크로아티아 여행 브이로그", "region": "유럽", "country": "크로아티아", "city": null, "theme": "크로아티아"},
+
+  {"query": "아테네 여행 브이로그", "region": "유럽", "country": "그리스", "city": "아테네", "theme": "그리스"},
+  {"query": "산토리니 여행 브이로그", "region": "유럽", "country": "그리스", "city": "산토리니", "theme": "그리스"},
+  {"query": "미코노스 여행 브이로그", "region": "유럽", "country": "그리스", "city": "미코노스", "theme": "그리스"},
+  {"query": "그리스 여행 브이로그", "region": "유럽", "country": "그리스", "city": null, "theme": "그리스"},
+
+  {"query": "리스본 여행 브이로그", "region": "유럽", "country": "포르투갈", "city": "리스본", "theme": "포르투갈"},
+  {"query": "포르투 여행 브이로그", "region": "유럽", "country": "포르투갈", "city": "포르투", "theme": "포르투갈"},
+  {"query": "포르투갈 여행 브이로그", "region": "유럽", "country": "포르투갈", "city": null, "theme": "포르투갈"},
+
+  {"query": "암스테르담 여행 브이로그", "region": "유럽", "country": "네덜란드", "city": "암스테르담", "theme": "네덜란드"},
+  {"query": "네덜란드 여행 브이로그", "region": "유럽", "country": "네덜란드", "city": null, "theme": "네덜란드"},
+
+  {"query": "브뤼셀 여행 브이로그", "region": "유럽", "country": "벨기에", "city": "브뤼셀", "theme": "벨기에"},
+  {"query": "브뤼헤 여행 브이로그", "region": "유럽", "country": "벨기에", "city": "브뤼헤", "theme": "벨기에"},
+  {"query": "벨기에 여행 브이로그", "region": "유럽", "country": "벨기에", "city": null, "theme": "벨기에"},
+
+  {"query": "류블라냐 여행 브이로그", "region": "유럽", "country": "슬로베니아", "city": "류블라냐", "theme": "슬로베니아"},
+  {"query": "블레드 여행 브이로그", "region": "유럽", "country": "슬로베니아", "city": "블레드", "theme": "슬로베니아"},
+  {"query": "슬로베니아 여행 브이로그", "region": "유럽", "country": "슬로베니아", "city": null, "theme": "슬로베니아"},
+
+  {"query": "헬싱키 여행 브이로그", "region": "유럽", "country": "핀란드", "city": "헬싱키", "theme": "핀란드"},
+  {"query": "로바니에미 여행 브이로그", "region": "유럽", "country": "핀란드", "city": "로바니에미", "theme": "핀란드"},
+  {"query": "핀란드 여행 브이로그", "region": "유럽", "country": "핀란드", "city": null, "theme": "핀란드"},
+
+  {"query": "사라예보 여행 브이로그", "region": "유럽", "country": "보스니아", "city": "사라예보", "theme": "보스니아"},
+  {"query": "모스타르 여행 브이로그", "region": "유럽", "country": "보스니아", "city": "모스타르", "theme": "보스니아"},
+  {"query": "보스니아 여행 브이로그", "region": "유럽", "country": "보스니아", "city": null, "theme": "보스니아"},
+
+  {"query": "스코페 여행 브이로그", "region": "유럽", "country": "북마케도니아", "city": "스코페", "theme": "북마케도니아"},
+  {"query": "오흐리드 여행 브이로그", "region": "유럽", "country": "북마케도니아", "city": "오흐리드", "theme": "북마케도니아"},
+  {"query": "북마케도니아 여행 브이로그", "region": "유럽", "country": "북마케도니아", "city": null, "theme": "북마케도니아"},
+
+  {"query": "블라디보스토크 여행 브이로그", "region": "유럽", "country": "러시아", "city": "블라디보스토크", "theme": "러시아"},
+  {"query": "모스크바 여행 브이로그", "region": "유럽", "country": "러시아", "city": "모스크바", "theme": "러시아"},
+  {"query": "상트페테르부르크 여행 브이로그", "region": "유럽", "country": "러시아", "city": "상트페테르부르크", "theme": "러시아"},
+  {"query": "러시아 여행 브이로그", "region": "유럽", "country": "러시아", "city": null, "theme": "러시아"},
+
+  {"query": "레이캬비크 여행 브이로그", "region": "유럽", "country": "아이슬란드", "city": "레이캬비크", "theme": "아이슬란드"},
+  {"query": "아이슬란드 여행 브이로그", "region": "유럽", "country": "아이슬란드", "city": null, "theme": "아이슬란드"},
+
+  {"query": "오슬로 여행 브이로그", "region": "유럽", "country": "노르웨이", "city": "오슬로", "theme": "노르웨이"},
+  {"query": "베르겐 여행 브이로그", "region": "유럽", "country": "노르웨이", "city": "베르겐", "theme": "노르웨이"},
+  {"query": "트롬쇠 여행 브이로그", "region": "유럽", "country": "노르웨이", "city": "트롬쇠", "theme": "노르웨이"},
+  {"query": "노르웨이 여행 브이로그", "region": "유럽", "country": "노르웨이", "city": null, "theme": "노르웨이"},
+
+  {"query": "코펜하겐 여행 브이로그", "region": "유럽", "country": "덴마크", "city": "코펜하겐", "theme": "덴마크"},
+  {"query": "덴마크 여행 브이로그", "region": "유럽", "country": "덴마크", "city": null, "theme": "덴마크"},
+
+  {"query": "더블린 여행 브이로그", "region": "유럽", "country": "아일랜드", "city": "더블린", "theme": "아일랜드"},
+  {"query": "아일랜드 여행 브이로그", "region": "유럽", "country": "아일랜드", "city": null, "theme": "아일랜드"},
+
+  {"query": "바르샤바 여행 브이로그", "region": "유럽", "country": "폴란드", "city": "바르샤바", "theme": "폴란드"},
+  {"query": "크라쿠프 여행 브이로그", "region": "유럽", "country": "폴란드", "city": "크라쿠프", "theme": "폴란드"},
+  {"query": "폴란드 여행 브이로그", "region": "유럽", "country": "폴란드", "city": null, "theme": "폴란드"},
+
+  {"query": "뉴욕 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "뉴욕", "theme": "미국"},
+  {"query": "LA 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "LA", "theme": "미국"},
+  {"query": "호놀룰루 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "호놀룰루", "theme": "미국"},
+  {"query": "샌프란시스코 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "샌프란시스코", "theme": "미국"},
+  {"query": "라스베이거스 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "라스베이거스", "theme": "미국"},
+  {"query": "시카고 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "시카고", "theme": "미국"},
+  {"query": "시애틀 여행 브이로그", "region": "북아메리카", "country": "미국", "city": "시애틀", "theme": "미국"},
+  {"query": "미국 여행 브이로그", "region": "북아메리카", "country": "미국", "city": null, "theme": "미국"},
+
+  {"query": "밴쿠버 여행 브이로그", "region": "북아메리카", "country": "캐나다", "city": "밴쿠버", "theme": "캐나다"},
+  {"query": "토론토 여행 브이로그", "region": "북아메리카", "country": "캐나다", "city": "토론토", "theme": "캐나다"},
+  {"query": "몬트리올 여행 브이로그", "region": "북아메리카", "country": "캐나다", "city": "몬트리올", "theme": "캐나다"},
+  {"query": "나이아가라 여행 브이로그", "region": "북아메리카", "country": "캐나다", "city": "나이아가라", "theme": "캐나다"},
+  {"query": "캐나다 여행 브이로그", "region": "북아메리카", "country": "캐나다", "city": null, "theme": "캐나다"},
+
+  {"query": "칸쿤 여행 브이로그", "region": "북아메리카", "country": "멕시코", "city": "칸쿤", "theme": "멕시코"},
+  {"query": "멕시코시티 여행 브이로그", "region": "북아메리카", "country": "멕시코", "city": "멕시코시티", "theme": "멕시코"},
+  {"query": "플라야델카르멘 여행 브이로그", "region": "북아메리카", "country": "멕시코", "city": "플라야델카르멘", "theme": "멕시코"},
+  {"query": "멕시코 여행 브이로그", "region": "북아메리카", "country": "멕시코", "city": null, "theme": "멕시코"},
+
+  {"query": "푼타카나 여행 브이로그", "region": "북아메리카", "country": "도미니카공화국", "city": "푼타카나", "theme": "도미니카공화국"},
+  {"query": "산토도밍고 여행 브이로그", "region": "북아메리카", "country": "도미니카공화국", "city": "산토도밍고", "theme": "도미니카공화국"},
+  {"query": "도미니카공화국 여행 브이로그", "region": "북아메리카", "country": "도미니카공화국", "city": null, "theme": "도미니카공화국"},
+
+  {"query": "산호세 여행 브이로그", "region": "북아메리카", "country": "코스타리카", "city": "산호세", "theme": "코스타리카"},
+  {"query": "아레날 여행 브이로그", "region": "북아메리카", "country": "코스타리카", "city": "아레날", "theme": "코스타리카"},
+  {"query": "코스타리카 여행 브이로그", "region": "북아메리카", "country": "코스타리카", "city": null, "theme": "코스타리카"},
+
+  {"query": "킹스턴 여행 브이로그", "region": "북아메리카", "country": "자메이카", "city": "킹스턴", "theme": "자메이카"},
+  {"query": "몬테고베이 여행 브이로그", "region": "북아메리카", "country": "자메이카", "city": "몬테고베이", "theme": "자메이카"},
+  {"query": "자메이카 여행 브이로그", "region": "북아메리카", "country": "자메이카", "city": null, "theme": "자메이카"},
+
+  {"query": "시드니 여행 브이로그", "region": "오세아니아", "country": "호주", "city": "시드니", "theme": "호주"},
+  {"query": "멜번 여행 브이로그", "region": "오세아니아", "country": "호주", "city": "멜번", "theme": "호주"},
+  {"query": "브리즈번 여행 브이로그", "region": "오세아니아", "country": "호주", "city": "브리즈번", "theme": "호주"},
+  {"query": "골드코스트 여행 브이로그", "region": "오세아니아", "country": "호주", "city": "골드코스트", "theme": "호주"},
+  {"query": "케언즈 여행 브이로그", "region": "오세아니아", "country": "호주", "city": "케언즈", "theme": "호주"},
+  {"query": "퍼스 여행 브이로그", "region": "오세아니아", "country": "호주", "city": "퍼스", "theme": "호주"},
+  {"query": "호주 여행 브이로그", "region": "오세아니아", "country": "호주", "city": null, "theme": "호주"},
+
+  {"query": "오클랜드 여행 브이로그", "region": "오세아니아", "country": "뉴질랜드", "city": "오클랜드", "theme": "뉴질랜드"},
+  {"query": "퀸스타운 여행 브이로그", "region": "오세아니아", "country": "뉴질랜드", "city": "퀸스타운", "theme": "뉴질랜드"},
+  {"query": "로토루아 여행 브이로그", "region": "오세아니아", "country": "뉴질랜드", "city": "로토루아", "theme": "뉴질랜드"},
+  {"query": "크라이스트처치 여행 브이로그", "region": "오세아니아", "country": "뉴질랜드", "city": "크라이스트처치", "theme": "뉴질랜드"},
+  {"query": "뉴질랜드 여행 브이로그", "region": "오세아니아", "country": "뉴질랜드", "city": null, "theme": "뉴질랜드"},
+
+  {"query": "투몬 여행 브이로그", "region": "오세아니아", "country": "괌", "city": "투몬", "theme": "괌"},
+  {"query": "하갓냐 여행 브이로그", "region": "오세아니아", "country": "괌", "city": "하갓냐", "theme": "괌"},
+  {"query": "괌 여행 브이로그", "region": "오세아니아", "country": "괌", "city": null, "theme": "괌"},
+
+  {"query": "사이판 여행 브이로그", "region": "오세아니아", "country": "사이판", "city": "사이판", "theme": "사이판"},
+  {"query": "티니안 여행 브이로그", "region": "오세아니아", "country": "사이판", "city": "티니안", "theme": "사이판"},
+
+  {"query": "코로르 여행 브이로그", "region": "오세아니아", "country": "팔라우", "city": "코로르", "theme": "팔라우"},
+  {"query": "팔라우 여행 브이로그", "region": "오세아니아", "country": "팔라우", "city": null, "theme": "팔라우"},
+
+  {"query": "나디 여행 브이로그", "region": "오세아니아", "country": "피지", "city": "나디", "theme": "피지"},
+  {"query": "수바 여행 브이로그", "region": "오세아니아", "country": "피지", "city": "수바", "theme": "피지"},
+  {"query": "피지 여행 브이로그", "region": "오세아니아", "country": "피지", "city": null, "theme": "피지"},
+
+  {"query": "케이프타운 여행 브이로그", "region": "아프리카", "country": "남아프리카공화국", "city": "케이프타운", "theme": "남아프리카공화국"},
+  {"query": "요하네스버그 여행 브이로그", "region": "아프리카", "country": "남아프리카공화국", "city": "요하네스버그", "theme": "남아프리카공화국"},
+  {"query": "남아프리카공화국 여행 브이로그", "region": "아프리카", "country": "남아프리카공화국", "city": null, "theme": "남아프리카공화국"},
+
+  {"query": "빅토리아폴스 여행 브이로그", "region": "아프리카", "country": "짐바브웨", "city": "빅토리아폴스", "theme": "짐바브웨"},
+  {"query": "짐바브웨 여행 브이로그", "region": "아프리카", "country": "짐바브웨", "city": null, "theme": "짐바브웨"},
+
+  {"query": "포트루이스 여행 브이로그", "region": "아프리카", "country": "모리셔스", "city": "포트루이스", "theme": "모리셔스"},
+  {"query": "모리셔스 여행 브이로그", "region": "아프리카", "country": "모리셔스", "city": null, "theme": "모리셔스"},
+
+  {"query": "음바바네 여행 브이로그", "region": "아프리카", "country": "에스와티니", "city": "음바바네", "theme": "에스와티니"},
+  {"query": "에스와티니 여행 브이로그", "region": "아프리카", "country": "에스와티니", "city": null, "theme": "에스와티니"},
+
+  {"query": "마에 여행 브이로그", "region": "아프리카", "country": "세이쉘", "city": "마에", "theme": "세이쉘"},
+  {"query": "프랄린 여행 브이로그", "region": "아프리카", "country": "세이쉘", "city": "프랄린", "theme": "세이쉘"},
+  {"query": "세이쉘 여행 브이로그", "region": "아프리카", "country": "세이쉘", "city": null, "theme": "세이쉘"},
+
+  {"query": "카이로 여행 브이로그", "region": "아프리카", "country": "이집트", "city": "카이로", "theme": "이집트"},
+  {"query": "룩소르 여행 브이로그", "region": "아프리카", "country": "이집트", "city": "룩소르", "theme": "이집트"},
+  {"query": "이집트 여행 브이로그", "region": "아프리카", "country": "이집트", "city": null, "theme": "이집트"},
+
+  {"query": "마라케시 여행 브이로그", "region": "아프리카", "country": "모로코", "city": "마라케시", "theme": "모로코"},
+  {"query": "페스 여행 브이로그", "region": "아프리카", "country": "모로코", "city": "페스", "theme": "모로코"},
+  {"query": "모로코 여행 브이로그", "region": "아프리카", "country": "모로코", "city": null, "theme": "모로코"},
+
+  {"query": "미식 여행 맛집 브이로그", "region": "전체", "country": "전체", "city": null, "theme": "미식"},
+  {"query": "힐링 여행 자연 브이로그", "region": "전체", "country": "전체", "city": null, "theme": "힐링"},
+  {"query": "도심 여행 도시 브이로그", "region": "전체", "country": "전체", "city": null, "theme": "도심"},
+  {"query": "자연 여행 트레킹 브이로그", "region": "전체", "country": "전체", "city": null, "theme": "자연"}
+]

@@ -5,8 +5,10 @@ import com.linktrip.application.domain.youtube.YouTubeChannelDetail
 import com.linktrip.application.domain.youtube.YouTubeCollectService
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
 import com.linktrip.application.domain.youtube.YouTubeVideoMeta
+import com.linktrip.application.port.input.KeywordAnalyzeUseCase
 import com.linktrip.application.port.output.external.YouTubePort
 import com.linktrip.input.http.controller.dto.response.ApiResponse
+import com.linktrip.input.http.controller.dto.response.KeywordAnalyzeResponse
 import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.GetMapping
@@ -24,6 +26,7 @@ class YouTubeTestController(
     private val youTubePort: YouTubePort,
     private val youTubeCollectService: YouTubeCollectService,
     private val youTubeChannelCollectService: YouTubeChannelCollectService,
+    private val keywordAnalyzeUseCase: KeywordAnalyzeUseCase,
 ) {
     @GetMapping("/search/videos")
     fun searchVideos(
@@ -57,5 +60,15 @@ class YouTubeTestController(
     fun collectChannels(): ApiResponse<String> {
         youTubeChannelCollectService.collectChannels()
         return ApiResponse.ok("YouTube 채널 수집 완료")
+    }
+
+    @PostMapping("/analyze/keywords")
+    fun analyzeByKeywords(
+        @RequestParam(required = false) region: String?,
+        @RequestParam(required = false) country: String?,
+        @RequestParam(defaultValue = "5") maxResults: Int,
+    ): ApiResponse<KeywordAnalyzeResponse> {
+        val result = keywordAnalyzeUseCase.analyzeByKeywords(region, country, maxResults)
+        return ApiResponse.ok(KeywordAnalyzeResponse.from(result))
     }
 }
