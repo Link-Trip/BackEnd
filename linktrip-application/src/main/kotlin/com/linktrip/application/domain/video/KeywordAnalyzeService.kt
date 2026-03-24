@@ -64,13 +64,9 @@ class KeywordAnalyzeService(
 
     private fun analyzeVideo(videoId: String): VideoAnalysisTask? =
         try {
-            videoAnalyzeUseCase.analyzeVideo("$YOUTUBE_VIDEO_BASE_URL$videoId")
+            videoAnalyzeUseCase.analyzeVideo(VideoAnalysisTask.buildUrl(videoId))
         } catch (e: Exception) {
             logger.warn { "영상 분석 요청 스킵: videoId=$videoId, reason=${e.message}" }
             null
         }
-
-    companion object {
-        private const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
-    }
 }

@@ -1,6 +1,7 @@
 package com.linktrip.input.http.controller.dto.response
 
 import com.linktrip.application.domain.common.CursorPage
+import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 
 data class DiscoverVideoResponse(
@@ -21,12 +22,10 @@ data class DiscoverVideoResponse(
     val theme: String?,
 ) {
     companion object {
-        private const val YOUTUBE_VIDEO_URL_PREFIX = "https://www.youtube.com/watch?v="
-
         fun from(detail: YouTubeVideoMeta): DiscoverVideoResponse =
             DiscoverVideoResponse(
                 videoId = detail.videoId,
-                videoUrl = "$YOUTUBE_VIDEO_URL_PREFIX${detail.videoId}",
+                videoUrl = VideoAnalysisTask.buildUrl(detail.videoId),
                 title = detail.title,
                 description = detail.description,
                 thumbnailUrl = detail.thumbnailUrl,

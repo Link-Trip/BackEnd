@@ -1,6 +1,7 @@
 package com.linktrip.application.domain.youtube
 
 import com.linktrip.application.domain.common.IdGenerator
+import com.linktrip.application.domain.video.VideoAnalysisTask
 
 data class YouTubeRecentVideo(
     val id: String,
@@ -11,11 +12,9 @@ data class YouTubeRecentVideo(
     val publishedAt: String,
 ) {
     val videoUrl: String
-        get() = "$YOUTUBE_VIDEO_BASE_URL$videoId"
+        get() = VideoAnalysisTask.buildUrl(videoId)
 
     companion object {
-        private const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
-
         fun create(
             channelId: String,
             videoId: String,
