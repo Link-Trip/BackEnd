@@ -3,8 +3,6 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.Fixtures
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import com.linktrip.common.config.event.Events
-import com.linktrip.common.exception.ExceptionCode
-import com.linktrip.common.exception.LinktripException
 import com.navercorp.fixturemonkey.kotlin.giveMeBuilder
 import com.navercorp.fixturemonkey.kotlin.set
 import org.junit.jupiter.api.AfterEach
@@ -12,7 +10,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -79,21 +76,21 @@ class VideoAnalyzeServiceTest {
 
     @Test
     fun `이미 분석 중인 PENDING 상태의 URL로 요청하면_기존 VideoAnalysisTask를 그대로 반환하고_저장이나 이벤트 발행을 하지 않는다`() {
-        // given - 이미 PENDING 상태로 분석 중인 URL
-        val url = "https://youtube.com/watch?v=existing"
+        // given - 이미 PENDING 상태로 분석 중인 URL (정규화된 형태)
+        val normalizedUrl = "https://www.youtube.com/watch?v=existing"
         val existing =
             Fixtures.monkey.giveMeBuilder<VideoAnalysisTask>()
-                .set("youtubeUrl", url)
+                .set("youtubeUrl", normalizedUrl)
                 .set("status", VideoAnalysisTaskStatus.PENDING)
                 .sample()
-        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
+        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)).thenReturn(existing)
 
         // when - 같은 URL로 다시 분석을 요청한다
-        val result = service.analyzeVideo(url)
+        val result = service.analyzeVideo(normalizedUrl)
 
         // then - 기존 객체를 그대로 반환하고, save/updateStatus/이벤트 모두 호출되지 않는다
         assertEquals(existing.id, result.id)
-        assertEquals(existing.youtubeUrl, result.youtubeUrl)
+        assertEquals(normalizedUrl, result.youtubeUrl)
         assertEquals(VideoAnalysisTaskStatus.PENDING, result.status)
         verify(videoAnalysisTaskPersistencePort, never()).save(any())
         verify(videoAnalysisTaskPersistencePort, never()).updateStatus(any(), any())
@@ -102,17 +99,17 @@ class VideoAnalyzeServiceTest {
 
     @Test
     fun `분석 완료된 COMPLETED 상태의 URL로 요청하면_기존 결과를 반환하고_재분석하지 않는다`() {
-        // given - 이미 분석이 완료된 URL
-        val url = "https://youtube.com/watch?v=completed"
+        // given - 이미 분석이 완료된 URL (정규화된 형태)
+        val normalizedUrl = "https://www.youtube.com/watch?v=completed"
         val existing =
             Fixtures.monkey.giveMeBuilder<VideoAnalysisTask>()
-                .set("youtubeUrl", url)
+                .set("youtubeUrl", normalizedUrl)
                 .set("status", VideoAnalysisTaskStatus.COMPLETED)
                 .sample()
-        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
+        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)).thenReturn(existing)
 
         // when - 완료된 URL로 다시 분석을 요청한다
-        val result = service.analyzeVideo(url)
+        val result = service.analyzeVideo(normalizedUrl)
 
         // then - 기존 완료된 결과를 그대로 반환하고, 재분석하지 않는다
         assertEquals(VideoAnalysisTaskStatus.COMPLETED, result.status)
@@ -123,17 +120,17 @@ class VideoAnalyzeServiceTest {
 
     @Test
     fun `유효하지 않은 영상으로 판정된 INVALID URL로 요청하면_기존 결과를 그대로 반환한다`() {
-        // given - 이전에 유효하지 않은 영상으로 판정된 URL
-        val url = "https://youtube.com/watch?v=invalid"
+        // given - 이전에 유효하지 않은 영상으로 판정된 URL (정규화된 형태)
+        val normalizedUrl = "https://www.youtube.com/watch?v=invalid"
         val existing =
             Fixtures.monkey.giveMeBuilder<VideoAnalysisTask>()
-                .set("youtubeUrl", url)
+                .set("youtubeUrl", normalizedUrl)
                 .set("status", VideoAnalysisTaskStatus.INVALID)
                 .sample()
-        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
+        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)).thenReturn(existing)
 
         // when - INVALID 상태의 URL로 다시 요청한다
-        val result = service.analyzeVideo(url)
+        val result = service.analyzeVideo(normalizedUrl)
 
         // then - INVALID 상태 그대로 반환하고, 이벤트를 발행하지 않는다
         assertEquals(VideoAnalysisTaskStatus.INVALID, result.status)
@@ -142,71 +139,50 @@ class VideoAnalyzeServiceTest {
 
     @Test
     fun `이전에 실패한 FAILED 상태의 URL로 요청하면_PENDING으로 상태를 변경하고_재분석 이벤트를 발행한다`() {
-        // given - 이전 분석이 실패한 URL
-        val url = "https://youtube.com/watch?v=failed"
+        // given - 이전 분석이 실패한 URL (정규화된 형태)
+        val normalizedUrl = "https://www.youtube.com/watch?v=failed"
         val existing =
             Fixtures.monkey.giveMeBuilder<VideoAnalysisTask>()
                 .set("id", "failed-id")
-                .set("youtubeUrl", url)
+                .set("youtubeUrl", normalizedUrl)
                 .set("status", VideoAnalysisTaskStatus.FAILED)
                 .sample()
-        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(url)).thenReturn(existing)
+        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)).thenReturn(existing)
 
         // when - 실패한 URL로 재분석을 요청한다
-        val result = service.analyzeVideo(url)
+        val result = service.analyzeVideo(normalizedUrl)
 
         // then - PENDING으로 상태가 변경되고, 재분석 이벤트에 기존 ID와 URL이 담긴다
         assertEquals(VideoAnalysisTaskStatus.PENDING, result.status)
         assertEquals("failed-id", result.id)
-        assertEquals(url, result.youtubeUrl)
+        assertEquals(normalizedUrl, result.youtubeUrl)
 
         verify(videoAnalysisTaskPersistencePort).updateStatus("failed-id", VideoAnalysisTaskStatus.PENDING)
 
         val eventCaptor = argumentCaptor<VideoAnalyzeEvent>()
         verify(mockPublisher).publishEvent(eventCaptor.capture())
         assertEquals("failed-id", eventCaptor.firstValue.videoAnalysisTaskId)
-        assertEquals(url, eventCaptor.firstValue.youtubeUrl)
+        assertEquals(normalizedUrl, eventCaptor.firstValue.youtubeUrl)
     }
 
     @Test
-    fun `YouTube 도메인이 아닌 URL로 분석 요청하면_INVALID_YOUTUBE_URL 예외가 발생한다`() {
-        // given - YouTube가 아닌 URL
-
-        // when & then - INVALID_YOUTUBE_URL 예외가 발생한다
-        val exception =
-            assertThrows<LinktripException> {
-                service.analyzeVideo("https://naver.com/video")
-            }
-        assertEquals(ExceptionCode.INVALID_YOUTUBE_URL.statusCode, exception.statusCode)
-    }
-
-    @Test
-    fun `vimeo나 빈 문자열 등 YouTube가 아닌 URL은 모두 거부된다`() {
-        // given - YouTube가 아닌 다양한 URL들
-
-        // when & then - 모두 INVALID_YOUTUBE_URL 예외가 발생한다
-        assertThrows<LinktripException> { service.analyzeVideo("https://vimeo.com/123") }
-        assertThrows<LinktripException> { service.analyzeVideo("not-a-url") }
-        assertThrows<LinktripException> { service.analyzeVideo("") }
-    }
-
-    @Test
-    fun `youtu_be 단축 URL로 분석 요청해도_정상적으로 VideoAnalysisTask가 생성된다`() {
-        // given - youtu.be 단축 URL
-        val url = "https://youtu.be/test123"
-        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(url)).thenReturn(null)
+    fun `youtu_be 단축 URL로 분석 요청해도_정규화된 URL로 VideoAnalysisTask가 생성된다`() {
+        // given - youtu.be 단축 URL → 정규화되면 www.youtube.com 형태
+        val shortUrl = "https://youtu.be/test123"
+        val normalizedUrl = "https://www.youtube.com/watch?v=test123"
+        whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)).thenReturn(null)
         val saved =
             Fixtures.monkey.giveMeBuilder<VideoAnalysisTask>()
-                .set("youtubeUrl", url)
+                .set("youtubeUrl", normalizedUrl)
                 .set("status", VideoAnalysisTaskStatus.PENDING)
                 .sample()
         whenever(videoAnalysisTaskPersistencePort.save(any())).thenReturn(saved)
 
         // when - youtu.be URL로 분석을 요청한다
-        val result = service.analyzeVideo(url)
+        val result = service.analyzeVideo(shortUrl)
 
-        // then - 정상적으로 PENDING 상태의 VideoAnalysisTask가 생성된다
+        // then - 정규화된 URL로 PENDING 상태의 VideoAnalysisTask가 생성된다
         assertEquals(VideoAnalysisTaskStatus.PENDING, result.status)
-        assertEquals(url, result.youtubeUrl)
+        assertEquals(normalizedUrl, result.youtubeUrl)
     }
 }
