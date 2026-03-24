@@ -22,6 +22,9 @@ enum class ExceptionCode(
     // 404
     NOT_FOUND(404, "해당 리소스를 찾을 수 없습니다."),
 
+    // 429
+    RATE_LIMIT_EXCEEDED(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
+
     // 409
     CONFLICT(409, "해당 리소스가 중복됩니다."),
 
