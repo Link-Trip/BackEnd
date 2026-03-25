@@ -4,7 +4,7 @@ import com.linktrip.application.port.output.ratelimit.RateLimitBucketStore
 import com.linktrip.application.port.output.ratelimit.RateLimitPolicy
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
-import com.linktrip.input.http.filter.JwtAuthenticationFilter
+import com.linktrip.input.http.security.PostAuthorizationToken
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -20,6 +20,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.security.core.context.SecurityContextHolder
 
 @ExtendWith(MockitoExtension::class)
 class RateLimitInterceptorTest {
@@ -29,11 +30,19 @@ class RateLimitInterceptorTest {
     @InjectMocks
     lateinit var interceptor: RateLimitInterceptor
 
+    private fun setAuthentication(memberId: String) {
+        SecurityContextHolder.getContext().authentication = PostAuthorizationToken(memberId)
+    }
+
+    private fun clearAuthentication() {
+        SecurityContextHolder.clearContext()
+    }
+
     @Test
     fun `인증된 사용자의 요청이 rate limit 이내이면 통과한다`() {
         // given
         val request = MockHttpServletRequest("POST", "/video/analyze")
-        request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
+        setAuthentication("member1")
         whenever(rateLimitBucketStore.tryConsume(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)))
             .thenReturn(true)
 
@@ -42,13 +51,14 @@ class RateLimitInterceptorTest {
 
         // then
         assertTrue(result)
+        clearAuthentication()
     }
 
     @Test
     fun `rate limit을 초과하면 LinktripException(RATE_LIMIT_EXCEEDED)을 던진다`() {
         // given
         val request = MockHttpServletRequest("POST", "/video/analyze")
-        request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
+        setAuthentication("member1")
         whenever(rateLimitBucketStore.tryConsume(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)))
             .thenReturn(false)
 
@@ -58,11 +68,13 @@ class RateLimitInterceptorTest {
                 interceptor.preHandle(request, MockHttpServletResponse(), Any())
             }
         assertEquals(ExceptionCode.TOO_MANY_REQUESTS.statusCode, exception.statusCode)
+        clearAuthentication()
     }
 
     @Test
     fun `인증되지 않은 요청은 rate limit 체크 없이 통과한다`() {
-        // given - memberId 속성 없음
+        // given
+        clearAuthentication()
         val request = MockHttpServletRequest("POST", "/video/analyze")
 
         // when
@@ -77,7 +89,7 @@ class RateLimitInterceptorTest {
     fun `일반 경로도 DEFAULT 정책으로 rate limit이 적용된다`() {
         // given
         val request = MockHttpServletRequest("GET", "/video/abc123/schedule")
-        request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
+        setAuthentication("member1")
         whenever(rateLimitBucketStore.tryConsume(eq("member1:DEFAULT"), eq(RateLimitPolicy.DEFAULT)))
             .thenReturn(true)
 
@@ -87,5 +99,6 @@ class RateLimitInterceptorTest {
         // then
         assertTrue(result)
         verify(rateLimitBucketStore).tryConsume(eq("member1:DEFAULT"), eq(RateLimitPolicy.DEFAULT))
+        clearAuthentication()
     }
 }
