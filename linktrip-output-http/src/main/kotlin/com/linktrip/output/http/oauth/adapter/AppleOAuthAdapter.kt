@@ -34,10 +34,13 @@ class AppleOAuthAdapter(
         val publicKeys = fetchApplePublicKeys()
         val claims = validateAndExtractClaims(accessToken, publicKeys)
 
-        val providerId = claims.subject
+        val providerId =
+            claims.subject
+                ?.takeIf { it.isNotBlank() }
+                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
         val email = claims["email"] as? String
 
-        logger.debug { "Apple 사용자 정보 조회 성공: providerId=$providerId" }
+        logger.debug { "Apple 사용자 정보 조회 성공" }
 
         return OAuthInfo(
             providerType = ProviderType.APPLE,
@@ -57,29 +60,34 @@ class AppleOAuthAdapter(
         idToken: String,
         publicKeys: ApplePublicKeyResponse,
     ): io.jsonwebtoken.Claims {
-        val headerPart =
-            idToken.split(".").firstOrNull()
-                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+        try {
+            val tokenParts = idToken.split(".")
+            if (tokenParts.size != 3) throw LinktripException(ExceptionCode.TOKEN_INVALID)
 
-        val headerJson = String(Base64.getUrlDecoder().decode(headerPart))
-        val headerMap = objectMapper.readValue(headerJson, Map::class.java)
-        val kid =
-            headerMap["kid"] as? String
-                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+            val headerJson = String(Base64.getUrlDecoder().decode(tokenParts[0]))
+            val headerMap = objectMapper.readValue(headerJson, Map::class.java)
+            val kid =
+                headerMap["kid"] as? String
+                    ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
 
-        val matchingKey =
-            publicKeys.keys.find { it.kid == kid }
-                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+            val matchingKey =
+                publicKeys.keys.find { it.kid == kid }
+                    ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
 
-        val publicKey = generatePublicKey(matchingKey)
+            val publicKey = generatePublicKey(matchingKey)
 
-        return Jwts.parser()
-            .verifyWith(publicKey)
-            .requireIssuer(APPLE_ISSUER)
-            .requireAudience(appleBundleId)
-            .build()
-            .parseSignedClaims(idToken)
-            .payload
+            return Jwts.parser()
+                .verifyWith(publicKey)
+                .requireIssuer(APPLE_ISSUER)
+                .requireAudience(appleBundleId)
+                .build()
+                .parseSignedClaims(idToken)
+                .payload
+        } catch (e: LinktripException) {
+            throw e
+        } catch (e: Exception) {
+            throw LinktripException(ExceptionCode.TOKEN_INVALID)
+        }
     }
 
     private fun generatePublicKey(key: ApplePublicKeyResponse.AppleKey): RSAPublicKey {
