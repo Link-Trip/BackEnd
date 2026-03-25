@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.AuthenticationEntryPoint
@@ -26,22 +25,17 @@ class JwtSecurityFilter(
             return
         }
 
-        try {
-            val preAuthToken = PreAuthorizationToken(token)
-            val postAuthToken = authenticationManager.authenticate(preAuthToken)
-            SecurityContextHolder.getContext().authentication = postAuthToken
-            filterChain.doFilter(request, response)
-        } catch (e: AuthenticationException) {
-            SecurityContextHolder.clearContext()
-            authenticationEntryPoint.commence(request, response, e)
-        } catch (e: Exception) {
-            SecurityContextHolder.clearContext()
-            authenticationEntryPoint.commence(
-                request,
-                response,
-                AuthenticationServiceException(e.message, e),
-            )
-        }
+        val postAuthToken =
+            try {
+                authenticationManager.authenticate(PreAuthorizationToken(token))
+            } catch (e: AuthenticationException) {
+                SecurityContextHolder.clearContext()
+                authenticationEntryPoint.commence(request, response, e)
+                return
+            }
+
+        SecurityContextHolder.getContext().authentication = postAuthToken
+        filterChain.doFilter(request, response)
     }
 
     private fun extractToken(request: HttpServletRequest): String? {
