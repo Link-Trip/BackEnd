@@ -2,6 +2,7 @@ package com.linktrip.input.http.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.ProviderManager
@@ -24,15 +25,19 @@ class SecurityConfig(
     fun authenticationManager(): AuthenticationManager = ProviderManager(authenticationProvider)
 
     @Bean
+    @Order(1)
     fun publicFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain =
         httpSecurity
             .securityMatcher(*SecurityPaths.PUBLIC_ENDPOINTS)
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { it.anyRequest().permitAll() }
+            .httpBasic { it.disable() }
+            .formLogin { it.disable() }
             .build()
 
     @Bean
+    @Order(2)
     fun protectedFilterChain(
         httpSecurity: HttpSecurity,
         authenticationManager: AuthenticationManager,
