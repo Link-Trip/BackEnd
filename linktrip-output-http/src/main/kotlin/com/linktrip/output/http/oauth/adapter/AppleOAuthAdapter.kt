@@ -55,13 +55,15 @@ class AppleOAuthAdapter(
         idToken: String,
         publicKeys: ApplePublicKeyResponse,
     ): io.jsonwebtoken.Claims {
-        val headerPart = idToken.split(".").firstOrNull()
-            ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+        val headerPart =
+            idToken.split(".").firstOrNull()
+                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
 
         val headerJson = String(Base64.getUrlDecoder().decode(headerPart))
         val headerMap = objectMapper.readValue(headerJson, Map::class.java)
-        val kid = headerMap["kid"] as? String
-            ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+        val kid =
+            headerMap["kid"] as? String
+                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
 
         val matchingKey =
             publicKeys.keys.find { it.kid == kid }

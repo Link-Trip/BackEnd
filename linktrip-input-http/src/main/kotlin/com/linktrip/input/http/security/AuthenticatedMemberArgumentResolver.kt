@@ -22,8 +22,9 @@ class AuthenticatedMemberArgumentResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?,
     ): String {
-        val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw LinktripException(ExceptionCode.AUTHENTICATION_FAILED)
+        val authentication =
+            SecurityContextHolder.getContext().authentication
+                ?: throw LinktripException(ExceptionCode.AUTHENTICATION_FAILED)
 
         return authentication.principal as? String
             ?: throw LinktripException(ExceptionCode.AUTHENTICATION_FAILED)
