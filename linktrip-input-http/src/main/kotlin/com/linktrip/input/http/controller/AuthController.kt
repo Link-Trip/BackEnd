@@ -1,9 +1,9 @@
 package com.linktrip.input.http.controller
 
 import com.linktrip.application.port.input.AuthUseCase
-import com.linktrip.input.http.controller.dto.request.AuthRequest
+import com.linktrip.input.http.controller.dto.request.OAuthLoginRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
-import com.linktrip.input.http.controller.dto.response.AuthResponse
+import com.linktrip.input.http.controller.dto.response.OAuthLoginResponse
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -17,14 +17,19 @@ class AuthController(
 ) {
     @PostMapping("/login")
     fun login(
-        @Validated @RequestBody request: AuthRequest,
-    ): ApiResponse<AuthResponse> {
-        val result = authUseCase.authenticateBySerial(request.serialNumber)
+        @Validated @RequestBody request: OAuthLoginRequest,
+    ): ApiResponse<OAuthLoginResponse> {
+        val result =
+            authUseCase.socialLogin(
+                providerType = request.providerType,
+                accessToken = request.accessToken,
+            )
 
         val response =
-            AuthResponse(
+            OAuthLoginResponse(
                 memberId = result.memberId,
                 accessToken = result.accessToken,
+                isNewMember = result.isNewMember,
             )
 
         return if (result.isNewMember) {

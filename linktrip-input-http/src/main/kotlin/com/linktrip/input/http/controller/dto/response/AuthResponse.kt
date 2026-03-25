@@ -1,6 +1,7 @@
 package com.linktrip.input.http.controller.dto.response
 
-data class AuthResponse(
+data class OAuthLoginResponse(
     val memberId: String,
     val accessToken: String,
+    val isNewMember: Boolean,
 )
