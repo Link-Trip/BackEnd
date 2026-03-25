@@ -9,7 +9,5 @@ interface MemberPort {
         providerId: String,
     ): Member?
 
-    fun findByEmail(email: String): Member?
-
     fun save(member: Member): Member
 }

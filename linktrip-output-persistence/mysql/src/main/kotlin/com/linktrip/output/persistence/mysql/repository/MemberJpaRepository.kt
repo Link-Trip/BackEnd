@@ -9,6 +9,4 @@ interface MemberJpaRepository : JpaRepository<MemberEntity, String> {
         providerType: ProviderType,
         providerId: String,
     ): MemberEntity?
-
-    fun findByEmail(email: String): MemberEntity?
 }
