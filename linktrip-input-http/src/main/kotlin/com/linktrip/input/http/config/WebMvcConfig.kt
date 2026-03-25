@@ -1,6 +1,6 @@
 package com.linktrip.input.http.config
 
-import com.linktrip.input.http.auth.AuthenticatedMemberArgumentResolver
+import com.linktrip.input.http.security.AuthenticatedMemberArgumentResolver
 import com.linktrip.input.http.ratelimit.RateLimitInterceptor
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
