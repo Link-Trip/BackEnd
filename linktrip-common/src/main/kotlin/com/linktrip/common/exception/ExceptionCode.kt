@@ -9,6 +9,7 @@ enum class ExceptionCode(
     BAD_REQUEST_VIDEO(400, "유효하지 않은 유튜브 영상입니다."),
     BAD_REQUEST_ITINERARY_ITEMS(400, "유효하지 않은 여행 일정 항목입니다."),
     BAD_REQUEST_DISCOVER_QUERY(400, "country와 region은 동시에 사용할 수 없습니다."),
+    BAD_REQUEST_OAUTH_PROVIDER(400, "지원하지 않는 OAuth 프로바이더입니다."),
 
     // 401
     UNAUTHORIZED_TOKEN_EXPIRED(401, "만료된 토큰입니다."),
@@ -37,4 +38,5 @@ enum class ExceptionCode(
     BAD_GATEWAY_GOOGLE_PLACES(502, "Google Places API 호출 중 오류가 발생했습니다."),
     BAD_GATEWAY_GEMINI(502, "Gemini AI API 호출 중 오류가 발생했습니다."),
     BAD_GATEWAY_DISCORD(502, "Discord API 호출 중 오류가 발생했습니다."),
+    BAD_GATEWAY_OAUTH_PROVIDER(502, "OAuth 프로바이더 API 호출 중 오류가 발생했습니다."),
 }
