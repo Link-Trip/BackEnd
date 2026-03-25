@@ -23,7 +23,7 @@ class AuthService(
     ): AuthResult {
         val oAuthPort = getOAuthPort(providerType)
         val oAuthInfo = oAuthPort.requestUserInfo(accessToken)
-        logger.info { "OAuth 사용자 정보 조회 완료: provider=$providerType, providerId=${oAuthInfo.providerId}" }
+        logger.info { "OAuth 사용자 정보 조회 완료: provider=$providerType" }
 
         val result = memberService.findOrCreateByOAuth(providerType, oAuthInfo)
         val token = tokenProvider.create(result.member.id)
