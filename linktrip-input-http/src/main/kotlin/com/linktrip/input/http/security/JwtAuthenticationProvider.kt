@@ -13,12 +13,18 @@ class JwtAuthenticationProvider(
     override fun authenticate(authentication: Authentication): Authentication {
         val jwt = authentication.credentials as String
 
-        if (!tokenProvider.validate(jwt)) {
-            throw BadCredentialsException("유효하지 않은 JWT 토큰입니다.")
-        }
+        try {
+            if (!tokenProvider.validate(jwt)) {
+                throw BadCredentialsException("유효하지 않은 JWT 토큰입니다.")
+            }
 
-        val memberId = tokenProvider.extractMemberId(jwt)
-        return PostAuthorizationToken(memberId)
+            val memberId = tokenProvider.extractMemberId(jwt)
+            return PostAuthorizationToken(memberId)
+        } catch (e: BadCredentialsException) {
+            throw e
+        } catch (e: Exception) {
+            throw BadCredentialsException("JWT 인증 처리 중 오류가 발생했습니다.", e)
+        }
     }
 
     override fun supports(authentication: Class<*>): Boolean =
