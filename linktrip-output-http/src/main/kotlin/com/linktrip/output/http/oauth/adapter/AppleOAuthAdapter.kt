@@ -10,6 +10,7 @@ import com.linktrip.output.http.oauth.dto.ApplePublicKeyResponse
 import io.jsonwebtoken.Jwts
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
@@ -25,6 +26,7 @@ private val logger = KotlinLogging.logger {}
 class AppleOAuthAdapter(
     @param:Qualifier("appleOAuthRestClient") private val restClient: RestClient,
     private val objectMapper: ObjectMapper,
+    @param:Value("\${oauth.apple.bundle-id}") private val appleBundleId: String,
 ) : OAuthPort {
     override fun getProviderType(): ProviderType = ProviderType.APPLE
 
@@ -73,6 +75,8 @@ class AppleOAuthAdapter(
 
         return Jwts.parser()
             .verifyWith(publicKey)
+            .requireIssuer(APPLE_ISSUER)
+            .requireAudience(appleBundleId)
             .build()
             .parseSignedClaims(idToken)
             .payload
@@ -84,5 +88,9 @@ class AppleOAuthAdapter(
         val spec = RSAPublicKeySpec(BigInteger(1, nBytes), BigInteger(1, eBytes))
         val keyFactory = KeyFactory.getInstance("RSA")
         return keyFactory.generatePublic(spec) as RSAPublicKey
+    }
+
+    companion object {
+        private const val APPLE_ISSUER = "https://appleid.apple.com"
     }
 }
