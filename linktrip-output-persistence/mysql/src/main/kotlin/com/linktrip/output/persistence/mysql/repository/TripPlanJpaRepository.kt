@@ -4,9 +4,11 @@ import com.linktrip.output.persistence.mysql.entity.TripPlanEntity
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface TripPlanJpaRepository : JpaRepository<TripPlanEntity, String> {
-    fun findByMemberIdOrderByCreatedAtDesc(memberId: String): List<TripPlanEntity>
+    fun findByIdAndDeletedFalse(id: String): TripPlanEntity?
 
-    fun existsByMemberIdAndVideoAnalysisTaskId(
+    fun findByMemberIdAndDeletedFalseOrderByCreatedAtDesc(memberId: String): List<TripPlanEntity>
+
+    fun existsByMemberIdAndVideoAnalysisTaskIdAndDeletedFalse(
         memberId: String,
         videoAnalysisTaskId: String,
     ): Boolean

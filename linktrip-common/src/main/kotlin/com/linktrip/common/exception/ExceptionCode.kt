@@ -28,6 +28,8 @@ enum class ExceptionCode(
 
     // 500
     INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
+    INTERNAL_IMMUTABLE_DATA_DELETE(500, "불변 데이터는 삭제할 수 없습니다."),
+    INTERNAL_IMMUTABLE_DATA_UPDATE(500, "불변 데이터는 수정할 수 없습니다."),
     INTERNAL_ERROR_TEST(500, "에러 테스트용 예외입니다."),
 
     // 502

@@ -2,6 +2,7 @@ package com.linktrip.application.port.output.persistence
 
 import com.linktrip.application.domain.trip.TripPlanItem
 import com.linktrip.application.domain.video.TravelItineraryItem
+import com.linktrip.application.port.input.UpdateTripPlanItemCommand
 
 interface TripPlanItemPersistencePort {
     fun saveAll(items: List<TripPlanItem>)
@@ -12,7 +13,10 @@ interface TripPlanItemPersistencePort {
 
     fun findActiveWithItineraryAndPlaceByTripPlanId(tripPlanId: String): List<TripPlanItemWithItinerary>
 
-    fun updateAll(items: List<TripPlanItem>)
+    fun updateItems(
+        tripPlanId: String,
+        items: List<UpdateTripPlanItemCommand>,
+    )
 
     fun deleteByTripPlanId(tripPlanId: String)
 

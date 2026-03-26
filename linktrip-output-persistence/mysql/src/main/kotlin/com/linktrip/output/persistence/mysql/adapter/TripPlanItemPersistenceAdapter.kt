@@ -1,6 +1,7 @@
 package com.linktrip.output.persistence.mysql.adapter
 
 import com.linktrip.application.domain.trip.TripPlanItem
+import com.linktrip.application.port.input.UpdateTripPlanItemCommand
 import com.linktrip.application.port.output.persistence.TripPlanItemPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanItemWithItinerary
 import com.linktrip.output.persistence.mysql.entity.TripPlanItemEntity
@@ -36,20 +37,28 @@ class TripPlanItemPersistenceAdapter(
         }
 
     @Transactional
-    override fun updateAll(items: List<TripPlanItem>) {
-        val itemMap = items.associateBy { it.id }
-        val entities = jpaRepository.findAllById(itemMap.keys)
+    override fun updateItems(
+        tripPlanId: String,
+        items: List<UpdateTripPlanItemCommand>,
+    ) {
+        val commandMap = items.associateBy { it.tripPlanItemId }
+        val entities = jpaRepository.findByTripPlanId(tripPlanId)
         entities.forEach { entity ->
-            val updated = itemMap[entity.id] ?: return@forEach
-            entity.day = updated.day
-            entity.itemOrder = updated.itemOrder
-            entity.deleted = updated.deleted
+            val command = commandMap[entity.id]
+            if (command != null) {
+                entity.day = command.day
+                entity.itemOrder = command.itemOrder
+                entity.restore()
+            } else {
+                entity.softDelete()
+            }
         }
     }
 
     @Transactional
     override fun deleteByTripPlanId(tripPlanId: String) {
-        querydslRepository.bulkDeleteByTripPlanId(tripPlanId)
+        val entities = jpaRepository.findByTripPlanId(tripPlanId)
+        entities.forEach { it.softDelete() }
     }
 
     override fun countActiveByTripPlanId(tripPlanId: String): Int =

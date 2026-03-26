@@ -35,8 +35,14 @@ class TripPlanQuerydslRepository(
             queryFactory
                 .select(tripPlan, videoAnalysisTask.youtubeUrl, activeCountSubQuery)
                 .from(tripPlan)
-                .join(videoAnalysisTask).on(tripPlan.videoAnalysisTaskId.eq(videoAnalysisTask.id))
-                .where(tripPlan.memberId.eq(memberId))
+                .join(videoAnalysisTask).on(
+                    tripPlan.videoAnalysisTaskId.eq(videoAnalysisTask.id),
+                    videoAnalysisTask.deleted.isFalse,
+                )
+                .where(
+                    tripPlan.memberId.eq(memberId),
+                    tripPlan.deleted.isFalse,
+                )
 
         if (cursor != null) {
             query.where(tripPlan.createdAt.before(cursor))

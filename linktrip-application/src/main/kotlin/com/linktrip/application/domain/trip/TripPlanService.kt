@@ -127,23 +127,7 @@ class TripPlanService(
         }
 
         if (command.items != null) {
-            val existingItems = planItemPort.findByTripPlanId(tripPlanId)
-            val commandMap = command.items.associateBy { it.tripPlanItemId }
-
-            val updatedItems =
-                existingItems.map { existing ->
-                    val updateCommand = commandMap[existing.id]
-                    if (updateCommand != null) {
-                        existing.copy(
-                            day = updateCommand.day,
-                            itemOrder = updateCommand.itemOrder,
-                            deleted = false,
-                        )
-                    } else {
-                        existing.copy(deleted = true)
-                    }
-                }
-            planItemPort.updateAll(updatedItems)
+            planItemPort.updateItems(tripPlanId, command.items)
         }
 
         return getTripPlanDetail(memberId, tripPlanId)

@@ -2,12 +2,15 @@ package com.linktrip.output.persistence.mysql.entity
 
 import com.linktrip.application.domain.video.Category
 import com.linktrip.application.domain.video.TravelItineraryItem
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.PreRemove
 import jakarta.persistence.Table
 
 @Entity
@@ -41,6 +44,15 @@ class TravelItineraryItemEntity(
     @Column(name = "place_search_count", nullable = false)
     var placeSearchCount: Int = 0,
 ) : BaseTimeEntity() {
+    @PreRemove
+    fun preventDeletion() {
+        throw LinktripException(ExceptionCode.INTERNAL_IMMUTABLE_DATA_DELETE)
+    }
+
+    override fun softDelete() {
+        throw LinktripException(ExceptionCode.INTERNAL_IMMUTABLE_DATA_DELETE)
+    }
+
     fun toDomain(): TravelItineraryItem =
         TravelItineraryItem(
             id = this.id,

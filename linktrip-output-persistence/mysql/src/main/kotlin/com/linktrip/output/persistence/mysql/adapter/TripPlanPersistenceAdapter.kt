@@ -19,15 +19,19 @@ class TripPlanPersistenceAdapter(
     override fun save(tripPlan: TripPlan): TripPlan =
         tripPlanJpaRepository.save(TripPlanEntity.from(tripPlan)).toDomain()
 
-    override fun findById(id: String): TripPlan? = tripPlanJpaRepository.findById(id).orElse(null)?.toDomain()
+    override fun findById(id: String): TripPlan? = tripPlanJpaRepository.findByIdAndDeletedFalse(id)?.toDomain()
 
     override fun findByMemberId(memberId: String): List<TripPlan> =
-        tripPlanJpaRepository.findByMemberIdOrderByCreatedAtDesc(memberId).map { it.toDomain() }
+        tripPlanJpaRepository.findByMemberIdAndDeletedFalseOrderByCreatedAtDesc(memberId).map { it.toDomain() }
 
     override fun existsByMemberIdAndVideoAnalysisTaskId(
         memberId: String,
         videoAnalysisTaskId: String,
-    ): Boolean = tripPlanJpaRepository.existsByMemberIdAndVideoAnalysisTaskId(memberId, videoAnalysisTaskId)
+    ): Boolean =
+        tripPlanJpaRepository.existsByMemberIdAndVideoAnalysisTaskIdAndDeletedFalse(
+            memberId,
+            videoAnalysisTaskId,
+        )
 
     override fun findSummariesByMemberId(
         memberId: String,
@@ -42,7 +46,14 @@ class TripPlanPersistenceAdapter(
             )
         }
 
-    override fun deleteById(id: String) = tripPlanJpaRepository.deleteById(id)
+    @Transactional
+    override fun deleteById(id: String) {
+        val entity =
+            tripPlanJpaRepository.findById(id).orElseThrow {
+                LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
+            }
+        entity.softDelete()
+    }
 
     @Transactional
     override fun updateTitle(

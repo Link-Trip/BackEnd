@@ -26,8 +26,6 @@ class TripPlanItemEntity(
     var day: Int,
     @Column(name = "item_order", nullable = false)
     var itemOrder: Int,
-    @Column(name = "deleted", nullable = false)
-    var deleted: Boolean = false,
 ) : BaseTimeEntity() {
     fun toDomain(): TripPlanItem =
         TripPlanItem(
@@ -36,7 +34,6 @@ class TripPlanItemEntity(
             travelItineraryItemId = this.travelItineraryItemId,
             day = this.day,
             itemOrder = this.itemOrder,
-            deleted = this.deleted,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
         )
@@ -49,7 +46,6 @@ class TripPlanItemEntity(
                 travelItineraryItemId = item.travelItineraryItemId,
                 day = item.day,
                 itemOrder = item.itemOrder,
-                deleted = item.deleted,
             )
     }
 }

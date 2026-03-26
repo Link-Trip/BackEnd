@@ -33,8 +33,14 @@ class TripPlanItemQuerydslRepository(
         queryFactory
             .select(tripPlanItem, itineraryItem, place)
             .from(tripPlanItem)
-            .join(itineraryItem).on(tripPlanItem.travelItineraryItemId.eq(itineraryItem.id))
-            .leftJoin(place).on(itineraryItem.placeId.eq(place.id))
+            .join(itineraryItem).on(
+                tripPlanItem.travelItineraryItemId.eq(itineraryItem.id),
+                itineraryItem.deleted.isFalse,
+            )
+            .leftJoin(place).on(
+                itineraryItem.placeId.eq(place.id),
+                place.deleted.isFalse,
+            )
             .where(
                 tripPlanItem.tripPlanId.eq(tripPlanId),
                 tripPlanItem.deleted.isFalse,

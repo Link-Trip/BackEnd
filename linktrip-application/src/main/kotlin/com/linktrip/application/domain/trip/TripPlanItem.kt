@@ -9,7 +9,6 @@ data class TripPlanItem(
     val travelItineraryItemId: String,
     val day: Int,
     val itemOrder: Int,
-    val deleted: Boolean = false,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
