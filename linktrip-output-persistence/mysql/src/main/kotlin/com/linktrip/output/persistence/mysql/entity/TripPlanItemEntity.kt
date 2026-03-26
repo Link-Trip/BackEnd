@@ -11,7 +11,10 @@ import jakarta.persistence.Table
 @Table(
     name = "trip_plan_item",
     indexes = [
-        Index(name = "idx_trip_plan_item_trip_plan_id", columnList = "trip_plan_id"),
+        Index(
+            name = "idx_trip_plan_item_plan_deleted_day_order",
+            columnList = "trip_plan_id, deleted, day, item_order",
+        ),
     ],
 )
 class TripPlanItemEntity(

@@ -9,7 +9,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
-import jakarta.persistence.Index
 import jakarta.persistence.PreRemove
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
@@ -19,10 +18,6 @@ import jakarta.persistence.UniqueConstraint
     name = "video_analysis_task",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_video_analysis_task_youtube_url", columnNames = ["youtube_url"]),
-    ],
-    indexes = [
-        Index(name = "idx_video_analysis_task_youtube_url", columnList = "youtube_url"),
-        Index(name = "idx_video_analysis_task_status", columnList = "status"),
     ],
 )
 class VideoAnalysisTaskEntity(

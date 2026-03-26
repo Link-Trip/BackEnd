@@ -4,15 +4,17 @@ import com.linktrip.application.domain.trip.TripPlan
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.Index
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 
 @Entity
 @Table(
     name = "trip_plan",
-    indexes = [
-        Index(name = "idx_trip_plan_member_id", columnList = "member_id"),
-        Index(name = "idx_trip_plan_video_analysis_task_id", columnList = "video_analysis_task_id"),
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_trip_plan_member_task",
+            columnNames = ["member_id", "video_analysis_task_id"],
+        ),
     ],
 )
 class TripPlanEntity(

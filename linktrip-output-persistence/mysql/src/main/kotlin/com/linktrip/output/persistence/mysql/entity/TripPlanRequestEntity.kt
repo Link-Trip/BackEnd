@@ -6,10 +6,17 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 
 @Entity
 @Table(
     name = "trip_plan_request",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_trip_plan_request_member_task",
+            columnNames = ["member_id", "video_analysis_task_id"],
+        ),
+    ],
     indexes = [
         Index(
             name = "idx_trip_plan_request_task_processed",

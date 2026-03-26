@@ -4,6 +4,7 @@ import com.linktrip.application.domain.youtube.YouTubeChannelDetail
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
@@ -12,6 +13,9 @@ import jakarta.persistence.UniqueConstraint
     name = "youtube_channel",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_youtube_channel_channel_id", columnNames = ["channel_id"]),
+    ],
+    indexes = [
+        Index(name = "idx_youtube_channel_subscriber_count", columnList = "subscriber_count"),
     ],
 )
 class YouTubeChannelEntity(
