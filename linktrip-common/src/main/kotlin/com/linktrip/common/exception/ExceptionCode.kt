@@ -8,6 +8,7 @@ enum class ExceptionCode(
     ILLEGAL_ARGUMENT(400, "요청 값이 올바르지 않습니다."),
     INVALID_YOUTUBE_URL(400, "유효한 유튜브 URL이 아닙니다."),
     INVALID_VIDEO(400, "유효하지 않은 유튜브 영상입니다."),
+    INVALID_ITINERARY_ITEMS(400, "유효하지 않은 여행 일정 항목입니다."),
 
     // 401
     UNAUTHORIZED(401, "인증이 필요합니다."),
@@ -18,9 +19,11 @@ enum class ExceptionCode(
 
     // 403
     ACCESS_DENIED(403, "해당 리소스에 접근할 수 없습니다."),
+    TRIP_PLAN_ACCESS_DENIED(403, "해당 여행 계획에 접근할 수 없습니다."),
 
     // 404
     NOT_FOUND(404, "해당 리소스를 찾을 수 없습니다."),
+    TRIP_PLAN_NOT_FOUND(404, "여행 계획을 찾을 수 없습니다."),
 
     // 429
     RATE_LIMIT_EXCEEDED(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
