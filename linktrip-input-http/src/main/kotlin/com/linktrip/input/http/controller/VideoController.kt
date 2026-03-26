@@ -1,11 +1,14 @@
 package com.linktrip.input.http.controller
 
+import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.application.port.input.DiscoverChannelUseCase
 import com.linktrip.application.port.input.DiscoverVideoUseCase
+import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
 import com.linktrip.application.port.input.VideoScheduleUseCase
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
+import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
@@ -30,20 +33,36 @@ class VideoController(
     private val videoScheduleUseCase: VideoScheduleUseCase,
     private val discoverVideoUseCase: DiscoverVideoUseCase,
     private val discoverChannelUseCase: DiscoverChannelUseCase,
+    private val tripPlanUseCase: TripPlanUseCase,
 ) {
     @PostMapping("/analyze")
     fun analyzeVideo(
+        @AuthenticatedMember memberId: String,
         @Valid @RequestBody request: VideoAnalyzeRequest,
     ): ApiResponse<VideoAnalyzeAcceptResponse> {
-        val videoAnalysisTask = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
-        return ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(videoAnalysisTask))
+        val task = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
+
+        when (task.status) {
+            VideoAnalysisTaskStatus.COMPLETED ->
+                tripPlanUseCase.createFromAnalysisIfAbsent(memberId, task.id)
+            VideoAnalysisTaskStatus.INVALID -> {}
+            else -> tripPlanUseCase.registerRequest(memberId, task.id)
+        }
+
+        return ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(task))
     }
 
     @GetMapping("/{videoAnalysisTaskId}/schedule")
     fun getVideoSchedule(
+        @AuthenticatedMember memberId: String,
         @PathVariable videoAnalysisTaskId: String,
     ): ApiResponse<VideoAnalyzeResponse> {
         val result = videoScheduleUseCase.getVideoSchedule(videoAnalysisTaskId)
+
+        if (result.videoAnalysisTask.status == VideoAnalysisTaskStatus.COMPLETED) {
+            tripPlanUseCase.createFromAnalysisIfAbsent(memberId, videoAnalysisTaskId)
+        }
+
         return ApiResponse.ok(
             VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items),
         )
