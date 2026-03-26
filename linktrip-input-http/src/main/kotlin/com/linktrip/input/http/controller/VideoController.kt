@@ -64,9 +64,12 @@ class VideoController(
             tripPlanUseCase.createFromAnalysisIfAbsent(memberId, videoAnalysisTaskId)
         }
 
-        return ApiResponse.ok(
-            VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items),
-        )
+        val response = VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items)
+        return if (result.videoAnalysisTask.status == VideoAnalysisTaskStatus.COMPLETED) {
+            ApiResponse.ok(response)
+        } else {
+            ApiResponse.accepted(response)
+        }
     }
 
     @GetMapping("/discover/category")
