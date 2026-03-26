@@ -42,6 +42,8 @@ class YouTubeChannelEntity(
             subscriberCount = this.subscriberCount,
             videoCount = this.videoCount,
             recentVideos = recentVideos,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     fun updateFrom(detail: YouTubeChannelDetail) {

@@ -1,6 +1,7 @@
 package com.linktrip.application.domain.video
 
 import com.linktrip.application.domain.common.IdGenerator
+import java.time.LocalDateTime
 
 data class TravelItineraryItem(
     val id: String,
@@ -14,6 +15,8 @@ data class TravelItineraryItem(
     val placeId: String? = null,
     val placeSearchCount: Int = 0,
     val place: Place? = null,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     fun isRetryable(): Boolean =
         placeId == null &&

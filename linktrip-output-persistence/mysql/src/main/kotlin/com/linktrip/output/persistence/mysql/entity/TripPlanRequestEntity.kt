@@ -34,6 +34,8 @@ class TripPlanRequestEntity(
             memberId = this.memberId,
             videoAnalysisTaskId = this.videoAnalysisTaskId,
             processed = this.processed,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     companion object {

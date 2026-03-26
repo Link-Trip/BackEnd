@@ -40,6 +40,8 @@ class VideoAnalysisTaskEntity(
             youtubeUrl = this.youtubeUrl,
             valid = this.valid,
             status = this.status,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     companion object {

@@ -37,6 +37,8 @@ class PlaceEntity(
             address = this.address,
             latitude = this.latitude,
             longitude = this.longitude,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     companion object {

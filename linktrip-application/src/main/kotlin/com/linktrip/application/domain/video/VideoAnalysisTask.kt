@@ -3,12 +3,15 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.domain.common.IdGenerator
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
+import java.time.LocalDateTime
 
 data class VideoAnalysisTask(
     val id: String,
     val youtubeUrl: String,
     val valid: Boolean,
     val status: VideoAnalysisTaskStatus,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
         private const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="

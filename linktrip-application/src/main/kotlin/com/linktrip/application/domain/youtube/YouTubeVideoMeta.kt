@@ -1,6 +1,7 @@
 package com.linktrip.application.domain.youtube
 
 import com.linktrip.application.domain.common.IdGenerator
+import java.time.LocalDateTime
 
 data class YouTubeVideoMeta(
     val id: String,
@@ -18,6 +19,8 @@ data class YouTubeVideoMeta(
     val country: String,
     val city: String?,
     val theme: String?,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
         fun create(

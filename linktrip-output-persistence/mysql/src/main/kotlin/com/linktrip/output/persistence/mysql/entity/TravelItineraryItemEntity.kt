@@ -53,6 +53,8 @@ class TravelItineraryItemEntity(
             tips = this.tips,
             placeId = this.placeId,
             placeSearchCount = this.placeSearchCount,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     companion object {

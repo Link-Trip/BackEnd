@@ -70,6 +70,8 @@ class YouTubeVideoEntity(
             country = this.country,
             city = this.city,
             theme = this.theme,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     fun updateFrom(detail: YouTubeVideoMeta) {
