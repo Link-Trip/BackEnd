@@ -9,6 +9,7 @@ import com.linktrip.application.port.input.VideoScheduleUseCase
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.input.http.auth.AuthenticatedMember
+import com.linktrip.input.http.config.PaginationDefaults
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
@@ -96,11 +97,8 @@ class VideoController(
         @RequestParam(required = false) cursor: String?,
     ): ApiResponse<DiscoverVideoCursorResponse> {
         val cursorDateTime = cursor?.let { LocalDateTime.parse(it) }
-        val result = discoverVideoUseCase.getVideosByTheme(theme.trim(), cursorDateTime, DEFAULT_PAGE_SIZE)
+        val result =
+            discoverVideoUseCase.getVideosByTheme(theme.trim(), cursorDateTime, PaginationDefaults.DISCOVER_VIDEO_SIZE)
         return ApiResponse.ok(DiscoverVideoCursorResponse.from(result))
-    }
-
-    companion object {
-        private const val DEFAULT_PAGE_SIZE = 40
     }
 }

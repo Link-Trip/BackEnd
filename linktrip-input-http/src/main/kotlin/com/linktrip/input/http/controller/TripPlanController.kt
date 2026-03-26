@@ -4,6 +4,7 @@ import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.UpdateTripPlanCommand
 import com.linktrip.application.port.input.UpdateTripPlanItemCommand
 import com.linktrip.input.http.auth.AuthenticatedMember
+import com.linktrip.input.http.config.PaginationDefaults
 import com.linktrip.input.http.controller.dto.request.UpdateTripPlanRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanCursorResponse
@@ -29,12 +30,8 @@ class TripPlanController(
         @RequestParam(required = false) cursor: String?,
     ): ApiResponse<TripPlanCursorResponse> {
         val cursorDateTime = cursor?.let { java.time.LocalDateTime.parse(it) }
-        val result = tripPlanUseCase.getTripPlans(memberId, cursorDateTime, DEFAULT_PAGE_SIZE)
+        val result = tripPlanUseCase.getTripPlans(memberId, cursorDateTime, PaginationDefaults.TRIP_PLAN_SIZE)
         return ApiResponse.ok(TripPlanCursorResponse.from(result))
-    }
-
-    companion object {
-        private const val DEFAULT_PAGE_SIZE = 20
     }
 
     @GetMapping("/{tripPlanId}")
