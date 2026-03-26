@@ -65,10 +65,9 @@ class VideoController(
         }
 
         val response = VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items)
-        return if (result.videoAnalysisTask.status == VideoAnalysisTaskStatus.COMPLETED) {
-            ApiResponse.ok(response)
-        } else {
-            ApiResponse.accepted(response)
+        return when (result.videoAnalysisTask.status) {
+            VideoAnalysisTaskStatus.PENDING -> ApiResponse.accepted(response)
+            else -> ApiResponse.ok(response)
         }
     }
 

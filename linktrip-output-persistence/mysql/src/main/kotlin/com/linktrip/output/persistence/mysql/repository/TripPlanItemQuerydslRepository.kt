@@ -67,10 +67,4 @@ class TripPlanItemQuerydslRepository(
                 tripPlanItem.deleted.isFalse,
             )
             .fetchOne() ?: 0L
-
-    fun bulkDeleteByTripPlanId(tripPlanId: String): Long =
-        queryFactory
-            .delete(tripPlanItem)
-            .where(tripPlanItem.tripPlanId.eq(tripPlanId))
-            .execute()
 }

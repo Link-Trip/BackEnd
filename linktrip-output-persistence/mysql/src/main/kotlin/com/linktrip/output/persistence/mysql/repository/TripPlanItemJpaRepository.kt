@@ -5,6 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface TripPlanItemJpaRepository : JpaRepository<TripPlanItemEntity, String> {
     fun findByTripPlanId(tripPlanId: String): List<TripPlanItemEntity>
-
-    fun deleteByTripPlanId(tripPlanId: String)
 }

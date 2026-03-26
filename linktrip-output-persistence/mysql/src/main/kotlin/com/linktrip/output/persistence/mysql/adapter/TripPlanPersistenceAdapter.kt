@@ -49,9 +49,8 @@ class TripPlanPersistenceAdapter(
     @Transactional
     override fun deleteById(id: String) {
         val entity =
-            tripPlanJpaRepository.findById(id).orElseThrow {
-                LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
-            }
+            tripPlanJpaRepository.findByIdAndDeletedFalse(id)
+                ?: throw LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
         entity.softDelete()
     }
 
@@ -61,9 +60,8 @@ class TripPlanPersistenceAdapter(
         title: String,
     ) {
         val entity =
-            tripPlanJpaRepository.findById(id).orElseThrow {
-                LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
-            }
+            tripPlanJpaRepository.findByIdAndDeletedFalse(id)
+                ?: throw LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
         entity.title = title
     }
 }

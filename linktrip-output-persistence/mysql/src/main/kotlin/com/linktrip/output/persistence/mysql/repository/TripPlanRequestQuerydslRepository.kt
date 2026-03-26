@@ -17,13 +17,17 @@ class TripPlanRequestQuerydslRepository(
             .where(
                 request.videoAnalysisTaskId.eq(videoAnalysisTaskId),
                 request.processed.isFalse,
+                request.deleted.isFalse,
             )
             .fetch()
 
     fun findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId: String): List<String> =
         queryFactory
-            .select(request.memberId)
+            .selectDistinct(request.memberId)
             .from(request)
-            .where(request.videoAnalysisTaskId.eq(videoAnalysisTaskId))
+            .where(
+                request.videoAnalysisTaskId.eq(videoAnalysisTaskId),
+                request.deleted.isFalse,
+            )
             .fetch()
 }
