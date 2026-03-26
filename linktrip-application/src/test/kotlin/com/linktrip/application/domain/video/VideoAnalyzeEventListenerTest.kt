@@ -1,7 +1,9 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.domain.trip.TripPlanService
 import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
 import com.linktrip.application.port.output.external.VideoAnalyzePort
+import com.linktrip.application.port.output.persistence.TripPlanRequestPersistencePort
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -32,6 +34,12 @@ class VideoAnalyzeEventListenerTest {
 
     @Mock
     lateinit var videoAnalysisNotificationPort: VideoAnalysisNotificationPort
+
+    @Mock
+    lateinit var tripPlanRequestPort: TripPlanRequestPersistencePort
+
+    @Mock
+    lateinit var tripPlanService: TripPlanService
 
     @InjectMocks
     lateinit var listener: VideoAnalyzeEventListener
@@ -66,7 +74,7 @@ class VideoAnalyzeEventListenerTest {
         inOrder.verify(videoAnalyzePort).analyze("https://youtube.com/1")
         inOrder.verify(videoAnalysisResultSaver).save(eq("s1"), any())
         inOrder.verify(placeEnrichService).enrichPlaces("s1", "도쿄")
-        inOrder.verify(videoAnalysisNotificationPort).notifyAnalysisComplete("s1")
+        inOrder.verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
     }
 
     @Test
@@ -85,7 +93,7 @@ class VideoAnalyzeEventListenerTest {
         ).updateValidAndStatus("s1", valid = false, VideoAnalysisTaskStatus.INVALID)
         verify(videoAnalysisResultSaver, never()).save(any(), any())
         verify(placeEnrichService, never()).enrichPlaces(any(), any())
-        verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any())
+        verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any(), any())
     }
 
     @Test
