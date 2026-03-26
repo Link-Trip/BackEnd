@@ -16,7 +16,7 @@ import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorRespon
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptResponse
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
-import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -38,7 +38,7 @@ class VideoController(
     @PostMapping("/analyze")
     fun analyzeVideo(
         @AuthenticatedMember memberId: String,
-        @Valid @RequestBody request: VideoAnalyzeRequest,
+        @Validated @RequestBody request: VideoAnalyzeRequest,
     ): ApiResponse<VideoAnalyzeAcceptResponse> {
         val task = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
 

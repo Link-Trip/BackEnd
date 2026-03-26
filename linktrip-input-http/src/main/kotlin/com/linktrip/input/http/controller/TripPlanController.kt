@@ -8,7 +8,7 @@ import com.linktrip.input.http.controller.dto.request.UpdateTripPlanRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanCursorResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanDetailResponse
-import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -50,7 +50,7 @@ class TripPlanController(
     fun updateTripPlan(
         @AuthenticatedMember memberId: String,
         @PathVariable tripPlanId: String,
-        @Valid @RequestBody request: UpdateTripPlanRequest,
+        @Validated @RequestBody request: UpdateTripPlanRequest,
     ): ApiResponse<TripPlanDetailResponse> {
         val command =
             UpdateTripPlanCommand(
