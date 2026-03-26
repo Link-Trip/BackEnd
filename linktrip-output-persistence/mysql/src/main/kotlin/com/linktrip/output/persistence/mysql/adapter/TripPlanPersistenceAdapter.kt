@@ -51,7 +51,7 @@ class TripPlanPersistenceAdapter(
     ) {
         val entity =
             tripPlanJpaRepository.findById(id).orElseThrow {
-                LinktripException(ExceptionCode.TRIP_PLAN_NOT_FOUND)
+                LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
             }
         entity.title = title
     }

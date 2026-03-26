@@ -165,9 +165,9 @@ class TripPlanService(
     ): TripPlan {
         val tripPlan =
             planPort.findById(tripPlanId)
-                ?: throw LinktripException(ExceptionCode.TRIP_PLAN_NOT_FOUND)
+                ?: throw LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
         if (tripPlan.memberId != memberId) {
-            throw LinktripException(ExceptionCode.TRIP_PLAN_ACCESS_DENIED)
+            throw LinktripException(ExceptionCode.FORBIDDEN_TRIP_PLAN)
         }
         return tripPlan
     }

@@ -20,7 +20,7 @@ class RestClientConfig {
             .defaultHeader("X-Goog-FieldMask", GOOGLE_PLACES_FIELD_MASK)
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "Google Places API 호출 실패: method=${request.method} status=${response.statusCode}" }
-                throw LinktripException(ExceptionCode.API_ERROR_GOOGLE_PLACES)
+                throw LinktripException(ExceptionCode.BAD_GATEWAY_GOOGLE_PLACES)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()
@@ -30,7 +30,7 @@ class RestClientConfig {
         RestClient.builder()
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "Discord API 호출 실패: method=${request.method} status=${response.statusCode}" }
-                throw LinktripException(ExceptionCode.API_ERROR_DISCORD)
+                throw LinktripException(ExceptionCode.BAD_GATEWAY_DISCORD)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()
@@ -41,7 +41,7 @@ class RestClientConfig {
             .baseUrl(YOUTUBE_BASE_URL)
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "YouTube API 호출 실패: method=${request.method} status=${response.statusCode}" }
-                throw LinktripException(ExceptionCode.API_ERROR_YOUTUBE)
+                throw LinktripException(ExceptionCode.BAD_GATEWAY_YOUTUBE)
             }
             .requestFactory(clientHttpRequestFactory(CONNECT_TIMEOUT, READ_TIMEOUT))
             .build()

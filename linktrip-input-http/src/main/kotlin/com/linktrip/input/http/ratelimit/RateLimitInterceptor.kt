@@ -29,7 +29,7 @@ class RateLimitInterceptor(
         val key = "$memberId:${policy.name}"
 
         if (!rateLimitBucketStore.tryConsume(key, policy)) {
-            throw LinktripException(ExceptionCode.RATE_LIMIT_EXCEEDED)
+            throw LinktripException(ExceptionCode.TOO_MANY_REQUESTS)
         }
 
         return true

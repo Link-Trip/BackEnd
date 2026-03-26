@@ -76,10 +76,7 @@ class VideoController(
         val videos =
             when {
                 !country.isNullOrBlank() && !region.isNullOrBlank() ->
-                    throw LinktripException(
-                        ExceptionCode.ILLEGAL_ARGUMENT,
-                        "country와 region은 동시에 사용할 수 없습니다.",
-                    )
+                    throw LinktripException(ExceptionCode.BAD_REQUEST_DISCOVER_QUERY)
                 !country.isNullOrBlank() -> discoverVideoUseCase.getVideosByCountry(country.trim())
                 !region.isNullOrBlank() -> discoverVideoUseCase.getVideosByRegion(region.trim())
                 else -> discoverVideoUseCase.getVideos()

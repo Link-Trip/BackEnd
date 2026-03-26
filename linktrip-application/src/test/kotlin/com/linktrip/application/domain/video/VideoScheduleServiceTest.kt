@@ -70,6 +70,6 @@ class VideoScheduleServiceTest {
             }
 
         // then - NOT_FOUND 예외가 발생한다
-        assertEquals(ExceptionCode.NOT_FOUND.statusCode, exception.statusCode)
+        assertEquals(ExceptionCode.NOT_FOUND_VIDEO_ANALYSIS_TASK.statusCode, exception.statusCode)
     }
 }

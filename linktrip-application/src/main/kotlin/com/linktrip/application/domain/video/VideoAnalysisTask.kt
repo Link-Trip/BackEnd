@@ -52,11 +52,11 @@ data class VideoAnalysisTask(
 
         fun normalizeUrl(url: String): String {
             if (!YOUTUBE_URL_REGEX.matches(url)) {
-                throw LinktripException(ExceptionCode.INVALID_YOUTUBE_URL)
+                throw LinktripException(ExceptionCode.BAD_REQUEST_YOUTUBE_URL)
             }
             val videoId =
                 VIDEO_ID_REGEX.find(url)?.groupValues?.get(1)
-                    ?: throw LinktripException(ExceptionCode.INVALID_YOUTUBE_URL)
+                    ?: throw LinktripException(ExceptionCode.BAD_REQUEST_YOUTUBE_URL)
             return "$YOUTUBE_VIDEO_BASE_URL$videoId"
         }
 
