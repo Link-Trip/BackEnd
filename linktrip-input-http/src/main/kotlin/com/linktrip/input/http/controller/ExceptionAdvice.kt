@@ -35,6 +35,7 @@ class ExceptionAdvice {
             .status(e.statusCode)
             .body(
                 ExceptionResponse(
+                    code = e.exceptionCode.name,
                     message = e.defaultMessage,
                     cause = e.detailMessage,
                     timestamp = System.currentTimeMillis(),
@@ -68,6 +69,7 @@ class ExceptionAdvice {
             .status(HttpStatus.BAD_REQUEST)
             .body(
                 ExceptionResponse(
+                    code = "BAD_REQUEST_VALIDATION",
                     message = "요청 형식이 잘못되었습니다.",
                     cause = cause,
                     timestamp = System.currentTimeMillis(),
@@ -82,6 +84,7 @@ class ExceptionAdvice {
             .status(HttpStatus.NOT_FOUND)
             .body(
                 ExceptionResponse(
+                    code = "NOT_FOUND_RESOURCE",
                     message = "요청 경로가 잘못되었습니다.",
                     cause = e.resourcePath,
                     timestamp = System.currentTimeMillis(),
@@ -102,6 +105,7 @@ class ExceptionAdvice {
             .status(HttpStatus.BAD_GATEWAY)
             .body(
                 ExceptionResponse(
+                    code = "BAD_GATEWAY_EXTERNAL_API",
                     message = "외부 API 통신 중 에러가 발생했습니다.",
                     cause = null,
                     timestamp = System.currentTimeMillis(),
@@ -122,6 +126,7 @@ class ExceptionAdvice {
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
                 ExceptionResponse(
+                    code = "INTERNAL_SERVER_ERROR",
                     message = "예기치 못한 에러가 발생했습니다.",
                     cause = null,
                     timestamp = System.currentTimeMillis(),

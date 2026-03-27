@@ -6,7 +6,6 @@ import com.linktrip.application.port.input.UpdateTripPlanCommand
 import com.linktrip.application.port.input.UpdateTripPlanItemCommand
 import com.linktrip.application.port.output.persistence.HashtagPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
-import com.linktrip.application.port.output.persistence.TaskHashtagMapping
 import com.linktrip.application.port.output.persistence.TripPlanItemPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanItemWithItinerary
 import com.linktrip.application.port.output.persistence.TripPlanPersistencePort
