@@ -12,6 +12,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.never
@@ -52,6 +53,10 @@ class VideoAnalyzeEventListenerTest {
             VideoAnalysisResult(
                 valid = true,
                 destination = "도쿄",
+                title = "도쿄 3박 4일 여행",
+                estimatedMinCost = 800000,
+                estimatedMaxCost = 1200000,
+                costBasis = CostBasis.VIDEO_MENTIONED,
                 days =
                     listOf(
                         VideoAnalysisResult.DaySchedule(
@@ -72,7 +77,13 @@ class VideoAnalyzeEventListenerTest {
         val inOrder =
             inOrder(videoAnalyzePort, videoAnalysisResultSaver, placeEnrichService, videoAnalysisNotificationPort)
         inOrder.verify(videoAnalyzePort).analyze("https://youtube.com/1")
-        inOrder.verify(videoAnalysisResultSaver).save(eq("s1"), any())
+        inOrder.verify(videoAnalysisResultSaver).save(
+            eq("s1"),
+            any(),
+            eq(800000L),
+            eq(1200000L),
+            eq(CostBasis.VIDEO_MENTIONED),
+        )
         inOrder.verify(placeEnrichService).enrichPlaces("s1", "도쿄")
         inOrder.verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
     }
@@ -81,7 +92,16 @@ class VideoAnalyzeEventListenerTest {
     fun `여행 영상이 아닌 것으로 판정되면_INVALID 상태로 변경하고_일정 저장과 장소 보강을 수행하지 않는다`() {
         // given - 여행 영상이 아닌 것으로 판정된 분석 결과
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
-        val invalidResult = VideoAnalysisResult(valid = false, destination = null, days = emptyList())
+        val invalidResult =
+            VideoAnalysisResult(
+                valid = false,
+                destination = null,
+                title = null,
+                estimatedMinCost = null,
+                estimatedMaxCost = null,
+                costBasis = null,
+                days = emptyList(),
+            )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(invalidResult)
 
         // when - 이벤트를 처리한다
@@ -90,9 +110,16 @@ class VideoAnalyzeEventListenerTest {
         // then - INVALID 상태로 변경하고, 저장과 보강은 수행하지 않는다
         verify(
             videoAnalysisTaskPersistencePort,
-        ).updateValidAndStatus("s1", valid = false, VideoAnalysisTaskStatus.INVALID)
-        verify(videoAnalysisResultSaver, never()).save(any(), any())
-        verify(placeEnrichService, never()).enrichPlaces(any(), any())
+        ).updateValidAndStatus(
+            eq("s1"),
+            eq(false),
+            eq(VideoAnalysisTaskStatus.INVALID),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+        )
+        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull())
+        verify(placeEnrichService, never()).enrichPlaces(any(), anyOrNull())
         verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any(), any())
     }
 
@@ -107,7 +134,7 @@ class VideoAnalyzeEventListenerTest {
 
         // then - FAILED 상태로 변경하고, 결과 저장은 수행하지 않는다
         verify(videoAnalysisTaskPersistencePort).updateStatus("s1", VideoAnalysisTaskStatus.FAILED)
-        verify(videoAnalysisResultSaver, never()).save(any(), any())
+        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -118,6 +145,10 @@ class VideoAnalyzeEventListenerTest {
             VideoAnalysisResult(
                 valid = true,
                 destination = "파리",
+                title = "파리 2일 여행",
+                estimatedMinCost = 500000,
+                estimatedMaxCost = 700000,
+                costBasis = CostBasis.ITEM_ESTIMATED,
                 days =
                     listOf(
                         VideoAnalysisResult.DaySchedule(
@@ -144,15 +175,24 @@ class VideoAnalyzeEventListenerTest {
 
         // then - 3개 항목이 day와 category와 순서가 정확히 매핑되어 저장된다
         val captor = org.mockito.kotlin.argumentCaptor<List<TravelItineraryItem>>()
-        verify(videoAnalysisResultSaver).save(eq("s1"), captor.capture())
+        verify(videoAnalysisResultSaver).save(
+            eq("s1"),
+            captor.capture(),
+            eq(500000L),
+            eq(700000L),
+            eq(CostBasis.ITEM_ESTIMATED),
+        )
 
         val savedItems = captor.firstValue
         assertEquals(3, savedItems.size)
         assertEquals(1, savedItems[0].day)
         assertEquals("에펠탑", savedItems[0].name)
+        assertEquals(Category.ATTRACTION, savedItems[0].category)
         assertEquals(1, savedItems[1].day)
         assertEquals("카페", savedItems[1].name)
+        assertEquals(Category.EAT, savedItems[1].category)
         assertEquals(2, savedItems[2].day)
         assertEquals("샹젤리제", savedItems[2].name)
+        assertEquals(Category.SHOPPING, savedItems[2].category)
     }
 }
