@@ -69,6 +69,9 @@ class VideoAnalysisTaskEntity(
                 youtubeUrl = videoAnalysisTask.youtubeUrl,
                 valid = videoAnalysisTask.valid,
                 status = videoAnalysisTask.status,
+                estimatedMinCost = videoAnalysisTask.estimatedMinCost,
+                estimatedMaxCost = videoAnalysisTask.estimatedMaxCost,
+                costBasis = videoAnalysisTask.costBasis,
             )
     }
 }
