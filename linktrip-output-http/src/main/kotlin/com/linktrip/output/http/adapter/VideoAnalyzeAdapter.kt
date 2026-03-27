@@ -93,20 +93,26 @@ class VideoAnalyzeAdapter(
             Is this video travel-related? (travel vlog, food tour, sightseeing, travel tips, etc.)
 
             If NO (violence, adult content, unrelated topics, invalid link):
-            → Return: {"valid": false, "destination": null, "days": null}
+            → Return: {"valid": false, "destination": null, "title": null, "estimatedMinCost": null, "estimatedMaxCost": null, "costBasis": null, "days": null}
 
             If YES → Proceed to STEP 2
 
             ============================================================
-            STEP 2: EXTRACT DESTINATION AND DAY-BY-DAY ITINERARY
+            STEP 2: EXTRACT DESTINATION, TITLE, COST AND DAY-BY-DAY ITINERARY
             ============================================================
             First, identify the main travel destination from the video.
+            Then create a natural Korean title for this trip.
+            Then estimate the total travel cost shown or implied in the video.
             Then extract the travel schedule in CHRONOLOGICAL ORDER, grouped by day.
             Each item must have a category tag and appear in the order it was visited.
 
             {
               "valid": true,
               "destination": "도쿄, 일본",
+              "title": "도쿄 3박 4일 여행",
+              "estimatedMinCost": 800000,
+              "estimatedMaxCost": 1500000,
+              "costBasis": "VIDEO_MENTIONED",
               "days": [
                 {
                   "day": 1,
@@ -132,6 +138,30 @@ class VideoAnalyzeAdapter(
             - If the video covers an entire country or region, use "국가" only (e.g., "일본", "태국")
             - Write in Korean
             - "destination" is either: "도시, 국가" format, a country-only string when no single city is dominant, or null
+
+            ============================================================
+            TITLE RULES
+            ============================================================
+            - Create a natural, appealing Korean title for this trip
+            - Format: "[도시] [일수] 여행" or similar natural Korean expression
+            - Examples: "도쿄 3박 4일 여행", "방콕 먹방 투어", "파리 혼자 여행", "오사카 2박 3일 맛집 탐방"
+            - If days are unclear, omit the duration (e.g., "후쿠오카 여행", "제주도 힐링 여행")
+            - Keep it concise (under 20 characters preferred)
+            - Do NOT use "도시, 국가" format for the title
+
+            ============================================================
+            ESTIMATED COST RULES
+            ============================================================
+            - Provide cost as a min-max range: "estimatedMinCost" and "estimatedMaxCost"
+            - Cost is for ONE person in Korean Won (KRW), integer only (e.g., 800000)
+            - INCLUDE: food, accommodation, local transportation, activities, entrance fees, shopping — everything shown or done in the video
+            - EXCLUDE: departure/arrival transportation only (international flights, intercity KTX/train to the destination)
+            - Priority 1: If the video explicitly shows or mentions total cost → use that as base, set min to -10% and max to +10%, costBasis = "VIDEO_MENTIONED"
+            - Priority 2: If no total is shown → sum up individual costs from the video (food prices, hotel rates, ticket prices mentioned/shown), costBasis = "ITEM_ESTIMATED"
+            - Priority 3: If individual prices are also unclear → estimate each item's realistic cost based on the specific places and activities extracted above, then sum, costBasis = "ITEM_ESTIMATED"
+            - Foreign currency must be converted to KRW at current approximate rates
+            - "costBasis" must be one of: "VIDEO_MENTIONED" (video explicitly states total/individual costs), "ITEM_ESTIMATED" (estimated from activities)
+            - Return null for all three (estimatedMinCost, estimatedMaxCost, costBasis) if cost cannot be reasonably estimated
 
             ============================================================
             DAY DETECTION RULES
@@ -177,6 +207,9 @@ class VideoAnalyzeAdapter(
             Before responding, verify:
             - Response is ONLY a JSON object (no other text)
             - "destination" is a string in "도시, 국가" format, a country-only string, or null
+            - "title" is a natural Korean trip title string, or null
+            - "estimatedMinCost" and "estimatedMaxCost" are integers in KRW, or both null
+            - "costBasis" is one of "VIDEO_MENTIONED", "ITEM_ESTIMATED", or null
             - "days" is an array of day objects, each with "day" (int) and "items" (array)
             - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
             - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION
