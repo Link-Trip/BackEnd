@@ -34,7 +34,7 @@ class TravelItineraryItemEntity(
     @Column(name = "item_order", nullable = false)
     val itemOrder: Int,
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false, length = 20)
+    @Column(name = "category", nullable = false, length = 30)
     val category: Category,
     @Column(name = "name", nullable = false, length = 255)
     val name: String,

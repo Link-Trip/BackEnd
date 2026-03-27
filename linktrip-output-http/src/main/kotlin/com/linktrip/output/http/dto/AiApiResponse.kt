@@ -66,10 +66,13 @@ data class AiApiResponse(
             null
         }
 
-    private fun parseCategory(category: String?): Category =
-        try {
-            Category.valueOf(category?.trim()?.uppercase() ?: "EAT")
+    private fun parseCategory(category: String?): Category {
+        val normalized = category?.trim()?.uppercase() ?: return Category.EAT
+        if (normalized == "TRANSPORTATION") return Category.TRANSPORTATION_TRANSIT
+        return try {
+            Category.valueOf(normalized)
         } catch (_: IllegalArgumentException) {
             Category.EAT
         }
+    }
 }
