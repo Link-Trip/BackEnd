@@ -1,5 +1,6 @@
 package com.linktrip.output.persistence.mysql.entity
 
+import com.linktrip.application.domain.video.CostBasis
 import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.common.exception.ExceptionCode
@@ -31,6 +32,13 @@ class VideoAnalysisTaskEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     var status: VideoAnalysisTaskStatus = VideoAnalysisTaskStatus.PENDING,
+    @Column(name = "estimated_min_cost")
+    var estimatedMinCost: Long? = null,
+    @Column(name = "estimated_max_cost")
+    var estimatedMaxCost: Long? = null,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cost_basis", length = 20)
+    var costBasis: CostBasis? = null,
 ) : BaseTimeEntity() {
     @PreRemove
     fun preventDeletion() {
@@ -47,6 +55,9 @@ class VideoAnalysisTaskEntity(
             youtubeUrl = this.youtubeUrl,
             valid = this.valid,
             status = this.status,
+            estimatedMinCost = this.estimatedMinCost,
+            estimatedMaxCost = this.estimatedMaxCost,
+            costBasis = this.costBasis,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
         )

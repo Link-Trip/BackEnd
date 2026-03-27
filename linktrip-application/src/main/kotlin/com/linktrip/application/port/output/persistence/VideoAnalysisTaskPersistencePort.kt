@@ -1,5 +1,6 @@
 package com.linktrip.application.port.output.persistence
 
+import com.linktrip.application.domain.video.CostBasis
 import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 
@@ -19,5 +20,8 @@ interface VideoAnalysisTaskPersistencePort {
         id: String,
         valid: Boolean,
         status: VideoAnalysisTaskStatus,
+        estimatedMinCost: Long? = null,
+        estimatedMaxCost: Long? = null,
+        costBasis: CostBasis? = null,
     )
 }
