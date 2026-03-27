@@ -57,7 +57,7 @@ class RateLimitInterceptorTest {
             assertThrows<LinktripException> {
                 interceptor.preHandle(request, MockHttpServletResponse(), Any())
             }
-        assertEquals(ExceptionCode.RATE_LIMIT_EXCEEDED.statusCode, exception.statusCode)
+        assertEquals(ExceptionCode.TOO_MANY_REQUESTS.statusCode, exception.statusCode)
     }
 
     @Test

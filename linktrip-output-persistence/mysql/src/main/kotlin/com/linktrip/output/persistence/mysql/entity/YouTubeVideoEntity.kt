@@ -15,8 +15,8 @@ import jakarta.persistence.UniqueConstraint
         UniqueConstraint(name = "uk_youtube_video_video_id", columnNames = ["video_id"]),
     ],
     indexes = [
-        Index(name = "idx_youtube_video_country", columnList = "country"),
-        Index(name = "idx_youtube_video_region", columnList = "region"),
+        Index(name = "idx_youtube_video_country_view", columnList = "country, view_count"),
+        Index(name = "idx_youtube_video_region_view", columnList = "region, view_count"),
         Index(name = "idx_youtube_video_theme_created", columnList = "theme, created_at"),
     ],
 )
@@ -70,6 +70,8 @@ class YouTubeVideoEntity(
             country = this.country,
             city = this.city,
             theme = this.theme,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     fun updateFrom(detail: YouTubeVideoMeta) {

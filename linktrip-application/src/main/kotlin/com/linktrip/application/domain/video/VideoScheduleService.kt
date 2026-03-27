@@ -18,7 +18,7 @@ class VideoScheduleService(
     override fun getVideoSchedule(videoAnalysisTaskId: String): VideoScheduleResult {
         val videoAnalysisTask =
             videoAnalysisTaskPersistencePort.findById(videoAnalysisTaskId)
-                ?: throw LinktripException(ExceptionCode.NOT_FOUND)
+                ?: throw LinktripException(ExceptionCode.NOT_FOUND_VIDEO_ANALYSIS_TASK)
 
         val items = travelItineraryItemPersistencePort.findByVideoAnalysisTaskIdWithPlace(videoAnalysisTaskId)
 

@@ -20,7 +20,10 @@ class TravelItineraryItemQuerydslRepository(
     ): List<TravelItineraryItemEntity> =
         queryFactory
             .selectFrom(itineraryItem)
-            .where(itineraryItem.videoAnalysisTaskId.eq(videoAnalysisTaskId))
+            .where(
+                itineraryItem.videoAnalysisTaskId.eq(videoAnalysisTaskId),
+                itineraryItem.deleted.isFalse,
+            )
             .orderBy(
                 itineraryItem.day.asc(),
                 itineraryItem.itemOrder.asc(),
@@ -31,8 +34,14 @@ class TravelItineraryItemQuerydslRepository(
         queryFactory
             .select(itineraryItem, place)
             .from(itineraryItem)
-            .leftJoin(place).on(itineraryItem.placeId.eq(place.id))
-            .where(itineraryItem.videoAnalysisTaskId.eq(videoAnalysisTaskId))
+            .leftJoin(place).on(
+                itineraryItem.placeId.eq(place.id),
+                place.deleted.isFalse,
+            )
+            .where(
+                itineraryItem.videoAnalysisTaskId.eq(videoAnalysisTaskId),
+                itineraryItem.deleted.isFalse,
+            )
             .orderBy(
                 itineraryItem.day.asc(),
                 itineraryItem.itemOrder.asc(),
@@ -54,6 +63,7 @@ class TravelItineraryItemQuerydslRepository(
             .selectFrom(itineraryItem)
             .where(
                 itineraryItem.videoAnalysisTaskId.eq(videoAnalysisTaskId),
+                itineraryItem.deleted.isFalse,
                 itineraryItem.placeId.isNull,
                 itineraryItem.category.ne(excludeCategory),
                 itineraryItem.placeSearchCount.lt(maxSearchCount),
@@ -72,6 +82,7 @@ class TravelItineraryItemQuerydslRepository(
             .selectDistinct(itineraryItem.videoAnalysisTaskId)
             .from(itineraryItem)
             .where(
+                itineraryItem.deleted.isFalse,
                 itineraryItem.placeId.isNull,
                 itineraryItem.category.ne(excludeCategory),
                 itineraryItem.placeSearchCount.lt(maxSearchCount),

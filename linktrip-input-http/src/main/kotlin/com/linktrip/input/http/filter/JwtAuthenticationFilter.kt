@@ -1,7 +1,9 @@
 package com.linktrip.input.http.filter
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.linktrip.application.port.output.auth.TokenProvider
 import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.input.http.controller.dto.response.ExceptionResponse
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
@@ -14,6 +16,7 @@ private val logger = KotlinLogging.logger {}
 
 class JwtAuthenticationFilter(
     private val tokenProvider: TokenProvider,
+    private val objectMapper: ObjectMapper,
 ) : Filter {
     override fun doFilter(
         request: ServletRequest,
@@ -35,11 +38,12 @@ class JwtAuthenticationFilter(
             httpResponse.status = HttpServletResponse.SC_UNAUTHORIZED
             httpResponse.contentType = "application/json;charset=UTF-8"
             val body =
-                """
-                |{"message":"${ExceptionCode.UNAUTHORIZED.defaultMessage}",
-                |"cause":null,"timestamp":${System.currentTimeMillis()}}
-                """.trimMargin().replace("\n", "")
-            httpResponse.writer.write(body)
+                ExceptionResponse(
+                    message = ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED.defaultMessage,
+                    cause = null,
+                    timestamp = System.currentTimeMillis(),
+                )
+            httpResponse.writer.write(objectMapper.writeValueAsString(body))
             return
         }
 

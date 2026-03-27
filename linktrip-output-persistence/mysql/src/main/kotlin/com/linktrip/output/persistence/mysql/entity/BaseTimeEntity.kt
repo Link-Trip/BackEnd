@@ -19,4 +19,16 @@ abstract class BaseTimeEntity {
     @LastModifiedDate
     var updatedAt: LocalDateTime = LocalDateTime.now()
         protected set
+
+    @Column(nullable = false)
+    var deleted: Boolean = false
+        protected set
+
+    open fun softDelete() {
+        this.deleted = true
+    }
+
+    open fun restore() {
+        this.deleted = false
+    }
 }

@@ -59,9 +59,9 @@ class JwtTokenProvider(
                 .subject
         } catch (e: ExpiredJwtException) {
             logger.warn { "만료된 JWT 토큰으로 memberId 추출 시도: ${e.message}" }
-            throw LinktripException(ExceptionCode.TOKEN_EXPIRED)
+            throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_EXPIRED)
         } catch (e: JwtException) {
             logger.warn { "유효하지 않은 JWT 토큰으로 memberId 추출 시도: ${e.message}" }
-            throw LinktripException(ExceptionCode.TOKEN_INVALID)
+            throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
         }
 }

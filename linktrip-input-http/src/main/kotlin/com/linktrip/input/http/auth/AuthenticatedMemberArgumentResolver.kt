@@ -28,6 +28,6 @@ class AuthenticatedMemberArgumentResolver : HandlerMethodArgumentResolver {
                 ?: throw LinktripException(ExceptionCode.INTERNAL_SERVER_ERROR)
 
         return request.getAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE) as? String
-            ?: throw LinktripException(ExceptionCode.AUTHENTICATION_FAILED)
+            ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED)
     }
 }

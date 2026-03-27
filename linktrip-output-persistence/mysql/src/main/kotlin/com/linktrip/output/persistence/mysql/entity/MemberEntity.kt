@@ -4,7 +4,6 @@ import com.linktrip.application.domain.member.Member
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
@@ -13,9 +12,6 @@ import jakarta.persistence.UniqueConstraint
     name = "member",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_member_serial_number", columnNames = ["serial_number"]),
-    ],
-    indexes = [
-        Index(name = "idx_member_serial_number", columnList = "serial_number"),
     ],
 )
 class MemberEntity(

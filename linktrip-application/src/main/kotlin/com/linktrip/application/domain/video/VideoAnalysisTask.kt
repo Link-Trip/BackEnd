@@ -3,12 +3,15 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.domain.common.IdGenerator
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
+import java.time.LocalDateTime
 
 data class VideoAnalysisTask(
     val id: String,
     val youtubeUrl: String,
     val valid: Boolean,
     val status: VideoAnalysisTaskStatus,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
         private const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
@@ -49,11 +52,11 @@ data class VideoAnalysisTask(
 
         fun normalizeUrl(url: String): String {
             if (!YOUTUBE_URL_REGEX.matches(url)) {
-                throw LinktripException(ExceptionCode.INVALID_YOUTUBE_URL)
+                throw LinktripException(ExceptionCode.BAD_REQUEST_YOUTUBE_URL)
             }
             val videoId =
                 VIDEO_ID_REGEX.find(url)?.groupValues?.get(1)
-                    ?: throw LinktripException(ExceptionCode.INVALID_YOUTUBE_URL)
+                    ?: throw LinktripException(ExceptionCode.BAD_REQUEST_YOUTUBE_URL)
             return "$YOUTUBE_VIDEO_BASE_URL$videoId"
         }
 

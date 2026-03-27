@@ -10,7 +10,10 @@ private val logger = KotlinLogging.logger {}
 @Component
 class LoggingVideoAnalysisNotificationAdapter : VideoAnalysisNotificationPort {
     @Async("NotificationExecutor")
-    override fun notifyAnalysisComplete(videoAnalysisTaskId: String) {
-        logger.info { "영상 분석 완료 알림: videoAnalysisTaskId=$videoAnalysisTaskId (장소 보강 포함)" }
+    override fun notifyAnalysisComplete(
+        videoAnalysisTaskId: String,
+        memberIds: List<String>,
+    ) {
+        logger.info { "영상 분석 완료 알림: videoAnalysisTaskId=$videoAnalysisTaskId, memberIds=$memberIds" }
     }
 }

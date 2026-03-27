@@ -28,7 +28,6 @@ class VideoAnalyzeService(
         }
 
         val videoAnalysisTask = videoAnalysisTaskPersistencePort.save(VideoAnalysisTask.create(normalizedUrl))
-
         Events.raise(VideoAnalyzeEvent(videoAnalysisTask.id, normalizedUrl))
 
         return videoAnalysisTask

@@ -34,7 +34,7 @@ class VideoAnalysisTaskAdapter(
     ) {
         val entity =
             videoAnalysisTaskJpaRepository.findById(id).orElseThrow {
-                LinktripException(ExceptionCode.NOT_FOUND, "VideoAnalysisTask not found: id=$id")
+                LinktripException(ExceptionCode.NOT_FOUND_VIDEO_ANALYSIS_TASK, "VideoAnalysisTask not found: id=$id")
             }
         entity.status = status
     }
@@ -47,7 +47,7 @@ class VideoAnalysisTaskAdapter(
     ) {
         val entity =
             videoAnalysisTaskJpaRepository.findById(id).orElseThrow {
-                LinktripException(ExceptionCode.NOT_FOUND, "VideoAnalysisTask not found: id=$id")
+                LinktripException(ExceptionCode.NOT_FOUND_VIDEO_ANALYSIS_TASK, "VideoAnalysisTask not found: id=$id")
             }
         entity.valid = valid
         entity.status = status

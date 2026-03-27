@@ -1,5 +1,6 @@
 package com.linktrip.input.http.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.linktrip.application.port.output.auth.TokenProvider
 import com.linktrip.input.http.filter.JwtAuthenticationFilter
 import com.linktrip.input.http.filter.MdcLoggingFilter
@@ -18,9 +19,12 @@ class FilterConfig {
         }
 
     @Bean
-    fun jwtAuthenticationFilter(tokenProvider: TokenProvider): FilterRegistrationBean<JwtAuthenticationFilter> =
+    fun jwtAuthenticationFilter(
+        tokenProvider: TokenProvider,
+        objectMapper: ObjectMapper,
+    ): FilterRegistrationBean<JwtAuthenticationFilter> =
         FilterRegistrationBean<JwtAuthenticationFilter>().apply {
-            filter = JwtAuthenticationFilter(tokenProvider)
+            filter = JwtAuthenticationFilter(tokenProvider, objectMapper)
             order = 2
             addUrlPatterns("/*")
         }

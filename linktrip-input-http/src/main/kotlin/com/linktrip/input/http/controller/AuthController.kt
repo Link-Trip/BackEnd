@@ -4,7 +4,7 @@ import com.linktrip.application.port.input.AuthUseCase
 import com.linktrip.input.http.controller.dto.request.AuthRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.AuthResponse
-import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,7 +17,7 @@ class AuthController(
 ) {
     @PostMapping("/login")
     fun login(
-        @Valid @RequestBody request: AuthRequest,
+        @Validated @RequestBody request: AuthRequest,
     ): ApiResponse<AuthResponse> {
         val result = authUseCase.authenticateBySerial(request.serialNumber)
 

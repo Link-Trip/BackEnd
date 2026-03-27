@@ -46,7 +46,7 @@ class HealthCheckController(
     @PostMapping("/error-test-linktrip")
     fun errorTestLinkTrip() {
         throw LinktripException(
-            ExceptionCode.ERROR_TEST,
+            ExceptionCode.INTERNAL_ERROR_TEST,
             "error-test: 의도적으로 발생시킨 LinktripException",
         )
     }

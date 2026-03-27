@@ -4,6 +4,7 @@ import com.linktrip.application.domain.video.Place
 import com.linktrip.application.domain.video.PlaceStatus
 import com.linktrip.application.domain.video.TravelItineraryItem
 import com.linktrip.application.domain.video.VideoAnalysisTask
+import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 
 data class VideoAnalyzeResponse(
     val id: String,
@@ -56,7 +57,10 @@ data class VideoAnalyzeResponse(
                 youtubeUrl = videoAnalysisTask.youtubeUrl,
                 valid = videoAnalysisTask.valid,
                 status = videoAnalysisTask.status.name,
-                placeEnrichmentCompleted = items.isEmpty() || items.all { it.isResolved() },
+                placeEnrichmentCompleted =
+                    videoAnalysisTask.status == VideoAnalysisTaskStatus.COMPLETED &&
+                        items.isNotEmpty() &&
+                        items.all { it.isResolved() },
                 itineraryItems =
                     items.map { item ->
                         ScheduleItemResponse(
