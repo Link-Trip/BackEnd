@@ -4,5 +4,6 @@ enum class Category {
     EAT,
     ATTRACTION,
     SHOPPING,
-    TRANSPORTATION,
+    TRANSPORTATION_HUB,
+    TRANSPORTATION_TRANSIT,
 }

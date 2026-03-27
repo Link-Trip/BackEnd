@@ -20,7 +20,7 @@ data class TravelItineraryItem(
 ) {
     fun isRetryable(): Boolean =
         placeId == null &&
-            category != Category.TRANSPORTATION &&
+            category != Category.TRANSPORTATION_TRANSIT &&
             placeSearchCount < MAX_PLACE_SEARCH_COUNT
 
     fun isResolved(): Boolean = !isRetryable()
