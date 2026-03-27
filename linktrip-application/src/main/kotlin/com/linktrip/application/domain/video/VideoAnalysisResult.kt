@@ -7,6 +7,7 @@ data class VideoAnalysisResult(
     val estimatedMinCost: Long?,
     val estimatedMaxCost: Long?,
     val costBasis: CostBasis?,
+    val hashtags: List<String>,
     val days: List<DaySchedule>,
 ) {
     data class DaySchedule(
