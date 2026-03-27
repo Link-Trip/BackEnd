@@ -56,7 +56,7 @@ class TravelItineraryItemQuerydslRepository(
 
     fun findRetryableItems(
         videoAnalysisTaskId: String,
-        excludeCategory: Category = Category.TRANSPORTATION,
+        excludeCategory: Category = Category.TRANSPORTATION_TRANSIT,
         maxSearchCount: Int = 10,
     ): List<TravelItineraryItemEntity> =
         queryFactory
@@ -75,7 +75,7 @@ class TravelItineraryItemQuerydslRepository(
             .fetch()
 
     fun findVideoAnalysisTaskIdsWithRetryableItems(
-        excludeCategory: Category = Category.TRANSPORTATION,
+        excludeCategory: Category = Category.TRANSPORTATION_TRANSIT,
         maxSearchCount: Int = 10,
     ): List<String> =
         queryFactory

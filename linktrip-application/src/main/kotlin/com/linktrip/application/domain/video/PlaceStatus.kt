@@ -11,7 +11,7 @@ enum class PlaceStatus {
     companion object {
         fun from(item: TravelItineraryItem): PlaceStatus =
             when {
-                item.category == Category.TRANSPORTATION -> NOT_REQUIRED
+                item.category == Category.TRANSPORTATION_TRANSIT -> NOT_REQUIRED
                 item.placeId != null -> FOUND
                 item.placeSearchCount == 0 -> PENDING
                 item.placeSearchCount >= TravelItineraryItem.MAX_PLACE_SEARCH_COUNT -> NOT_FOUND

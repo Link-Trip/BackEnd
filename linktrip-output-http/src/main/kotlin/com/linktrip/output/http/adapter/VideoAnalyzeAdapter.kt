@@ -117,7 +117,7 @@ class VideoAnalyzeAdapter(
                 {
                   "day": 1,
                   "items": [
-                    {"order": 1, "category": "TRANSPORTATION", "name": "나리타 익스프레스", "description": "공항에서 도쿄역까지 이동", "tips": "JR패스 사용 가능"},
+                    {"order": 1, "category": "TRANSPORTATION_TRANSIT", "name": "나리타 익스프레스", "description": "공항에서 도쿄역까지 이동", "tips": "JR패스 사용 가능"},
                     {"order": 2, "category": "EAT", "name": "이치란 라멘", "description": "돈코츠 라멘", "tips": "오픈 전 줄서기 추천"},
                     {"order": 3, "category": "ATTRACTION", "name": "센소지", "description": "아사쿠사의 대표 사찰", "tips": null},
                     {"order": 4, "category": "SHOPPING", "name": "돈키호테", "description": "과자, 화장품 구매", "tips": "면세 가능"}
@@ -180,7 +180,8 @@ class VideoAnalyzeAdapter(
                             EXCLUDE: Generic city names like "Seoul", "Tokyo", "Paris"
             - "SHOPPING": Stores for NON-FOOD items (clothes, souvenirs, cosmetics), malls, duty-free
                           EXCLUDE: Food at convenience store → use "EAT"
-            - "TRANSPORTATION": Train, bus, taxi, rental car, passes (JR Pass, Suica, T-money), routes
+            - "TRANSPORTATION_HUB": Airports, train stations, bus terminals — fixed transportation facilities that travelers visit
+            - "TRANSPORTATION_TRANSIT": Shuttle buses, subway rides, taxi rides, rental cars, passes (JR Pass, Suica, T-money), routes — the act of moving between places
 
             ============================================================
             DEDUPLICATION RULES
@@ -212,7 +213,7 @@ class VideoAnalyzeAdapter(
             - "costBasis" is one of "VIDEO_MENTIONED", "ITEM_ESTIMATED", or null
             - "days" is an array of day objects, each with "day" (int) and "items" (array)
             - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
-            - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION
+            - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION_HUB, TRANSPORTATION_TRANSIT
             - Items are in chronological visit order within each day
             - Convenience store food is "EAT", not "SHOPPING"
             - No airplane meals included

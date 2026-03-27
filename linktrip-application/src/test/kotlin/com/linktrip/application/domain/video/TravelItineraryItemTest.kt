@@ -32,8 +32,8 @@ class TravelItineraryItemTest {
 
     @Test
     fun `교통편 카테고리는_장소 검색이 필요 없으므로_재검색 대상이 아니다`() {
-        // given - TRANSPORTATION 카테고리인 항목
-        val item = createItem(placeId = null, category = Category.TRANSPORTATION, placeSearchCount = 0)
+        // given - TRANSPORTATION_TRANSIT 카테고리인 항목
+        val item = createItem(placeId = null, category = Category.TRANSPORTATION_TRANSIT, placeSearchCount = 0)
 
         // when - 재검색 가능 여부를 확인한다
         // then - retryable이 아니다
