@@ -1,5 +1,6 @@
 package com.linktrip.output.persistence.mysql.adapter
 
+import com.linktrip.application.domain.video.CostBasis
 import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
@@ -44,6 +45,9 @@ class VideoAnalysisTaskAdapter(
         id: String,
         valid: Boolean,
         status: VideoAnalysisTaskStatus,
+        estimatedMinCost: Long?,
+        estimatedMaxCost: Long?,
+        costBasis: CostBasis?,
     ) {
         val entity =
             videoAnalysisTaskJpaRepository.findById(id).orElseThrow {
@@ -51,5 +55,8 @@ class VideoAnalysisTaskAdapter(
             }
         entity.valid = valid
         entity.status = status
+        entity.estimatedMinCost = estimatedMinCost
+        entity.estimatedMaxCost = estimatedMaxCost
+        entity.costBasis = costBasis
     }
 }

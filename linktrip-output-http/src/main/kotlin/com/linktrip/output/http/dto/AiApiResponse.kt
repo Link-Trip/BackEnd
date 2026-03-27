@@ -2,12 +2,17 @@ package com.linktrip.output.http.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.linktrip.application.domain.video.Category
+import com.linktrip.application.domain.video.CostBasis
 import com.linktrip.application.domain.video.VideoAnalysisResult
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AiApiResponse(
     val valid: Boolean,
     val destination: String?,
+    val title: String?,
+    val estimatedMinCost: Long?,
+    val estimatedMaxCost: Long?,
+    val costBasis: String?,
     val days: List<DayDto>?,
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,6 +34,10 @@ data class AiApiResponse(
         VideoAnalysisResult(
             valid = this.valid,
             destination = this.destination,
+            title = this.title,
+            estimatedMinCost = this.estimatedMinCost,
+            estimatedMaxCost = this.estimatedMaxCost,
+            costBasis = parseCostBasis(this.costBasis),
             days =
                 this.days?.mapIndexed { dayIndex, dayDto ->
                     VideoAnalysisResult.DaySchedule(
@@ -49,6 +58,13 @@ data class AiApiResponse(
                     )
                 } ?: emptyList(),
         )
+
+    private fun parseCostBasis(costBasis: String?): CostBasis? =
+        try {
+            costBasis?.trim()?.uppercase()?.let { CostBasis.valueOf(it) }
+        } catch (_: IllegalArgumentException) {
+            null
+        }
 
     private fun parseCategory(category: String?): Category =
         try {

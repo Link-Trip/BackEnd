@@ -30,6 +30,7 @@ class VideoAnalyzeEventListener(
         logger.info { "영상 분석 시작: id=${event.videoAnalysisTaskId}, url=${event.youtubeUrl}" }
 
         val destination: String?
+        val title: String?
 
         try {
             val result = videoAnalyzePort.analyze(event.youtubeUrl)
@@ -45,8 +46,15 @@ class VideoAnalyzeEventListener(
             }
 
             destination = result.destination
+            title = result.title
             val itineraryItems = toItineraryItems(event.videoAnalysisTaskId, result)
-            videoAnalysisResultSaver.save(event.videoAnalysisTaskId, itineraryItems)
+            videoAnalysisResultSaver.save(
+                event.videoAnalysisTaskId,
+                itineraryItems,
+                estimatedMinCost = result.estimatedMinCost,
+                estimatedMaxCost = result.estimatedMaxCost,
+                costBasis = result.costBasis,
+            )
 
             val analyzeElapsed = System.currentTimeMillis() - startTime
             logger.info {
@@ -59,7 +67,7 @@ class VideoAnalyzeEventListener(
             return
         }
 
-        processPendingRequests(event.videoAnalysisTaskId, destination)
+        processPendingRequests(event.videoAnalysisTaskId, title ?: destination)
         enrichPlaces(event.videoAnalysisTaskId, destination)
 
         val memberIds = tripPlanRequestPort.findMemberIdsByVideoAnalysisTaskId(event.videoAnalysisTaskId)
