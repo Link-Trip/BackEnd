@@ -11,6 +11,9 @@ data class TripPlanSummaryResponse(
     val videoAnalysisTaskId: String,
     val youtubeUrl: String,
     val itemCount: Int,
+    val nights: Int,
+    val days: Int,
+    val hashtags: Set<String>,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 ) {
@@ -22,6 +25,9 @@ data class TripPlanSummaryResponse(
                 videoAnalysisTaskId = summary.tripPlan.videoAnalysisTaskId,
                 youtubeUrl = summary.youtubeUrl,
                 itemCount = summary.itemCount,
+                nights = summary.nights,
+                days = summary.days,
+                hashtags = summary.hashtags,
                 createdAt = summary.tripPlan.createdAt,
                 updatedAt = summary.tripPlan.updatedAt,
             )

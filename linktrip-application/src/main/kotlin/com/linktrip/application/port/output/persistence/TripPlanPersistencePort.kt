@@ -32,4 +32,5 @@ data class TripPlanSummaryRow(
     val tripPlan: TripPlan,
     val youtubeUrl: String,
     val activeItemCount: Int,
+    val days: Int,
 )

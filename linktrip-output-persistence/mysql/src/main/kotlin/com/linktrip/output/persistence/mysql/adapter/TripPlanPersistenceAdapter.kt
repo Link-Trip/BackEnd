@@ -43,6 +43,7 @@ class TripPlanPersistenceAdapter(
                 tripPlan = row.tripPlan.toDomain(),
                 youtubeUrl = row.youtubeUrl,
                 activeItemCount = row.activeItemCount.toInt(),
+                days = row.days,
             )
         }
 

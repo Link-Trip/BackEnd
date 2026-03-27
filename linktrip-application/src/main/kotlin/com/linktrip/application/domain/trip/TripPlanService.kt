@@ -6,6 +6,7 @@ import com.linktrip.application.port.input.TripPlanItemDetail
 import com.linktrip.application.port.input.TripPlanSummary
 import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.UpdateTripPlanCommand
+import com.linktrip.application.port.output.persistence.HashtagPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanItemPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanPersistencePort
@@ -22,6 +23,7 @@ class TripPlanService(
     private val planItemPort: TripPlanItemPersistencePort,
     private val itineraryItemPort: TravelItineraryItemPersistencePort,
     private val requestPort: TripPlanRequestPersistencePort,
+    private val hashtagPort: HashtagPersistencePort,
 ) : TripPlanUseCase {
     @Transactional
     override fun registerRequest(
@@ -78,12 +80,24 @@ class TripPlanService(
         val hasNext = rows.size > size
         val items = rows.take(size)
 
+        val videoAnalysisTaskIds = items.map { it.tripPlan.videoAnalysisTaskId }
+        val hashtagMappings = hashtagPort.findHashtagNamesByVideoAnalysisTaskIds(videoAnalysisTaskIds)
+        val hashtagMap =
+            hashtagMappings
+                .groupBy({ it.videoAnalysisTaskId }, { it.hashtagName })
+                .mapValues { it.value.toSet() }
+
         val summaries =
             items.map { row ->
+                val days = row.days
+                val nights = maxOf(days - 1, 0)
                 TripPlanSummary(
                     tripPlan = row.tripPlan,
                     youtubeUrl = row.youtubeUrl,
                     itemCount = row.activeItemCount,
+                    nights = nights,
+                    days = days,
+                    hashtags = hashtagMap[row.tripPlan.videoAnalysisTaskId] ?: emptySet(),
                 )
             }
 

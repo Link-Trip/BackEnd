@@ -6,4 +6,5 @@ data class TripPlanSummaryWithVideo(
     val tripPlan: TripPlanEntity,
     val youtubeUrl: String,
     val activeItemCount: Long,
+    val days: Int,
 )

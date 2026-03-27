@@ -1,5 +1,6 @@
 package com.linktrip.output.persistence.mysql.repository
 
+import com.linktrip.output.persistence.mysql.entity.QTravelItineraryItemEntity
 import com.linktrip.output.persistence.mysql.entity.QTripPlanEntity
 import com.linktrip.output.persistence.mysql.entity.QTripPlanItemEntity
 import com.linktrip.output.persistence.mysql.entity.QVideoAnalysisTaskEntity
@@ -16,6 +17,7 @@ class TripPlanQuerydslRepository(
     private val tripPlan = QTripPlanEntity.tripPlanEntity
     private val videoAnalysisTask = QVideoAnalysisTaskEntity.videoAnalysisTaskEntity
     private val tripPlanItem = QTripPlanItemEntity.tripPlanItemEntity
+    private val itineraryItem = QTravelItineraryItemEntity.travelItineraryItemEntity
 
     fun findSummariesByMemberId(
         memberId: String,
@@ -31,9 +33,18 @@ class TripPlanQuerydslRepository(
                     tripPlanItem.deleted.isFalse,
                 )
 
+        val maxDaySubQuery =
+            JPAExpressions
+                .select(itineraryItem.day.max())
+                .from(itineraryItem)
+                .where(
+                    itineraryItem.videoAnalysisTaskId.eq(tripPlan.videoAnalysisTaskId),
+                    itineraryItem.deleted.isFalse,
+                )
+
         val query =
             queryFactory
-                .select(tripPlan, videoAnalysisTask.youtubeUrl, activeCountSubQuery)
+                .select(tripPlan, videoAnalysisTask.youtubeUrl, activeCountSubQuery, maxDaySubQuery)
                 .from(tripPlan)
                 .join(videoAnalysisTask).on(
                     tripPlan.videoAnalysisTaskId.eq(videoAnalysisTask.id),
@@ -57,6 +68,7 @@ class TripPlanQuerydslRepository(
                     tripPlan = tuple.get(tripPlan)!!,
                     youtubeUrl = tuple.get(videoAnalysisTask.youtubeUrl) ?: "",
                     activeItemCount = tuple.get(activeCountSubQuery) ?: 0L,
+                    days = tuple.get(maxDaySubQuery) ?: 1,
                 )
             }
     }
