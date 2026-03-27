@@ -11,6 +11,9 @@ data class VideoAnalyzeResponse(
     val youtubeUrl: String,
     val valid: Boolean,
     val status: String,
+    val estimatedMinCost: Long?,
+    val estimatedMaxCost: Long?,
+    val costBasis: String?,
     val placeEnrichmentCompleted: Boolean,
     val itineraryItems: List<ScheduleItemResponse>,
 ) {
@@ -57,6 +60,9 @@ data class VideoAnalyzeResponse(
                 youtubeUrl = videoAnalysisTask.youtubeUrl,
                 valid = videoAnalysisTask.valid,
                 status = videoAnalysisTask.status.name,
+                estimatedMinCost = videoAnalysisTask.estimatedMinCost,
+                estimatedMaxCost = videoAnalysisTask.estimatedMaxCost,
+                costBasis = videoAnalysisTask.costBasis?.name,
                 placeEnrichmentCompleted =
                     videoAnalysisTask.status == VideoAnalysisTaskStatus.COMPLETED &&
                         items.isNotEmpty() &&
