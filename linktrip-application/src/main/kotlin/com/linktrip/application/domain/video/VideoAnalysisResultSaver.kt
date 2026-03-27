@@ -14,12 +14,18 @@ class VideoAnalysisResultSaver(
     fun save(
         videoAnalysisTaskId: String,
         itineraryItems: List<TravelItineraryItem>,
+        estimatedMinCost: Long? = null,
+        estimatedMaxCost: Long? = null,
+        costBasis: CostBasis? = null,
     ) {
         travelItineraryItemPersistencePort.saveAll(itineraryItems)
         videoAnalysisTaskPersistencePort.updateValidAndStatus(
             videoAnalysisTaskId,
             valid = true,
             VideoAnalysisTaskStatus.COMPLETED,
+            estimatedMinCost = estimatedMinCost,
+            estimatedMaxCost = estimatedMaxCost,
+            costBasis = costBasis,
         )
     }
 }
