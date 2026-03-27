@@ -57,6 +57,7 @@ class VideoAnalyzeEventListenerTest {
                 estimatedMinCost = 800000,
                 estimatedMaxCost = 1200000,
                 costBasis = CostBasis.VIDEO_MENTIONED,
+                hashtags = listOf("맛집여행", "문화탐방"),
                 days =
                     listOf(
                         VideoAnalysisResult.DaySchedule(
@@ -83,6 +84,7 @@ class VideoAnalyzeEventListenerTest {
             eq(800000L),
             eq(1200000L),
             eq(CostBasis.VIDEO_MENTIONED),
+            eq(listOf("맛집여행", "문화탐방")),
         )
         inOrder.verify(placeEnrichService).enrichPlaces("s1", "도쿄")
         inOrder.verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
@@ -100,6 +102,7 @@ class VideoAnalyzeEventListenerTest {
                 estimatedMinCost = null,
                 estimatedMaxCost = null,
                 costBasis = null,
+                hashtags = emptyList(),
                 days = emptyList(),
             )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(invalidResult)
@@ -118,7 +121,7 @@ class VideoAnalyzeEventListenerTest {
             anyOrNull(),
             anyOrNull(),
         )
-        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull())
+        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), any())
         verify(placeEnrichService, never()).enrichPlaces(any(), anyOrNull())
         verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any(), any())
     }
@@ -134,7 +137,7 @@ class VideoAnalyzeEventListenerTest {
 
         // then - FAILED 상태로 변경하고, 결과 저장은 수행하지 않는다
         verify(videoAnalysisTaskPersistencePort).updateStatus("s1", VideoAnalysisTaskStatus.FAILED)
-        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull())
+        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), any())
     }
 
     @Test
@@ -149,6 +152,7 @@ class VideoAnalyzeEventListenerTest {
                 estimatedMinCost = 500000,
                 estimatedMaxCost = 700000,
                 costBasis = CostBasis.ITEM_ESTIMATED,
+                hashtags = listOf("문화탐방", "쇼핑"),
                 days =
                     listOf(
                         VideoAnalysisResult.DaySchedule(
@@ -181,6 +185,7 @@ class VideoAnalyzeEventListenerTest {
             eq(500000L),
             eq(700000L),
             eq(CostBasis.ITEM_ESTIMATED),
+            eq(listOf("문화탐방", "쇼핑")),
         )
 
         val savedItems = captor.firstValue
