@@ -7,7 +7,7 @@ import com.linktrip.output.persistence.mysql.repository.TravelItineraryItemJpaRe
 import com.linktrip.output.persistence.mysql.repository.TravelItineraryItemQuerydslRepository
 import org.springframework.stereotype.Component
 
-@Component
+@Component("travelItineraryItemDbAdapter")
 class TravelItineraryItemAdapter(
     private val jpaRepository: TravelItineraryItemJpaRepository,
     private val querydslRepository: TravelItineraryItemQuerydslRepository,
