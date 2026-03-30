@@ -37,5 +37,5 @@ class AuthService(
 
     private fun getOAuthPort(providerType: ProviderType): OAuthPort =
         oAuthPorts.find { it.getProviderType() == providerType }
-            ?: throw LinktripException(ExceptionCode.UNSUPPORTED_OAUTH_PROVIDER, providerType.name)
+            ?: throw LinktripException(ExceptionCode.BAD_REQUEST_OAUTH_PROVIDER, providerType.name)
 }
