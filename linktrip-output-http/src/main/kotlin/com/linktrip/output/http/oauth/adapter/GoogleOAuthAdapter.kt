@@ -27,7 +27,7 @@ class GoogleOAuthAdapter(
                 .header("Authorization", "Bearer $accessToken")
                 .retrieve()
                 .body<GoogleUserInfoResponse>()
-                ?: throw LinktripException(ExceptionCode.OAUTH_PROVIDER_ERROR)
+                ?: throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
 
         logger.debug { "Google 사용자 정보 조회 성공: id=${response.id}" }
 

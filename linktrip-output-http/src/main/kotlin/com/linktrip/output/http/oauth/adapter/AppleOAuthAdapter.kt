@@ -37,7 +37,7 @@ class AppleOAuthAdapter(
         val providerId =
             claims.subject
                 ?.takeIf { it.isNotBlank() }
-                ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+                ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
         val email = claims["email"] as? String
 
         logger.debug { "Apple 사용자 정보 조회 성공" }
@@ -54,7 +54,7 @@ class AppleOAuthAdapter(
             .uri("/auth/keys")
             .retrieve()
             .body<ApplePublicKeyResponse>()
-            ?: throw LinktripException(ExceptionCode.OAUTH_PROVIDER_ERROR)
+            ?: throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
 
     private fun validateAndExtractClaims(
         idToken: String,
@@ -62,17 +62,17 @@ class AppleOAuthAdapter(
     ): io.jsonwebtoken.Claims {
         try {
             val tokenParts = idToken.split(".")
-            if (tokenParts.size != 3) throw LinktripException(ExceptionCode.TOKEN_INVALID)
+            if (tokenParts.size != 3) throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
 
             val headerJson = String(Base64.getUrlDecoder().decode(tokenParts[0]))
             val headerMap = objectMapper.readValue(headerJson, Map::class.java)
             val kid =
                 headerMap["kid"] as? String
-                    ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+                    ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
 
             val matchingKey =
                 publicKeys.keys.find { it.kid == kid }
-                    ?: throw LinktripException(ExceptionCode.TOKEN_INVALID)
+                    ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
 
             val publicKey = generatePublicKey(matchingKey)
 
@@ -86,7 +86,7 @@ class AppleOAuthAdapter(
         } catch (e: LinktripException) {
             throw e
         } catch (e: Exception) {
-            throw LinktripException(ExceptionCode.TOKEN_INVALID)
+            throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
         }
     }
 

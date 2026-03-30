@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.linktrip.application.port.output.auth.TokenProvider
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.input.http.controller.dto.response.ExceptionResponse
+import com.linktrip.input.http.security.SecurityPaths
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
@@ -54,7 +55,10 @@ class JwtAuthenticationFilter(
         chain.doFilter(request, response)
     }
 
-    private fun isWhitelisted(uri: String): Boolean = FilterPaths.JWT_WHITELIST.any { uri.startsWith(it) }
+    private fun isWhitelisted(uri: String): Boolean =
+        SecurityPaths.PUBLIC_ENDPOINTS.any {
+            uri.startsWith(it.removeSuffix("/**"))
+        }
 
     private fun extractToken(request: HttpServletRequest): String? {
         val header = request.getHeader(AUTHORIZATION_HEADER) ?: return null

@@ -19,7 +19,7 @@ class JwtAccessDeniedHandler(
         response: HttpServletResponse,
         accessDeniedException: AccessDeniedException,
     ) {
-        val exceptionCode = ExceptionCode.ACCESS_DENIED
+        val exceptionCode = ExceptionCode.FORBIDDEN_ACCESS_DENIED
 
         response.status = exceptionCode.statusCode
         response.contentType = MediaType.APPLICATION_JSON_VALUE
@@ -27,6 +27,7 @@ class JwtAccessDeniedHandler(
         response.writer.write(
             objectMapper.writeValueAsString(
                 ExceptionResponse(
+                    code = exceptionCode.name,
                     message = exceptionCode.defaultMessage,
                     cause = null,
                     timestamp = System.currentTimeMillis(),

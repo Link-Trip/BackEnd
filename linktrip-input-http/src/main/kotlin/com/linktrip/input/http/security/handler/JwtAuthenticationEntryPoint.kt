@@ -19,7 +19,7 @@ class JwtAuthenticationEntryPoint(
         response: HttpServletResponse,
         authException: AuthenticationException,
     ) {
-        val exceptionCode = ExceptionCode.UNAUTHORIZED
+        val exceptionCode = ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED
 
         response.status = exceptionCode.statusCode
         response.contentType = MediaType.APPLICATION_JSON_VALUE
@@ -27,6 +27,7 @@ class JwtAuthenticationEntryPoint(
         response.writer.write(
             objectMapper.writeValueAsString(
                 ExceptionResponse(
+                    code = exceptionCode.name,
                     message = exceptionCode.defaultMessage,
                     cause = null,
                     timestamp = System.currentTimeMillis(),

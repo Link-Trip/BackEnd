@@ -27,7 +27,7 @@ class KakaoOAuthAdapter(
                 .header("Authorization", "Bearer $accessToken")
                 .retrieve()
                 .body<KakaoUserInfoResponse>()
-                ?: throw LinktripException(ExceptionCode.OAUTH_PROVIDER_ERROR)
+                ?: throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
 
         logger.debug { "Kakao 사용자 정보 조회 성공: id=${response.id}" }
 

@@ -24,9 +24,9 @@ class AuthenticatedMemberArgumentResolver : HandlerMethodArgumentResolver {
     ): String {
         val authentication =
             SecurityContextHolder.getContext().authentication
-                ?: throw LinktripException(ExceptionCode.AUTHENTICATION_FAILED)
+                ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED)
 
         return authentication.principal as? String
-            ?: throw LinktripException(ExceptionCode.AUTHENTICATION_FAILED)
+            ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED)
     }
 }

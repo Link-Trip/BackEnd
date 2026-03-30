@@ -3,13 +3,13 @@ package com.linktrip.input.http.controller
 import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.UpdateTripPlanCommand
 import com.linktrip.application.port.input.UpdateTripPlanItemCommand
-import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.config.PaginationDefaults
 import com.linktrip.input.http.controller.docs.TripPlanDocs
 import com.linktrip.input.http.controller.dto.request.UpdateTripPlanRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanCursorResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanDetailResponse
+import com.linktrip.input.http.security.AuthenticatedMember
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

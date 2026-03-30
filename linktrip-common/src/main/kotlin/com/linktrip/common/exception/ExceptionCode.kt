@@ -18,6 +18,7 @@ enum class ExceptionCode(
     UNAUTHORIZED_AUTHENTICATION_FAILED(401, "인증 정보가 없습니다."),
 
     // 403
+    FORBIDDEN_ACCESS_DENIED(403, "접근이 거부되었습니다."),
     FORBIDDEN_TRIP_PLAN(403, "해당 여행 계획에 접근할 수 없습니다."),
 
     // 404

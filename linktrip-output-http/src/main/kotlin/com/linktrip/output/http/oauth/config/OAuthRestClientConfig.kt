@@ -19,7 +19,7 @@ class OAuthRestClientConfig {
             .baseUrl(KAKAO_USER_INFO_URL)
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "Kakao API 호출 실패: status=${response.statusCode}" }
-                throw LinktripException(ExceptionCode.OAUTH_PROVIDER_ERROR)
+                throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
             }
             .requestFactory(clientHttpRequestFactory())
             .build()
@@ -30,7 +30,7 @@ class OAuthRestClientConfig {
             .baseUrl(GOOGLE_USER_INFO_URL)
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "Google API 호출 실패: status=${response.statusCode}" }
-                throw LinktripException(ExceptionCode.OAUTH_PROVIDER_ERROR)
+                throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
             }
             .requestFactory(clientHttpRequestFactory())
             .build()
@@ -41,7 +41,7 @@ class OAuthRestClientConfig {
             .baseUrl(APPLE_BASE_URL)
             .defaultStatusHandler({ it.isError }) { request, response ->
                 logger.error { "Apple API 호출 실패: status=${response.statusCode}" }
-                throw LinktripException(ExceptionCode.OAUTH_PROVIDER_ERROR)
+                throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
             }
             .requestFactory(clientHttpRequestFactory())
             .build()
