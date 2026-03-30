@@ -56,6 +56,9 @@ data class TripPlanSummary(
     val tripPlan: TripPlan,
     val youtubeUrl: String,
     val itemCount: Int,
+    val nights: Int,
+    val days: Int,
+    val hashtags: Set<String>,
 )
 
 data class TripPlanDetail(

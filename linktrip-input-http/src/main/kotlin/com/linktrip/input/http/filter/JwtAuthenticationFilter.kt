@@ -39,6 +39,7 @@ class JwtAuthenticationFilter(
             httpResponse.contentType = "application/json;charset=UTF-8"
             val body =
                 ExceptionResponse(
+                    code = ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED.name,
                     message = ExceptionCode.UNAUTHORIZED_AUTHENTICATION_FAILED.defaultMessage,
                     cause = null,
                     timestamp = System.currentTimeMillis(),

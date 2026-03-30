@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.port.output.persistence.HashtagPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import org.junit.jupiter.api.Test
@@ -16,6 +17,9 @@ class VideoAnalysisResultSaverTest {
 
     @Mock
     lateinit var videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort
+
+    @Mock
+    lateinit var hashtagPersistencePort: HashtagPersistencePort
 
     @InjectMocks
     lateinit var saver: VideoAnalysisResultSaver

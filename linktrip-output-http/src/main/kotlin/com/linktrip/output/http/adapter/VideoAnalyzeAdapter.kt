@@ -93,16 +93,17 @@ class VideoAnalyzeAdapter(
             Is this video travel-related? (travel vlog, food tour, sightseeing, travel tips, etc.)
 
             If NO (violence, adult content, unrelated topics, invalid link):
-            → Return: {"valid": false, "destination": null, "title": null, "estimatedMinCost": null, "estimatedMaxCost": null, "costBasis": null, "days": null}
+            → Return: {"valid": false, "destination": null, "title": null, "estimatedMinCost": null, "estimatedMaxCost": null, "costBasis": null, "hashtags": null, "days": null}
 
             If YES → Proceed to STEP 2
 
             ============================================================
-            STEP 2: EXTRACT DESTINATION, TITLE, COST AND DAY-BY-DAY ITINERARY
+            STEP 2: EXTRACT DESTINATION, TITLE, COST, HASHTAGS AND DAY-BY-DAY ITINERARY
             ============================================================
             First, identify the main travel destination from the video.
             Then create a natural Korean title for this trip.
             Then estimate the total travel cost shown or implied in the video.
+            Then select hashtags that best describe this trip.
             Then extract the travel schedule in CHRONOLOGICAL ORDER, grouped by day.
             Each item must have a category tag and appear in the order it was visited.
 
@@ -113,6 +114,7 @@ class VideoAnalyzeAdapter(
               "estimatedMinCost": 800000,
               "estimatedMaxCost": 1500000,
               "costBasis": "VIDEO_MENTIONED",
+              "hashtags": ["맛집여행", "문화탐방", "쇼핑"],
               "days": [
                 {
                   "day": 1,
@@ -164,6 +166,16 @@ class VideoAnalyzeAdapter(
             - Return null for all three (estimatedMinCost, estimatedMaxCost, costBasis) if cost cannot be reasonably estimated
 
             ============================================================
+            HASHTAG RULES
+            ============================================================
+            - Select up to 3 hashtags that best describe this trip
+            - Choose from these predefined tags: "맛집여행", "SNS 핫플레이스", "가성비여행", "럭셔리여행", "힐링여행", "액티비티", "문화탐방", "쇼핑", "자연경관", "역사탐방", "카페투어", "야경명소", "로컬맛집", "온천여행", "축제/이벤트"
+            - Select tags that match the actual content of the video
+            - Return as a JSON array of strings: "hashtags": ["맛집여행", "문화탐방", ...]
+            - Maximum 3 hashtags per video
+            - If no tags are applicable, return an empty array: "hashtags": []
+
+            ============================================================
             DAY DETECTION RULES
             ============================================================
             - If the video mentions "1일차", "첫째 날", "Day 1" etc., follow that structure
@@ -211,6 +223,7 @@ class VideoAnalyzeAdapter(
             - "title" is a natural Korean trip title string, or null
             - "estimatedMinCost" and "estimatedMaxCost" are integers in KRW, or both null
             - "costBasis" is one of "VIDEO_MENTIONED", "ITEM_ESTIMATED", or null
+            - "hashtags" is an array of strings (max 3), or null
             - "days" is an array of day objects, each with "day" (int) and "items" (array)
             - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
             - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION_HUB, TRANSPORTATION_TRANSIT

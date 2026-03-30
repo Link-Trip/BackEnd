@@ -1,6 +1,7 @@
 package com.linktrip.common.exception
 
 class LinktripException : RuntimeException {
+    val exceptionCode: ExceptionCode
     val statusCode: Int
     val defaultMessage: String
     val detailMessage: String?
@@ -9,6 +10,7 @@ class LinktripException : RuntimeException {
         exceptionCode: ExceptionCode,
         detailMessage: String,
     ) : super("[$exceptionCode] $detailMessage") {
+        this.exceptionCode = exceptionCode
         this.statusCode = exceptionCode.statusCode
         this.defaultMessage = exceptionCode.defaultMessage
         this.detailMessage = detailMessage
@@ -16,6 +18,7 @@ class LinktripException : RuntimeException {
 
     constructor(exceptionCode: ExceptionCode) :
         super("[$exceptionCode] ${exceptionCode.defaultMessage}") {
+        this.exceptionCode = exceptionCode
         this.statusCode = exceptionCode.statusCode
         this.defaultMessage = exceptionCode.defaultMessage
         this.detailMessage = null

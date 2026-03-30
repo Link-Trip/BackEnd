@@ -13,6 +13,7 @@ data class AiApiResponse(
     val estimatedMinCost: Long?,
     val estimatedMaxCost: Long?,
     val costBasis: String?,
+    val hashtags: List<String>?,
     val days: List<DayDto>?,
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,6 +39,7 @@ data class AiApiResponse(
             estimatedMinCost = this.estimatedMinCost,
             estimatedMaxCost = this.estimatedMaxCost,
             costBasis = parseCostBasis(this.costBasis),
+            hashtags = this.hashtags?.map { it.trim() }?.filter { it.isNotEmpty() }?.take(3) ?: emptyList(),
             days =
                 this.days?.mapIndexed { dayIndex, dayDto ->
                     VideoAnalysisResult.DaySchedule(

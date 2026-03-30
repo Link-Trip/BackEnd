@@ -4,6 +4,7 @@ import com.linktrip.application.domain.video.Category
 import com.linktrip.application.domain.video.TravelItineraryItem
 import com.linktrip.application.port.input.UpdateTripPlanCommand
 import com.linktrip.application.port.input.UpdateTripPlanItemCommand
+import com.linktrip.application.port.output.persistence.HashtagPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanItemPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanItemWithItinerary
@@ -42,6 +43,9 @@ class TripPlanServiceTest {
 
     @Mock
     lateinit var requestPort: TripPlanRequestPersistencePort
+
+    @Mock
+    lateinit var hashtagPort: HashtagPersistencePort
 
     @InjectMocks
     lateinit var service: TripPlanService
@@ -382,5 +386,6 @@ class TripPlanServiceTest {
             tripPlan = createTripPlan(id),
             youtubeUrl = "https://youtube.com/$id",
             activeItemCount = 1,
+            days = 3,
         )
 }
