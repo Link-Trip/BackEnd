@@ -5,6 +5,7 @@ import com.linktrip.application.port.input.UpdateTripPlanCommand
 import com.linktrip.application.port.input.UpdateTripPlanItemCommand
 import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.config.PaginationDefaults
+import com.linktrip.input.http.controller.docs.TripPlanDocs
 import com.linktrip.input.http.controller.dto.request.UpdateTripPlanRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanCursorResponse
@@ -23,9 +24,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/trip-plans")
 class TripPlanController(
     private val tripPlanUseCase: TripPlanUseCase,
-) {
+) : TripPlanDocs {
     @GetMapping
-    fun getTripPlans(
+    override fun getTripPlans(
         @AuthenticatedMember memberId: String,
         @RequestParam(required = false) cursor: String?,
     ): ApiResponse<TripPlanCursorResponse> {
@@ -35,7 +36,7 @@ class TripPlanController(
     }
 
     @GetMapping("/{tripPlanId}")
-    fun getTripPlanDetail(
+    override fun getTripPlanDetail(
         @AuthenticatedMember memberId: String,
         @PathVariable tripPlanId: String,
     ): ApiResponse<TripPlanDetailResponse> {
@@ -44,7 +45,7 @@ class TripPlanController(
     }
 
     @PutMapping("/{tripPlanId}")
-    fun updateTripPlan(
+    override fun updateTripPlan(
         @AuthenticatedMember memberId: String,
         @PathVariable tripPlanId: String,
         @Validated @RequestBody request: UpdateTripPlanRequest,
@@ -66,7 +67,7 @@ class TripPlanController(
     }
 
     @DeleteMapping("/{tripPlanId}")
-    fun deleteTripPlan(
+    override fun deleteTripPlan(
         @AuthenticatedMember memberId: String,
         @PathVariable tripPlanId: String,
     ): ApiResponse<Unit> {

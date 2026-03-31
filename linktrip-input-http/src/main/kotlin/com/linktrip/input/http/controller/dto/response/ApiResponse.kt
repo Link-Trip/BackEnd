@@ -1,11 +1,16 @@
 package com.linktrip.input.http.controller.dto.response
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.swagger.v3.oas.annotations.media.Schema
 
+@Schema(description = "공통 API 응답 래퍼")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ApiResponse<T>(
+    @field:Schema(description = "HTTP 상태 코드", example = "200")
     val status: Int,
+    @field:Schema(description = "응답 메시지", example = "OK")
     val message: String,
+    @field:Schema(description = "응답 데이터 (없을 경우 필드 자체가 생략됨)")
     val data: T? = null,
 ) {
     companion object {

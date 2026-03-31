@@ -10,6 +10,7 @@ import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.config.PaginationDefaults
+import com.linktrip.input.http.controller.docs.VideoDocs
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
@@ -35,9 +36,9 @@ class VideoController(
     private val discoverVideoUseCase: DiscoverVideoUseCase,
     private val discoverChannelUseCase: DiscoverChannelUseCase,
     private val tripPlanUseCase: TripPlanUseCase,
-) {
+) : VideoDocs {
     @PostMapping("/analyze")
-    fun analyzeVideo(
+    override fun analyzeVideo(
         @AuthenticatedMember memberId: String,
         @Validated @RequestBody request: VideoAnalyzeRequest,
     ): ApiResponse<VideoAnalyzeAcceptResponse> {
@@ -54,7 +55,7 @@ class VideoController(
     }
 
     @GetMapping("/{videoAnalysisTaskId}/schedule")
-    fun getVideoSchedule(
+    override fun getVideoSchedule(
         @AuthenticatedMember memberId: String,
         @PathVariable videoAnalysisTaskId: String,
     ): ApiResponse<VideoAnalyzeResponse> {
@@ -72,7 +73,7 @@ class VideoController(
     }
 
     @GetMapping("/discover/category")
-    fun getVideos(
+    override fun getVideos(
         @RequestParam(required = false) country: String?,
         @RequestParam(required = false) region: String?,
     ): ApiResponse<DiscoverVideoResponses> {
@@ -88,13 +89,13 @@ class VideoController(
     }
 
     @GetMapping("/discover/channels")
-    fun getChannels(): ApiResponse<DiscoverChannelResponses> {
+    override fun getChannels(): ApiResponse<DiscoverChannelResponses> {
         val channels = discoverChannelUseCase.getChannels()
         return ApiResponse.ok(DiscoverChannelResponses.from(channels))
     }
 
     @GetMapping("/discover/theme")
-    fun getVideosByTheme(
+    override fun getVideosByTheme(
         @RequestParam theme: String,
         @RequestParam(required = false) cursor: String?,
     ): ApiResponse<DiscoverVideoCursorResponse> {
