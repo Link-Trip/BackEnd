@@ -45,6 +45,7 @@ class VideoAnalysisTaskAdapter(
         id: String,
         valid: Boolean,
         status: VideoAnalysisTaskStatus,
+        summary: String?,
         estimatedMinCost: Long?,
         estimatedMaxCost: Long?,
         costBasis: CostBasis?,
@@ -55,6 +56,7 @@ class VideoAnalysisTaskAdapter(
             }
         entity.valid = valid
         entity.status = status
+        entity.summary = summary
         entity.estimatedMinCost = estimatedMinCost
         entity.estimatedMaxCost = estimatedMaxCost
         entity.costBasis = costBasis
