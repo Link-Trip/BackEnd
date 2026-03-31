@@ -3,6 +3,7 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.port.output.persistence.HashtagPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
+import com.linktrip.application.port.output.persistence.VideoTimelinePersistencePort
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -10,22 +11,27 @@ import org.springframework.transaction.annotation.Transactional
 class VideoAnalysisResultSaver(
     private val travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort,
     private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
+    private val videoTimelinePersistencePort: VideoTimelinePersistencePort,
     private val hashtagPersistencePort: HashtagPersistencePort,
 ) {
     @Transactional
     fun save(
         videoAnalysisTaskId: String,
         itineraryItems: List<TravelItineraryItem>,
+        summary: String? = null,
         estimatedMinCost: Long? = null,
         estimatedMaxCost: Long? = null,
         costBasis: CostBasis? = null,
         hashtags: List<String> = emptyList(),
+        timelines: List<VideoTimeline> = emptyList(),
     ) {
         travelItineraryItemPersistencePort.saveAll(itineraryItems)
+        videoTimelinePersistencePort.saveAll(timelines)
         videoAnalysisTaskPersistencePort.updateValidAndStatus(
             videoAnalysisTaskId,
             valid = true,
             VideoAnalysisTaskStatus.COMPLETED,
+            summary = summary,
             estimatedMinCost = estimatedMinCost,
             estimatedMaxCost = estimatedMaxCost,
             costBasis = costBasis,

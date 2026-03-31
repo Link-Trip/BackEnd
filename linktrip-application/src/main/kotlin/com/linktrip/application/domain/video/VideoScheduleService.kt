@@ -4,6 +4,7 @@ import com.linktrip.application.port.input.VideoScheduleResult
 import com.linktrip.application.port.input.VideoScheduleUseCase
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
+import com.linktrip.application.port.output.persistence.VideoTimelinePersistencePort
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import org.springframework.stereotype.Service
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 class VideoScheduleService(
     private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
     private val travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort,
+    private val videoTimelinePersistencePort: VideoTimelinePersistencePort,
 ) : VideoScheduleUseCase {
     override fun getVideoSchedule(videoAnalysisTaskId: String): VideoScheduleResult {
         val videoAnalysisTask =
@@ -21,7 +23,8 @@ class VideoScheduleService(
                 ?: throw LinktripException(ExceptionCode.NOT_FOUND_VIDEO_ANALYSIS_TASK)
 
         val items = travelItineraryItemPersistencePort.findByVideoAnalysisTaskIdWithPlace(videoAnalysisTaskId)
+        val timelines = videoTimelinePersistencePort.findByVideoAnalysisTaskId(videoAnalysisTaskId)
 
-        return VideoScheduleResult(videoAnalysisTask, items)
+        return VideoScheduleResult(videoAnalysisTask, items, timelines)
     }
 }
