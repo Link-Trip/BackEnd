@@ -20,6 +20,7 @@ interface VideoAnalysisTaskPersistencePort {
         id: String,
         valid: Boolean,
         status: VideoAnalysisTaskStatus,
+        summary: String? = null,
         estimatedMinCost: Long? = null,
         estimatedMaxCost: Long? = null,
         costBasis: CostBasis? = null,
