@@ -10,6 +10,7 @@ data class VideoAnalysisTask(
     val youtubeUrl: String,
     val valid: Boolean,
     val status: VideoAnalysisTaskStatus,
+    val summary: String? = null,
     val estimatedMinCost: Long? = null,
     val estimatedMaxCost: Long? = null,
     val costBasis: CostBasis? = null,
