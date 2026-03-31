@@ -19,13 +19,14 @@ class CacheConfig {
                     .expireAfterWrite(CACHE_TTL_HOURS, TimeUnit.HOURS)
                     .maximumSize(CACHE_MAX_SIZE),
             )
-            setCacheNames(listOf(DISCOVER_VIDEOS, DISCOVER_CHANNELS, VIDEO_SCHEDULE))
+            setCacheNames(listOf(DISCOVER_VIDEOS, DISCOVER_CHANNELS, VIDEO_SCHEDULE, VIDEO_ANALYSIS_TASK))
         }
 
     companion object {
         const val DISCOVER_VIDEOS = "discoverVideos"
         const val DISCOVER_CHANNELS = "discoverChannels"
         const val VIDEO_SCHEDULE = "videoSchedule"
+        const val VIDEO_ANALYSIS_TASK = "videoAnalysisTask"
         private const val CACHE_TTL_HOURS = 7L
         private const val CACHE_MAX_SIZE = 100L
     }

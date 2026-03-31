@@ -11,7 +11,7 @@ import com.linktrip.output.persistence.mysql.repository.VideoAnalysisTaskJpaRepo
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Component
+@Component("videoAnalysisTaskDbAdapter")
 class VideoAnalysisTaskAdapter(
     private val videoAnalysisTaskJpaRepository: VideoAnalysisTaskJpaRepository,
 ) : VideoAnalysisTaskPersistencePort {

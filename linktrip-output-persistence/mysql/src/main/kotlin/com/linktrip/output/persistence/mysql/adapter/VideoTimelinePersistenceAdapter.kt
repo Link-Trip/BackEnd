@@ -7,7 +7,7 @@ import com.linktrip.output.persistence.mysql.repository.VideoTimelineJpaReposito
 import com.linktrip.output.persistence.mysql.repository.VideoTimelineQuerydslRepository
 import org.springframework.stereotype.Component
 
-@Component
+@Component("videoTimelineDbAdapter")
 class VideoTimelinePersistenceAdapter(
     private val jpaRepository: VideoTimelineJpaRepository,
     private val querydslRepository: VideoTimelineQuerydslRepository,
