@@ -17,19 +17,16 @@ class VideoAnalysisTaskCachingAdapter(
     @param:Qualifier("videoAnalysisTaskDbAdapter")
     private val delegate: VideoAnalysisTaskPersistencePort,
 ) : VideoAnalysisTaskPersistencePort {
-    override fun save(videoAnalysisTask: VideoAnalysisTask): VideoAnalysisTask =
-        delegate.save(videoAnalysisTask)
+    override fun save(videoAnalysisTask: VideoAnalysisTask): VideoAnalysisTask = delegate.save(videoAnalysisTask)
 
-    override fun findByYoutubeUrl(youtubeUrl: String): VideoAnalysisTask? =
-        delegate.findByYoutubeUrl(youtubeUrl)
+    override fun findByYoutubeUrl(youtubeUrl: String): VideoAnalysisTask? = delegate.findByYoutubeUrl(youtubeUrl)
 
     @Cacheable(
         value = [CacheConfig.VIDEO_ANALYSIS_TASK],
         key = "#id",
         unless = "#result == null",
     )
-    override fun findById(id: String): VideoAnalysisTask? =
-        delegate.findById(id)
+    override fun findById(id: String): VideoAnalysisTask? = delegate.findById(id)
 
     @CacheEvict(value = [CacheConfig.VIDEO_ANALYSIS_TASK], key = "#id")
     override fun updateStatus(

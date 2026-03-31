@@ -57,9 +57,12 @@ class VideoAnalyzeEventListenerTest {
         listener.handle(event)
 
         // then - AI분석 → 결과저장 → 장소보강 → 완료알림 순서로 실행된다
-        val inOrder = inOrder(videoAnalyzePort, videoAnalysisResultSaver, placeEnrichService, videoAnalysisNotificationPort)
+        val inOrder =
+            inOrder(videoAnalyzePort, videoAnalysisResultSaver, placeEnrichService, videoAnalysisNotificationPort)
         inOrder.verify(videoAnalyzePort).analyze("https://youtube.com/1")
-        inOrder.verify(videoAnalysisResultSaver).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
+        inOrder.verify(
+            videoAnalysisResultSaver,
+        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
         inOrder.verify(placeEnrichService).enrichPlaces("s1", "도쿄")
         inOrder.verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
     }
@@ -68,18 +71,19 @@ class VideoAnalyzeEventListenerTest {
     fun `여행 영상이 아닌 것으로 판정되면_INVALID 상태로 변경하고_일정 저장과 장소 보강을 수행하지 않는다`() {
         // given
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
-        val invalidResult = VideoAnalysisResult(
-            valid = false,
-            destination = null,
-            title = null,
-            summary = null,
-            estimatedMinCost = null,
-            estimatedMaxCost = null,
-            costBasis = null,
-            hashtags = emptyList(),
-            days = emptyList(),
-            timeline = emptyList(),
-        )
+        val invalidResult =
+            VideoAnalysisResult(
+                valid = false,
+                destination = null,
+                title = null,
+                summary = null,
+                estimatedMinCost = null,
+                estimatedMaxCost = null,
+                costBasis = null,
+                hashtags = emptyList(),
+                days = emptyList(),
+                timeline = emptyList(),
+            )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(invalidResult)
 
         // when
@@ -95,7 +99,10 @@ class VideoAnalyzeEventListenerTest {
             anyOrNull(),
             anyOrNull(),
         )
-        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
+        verify(
+            videoAnalysisResultSaver,
+            never(),
+        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
         verify(placeEnrichService, never()).enrichPlaces(any(), anyOrNull())
         verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any(), any())
     }
@@ -111,39 +118,46 @@ class VideoAnalyzeEventListenerTest {
 
         // then
         verify(videoAnalysisTaskPersistencePort).updateStatus("s1", VideoAnalysisTaskStatus.FAILED)
-        verify(videoAnalysisResultSaver, never()).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
+        verify(
+            videoAnalysisResultSaver,
+            never(),
+        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
     }
 
     @Test
     fun `2일치 3개 일정 항목이 있는 분석 결과를_TravelItineraryItem으로 변환하면_day와 category와 순서가 정확히 매핑된다`() {
         // given
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
-        val analysisResult = VideoAnalysisResult(
-            valid = true,
-            destination = "파리",
-            title = "파리 2일 여행",
-            summary = null,
-            estimatedMinCost = 500000,
-            estimatedMaxCost = 700000,
-            costBasis = CostBasis.ITEM_ESTIMATED,
-            hashtags = listOf("문화탐방", "쇼핑"),
-            days = listOf(
-                VideoAnalysisResult.DaySchedule(
-                    day = 1,
-                    items = listOf(
-                        VideoAnalysisResult.ScheduleItem(1, Category.ATTRACTION, "에펠탑", null, null),
-                        VideoAnalysisResult.ScheduleItem(2, Category.EAT, "카페", null, null),
+        val analysisResult =
+            VideoAnalysisResult(
+                valid = true,
+                destination = "파리",
+                title = "파리 2일 여행",
+                summary = null,
+                estimatedMinCost = 500000,
+                estimatedMaxCost = 700000,
+                costBasis = CostBasis.ITEM_ESTIMATED,
+                hashtags = listOf("문화탐방", "쇼핑"),
+                days =
+                    listOf(
+                        VideoAnalysisResult.DaySchedule(
+                            day = 1,
+                            items =
+                                listOf(
+                                    VideoAnalysisResult.ScheduleItem(1, Category.ATTRACTION, "에펠탑", null, null),
+                                    VideoAnalysisResult.ScheduleItem(2, Category.EAT, "카페", null, null),
+                                ),
+                        ),
+                        VideoAnalysisResult.DaySchedule(
+                            day = 2,
+                            items =
+                                listOf(
+                                    VideoAnalysisResult.ScheduleItem(1, Category.SHOPPING, "샹젤리제", null, null),
+                                ),
+                        ),
                     ),
-                ),
-                VideoAnalysisResult.DaySchedule(
-                    day = 2,
-                    items = listOf(
-                        VideoAnalysisResult.ScheduleItem(1, Category.SHOPPING, "샹젤리제", null, null),
-                    ),
-                ),
-            ),
-            timeline = emptyList(),
-        )
+                timeline = emptyList(),
+            )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
 
         // when
@@ -203,13 +217,15 @@ class VideoAnalyzeEventListenerTest {
     fun `timeline 항목이 있는 분석 결과이면_VideoTimeline으로 변환되어 taskId와 timestamp와 description이 정확히 매핑된다`() {
         // given
         val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
-        val analysisResult = validAnalysisResult(
-            timeline = listOf(
-                VideoAnalysisResult.TimelineItem(timestampSeconds = 0, description = "인트로"),
-                VideoAnalysisResult.TimelineItem(timestampSeconds = 135, description = "스크램블 교차로"),
-                VideoAnalysisResult.TimelineItem(timestampSeconds = 330, description = "라멘 점심"),
-            ),
-        )
+        val analysisResult =
+            validAnalysisResult(
+                timeline =
+                    listOf(
+                        VideoAnalysisResult.TimelineItem(timestampSeconds = 0, description = "인트로"),
+                        VideoAnalysisResult.TimelineItem(timestampSeconds = 135, description = "스크램블 교차로"),
+                        VideoAnalysisResult.TimelineItem(timestampSeconds = 330, description = "라멘 점심"),
+                    ),
+            )
         whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
 
         // when
@@ -277,14 +293,16 @@ class VideoAnalyzeEventListenerTest {
         estimatedMaxCost = 1200000,
         costBasis = CostBasis.VIDEO_MENTIONED,
         hashtags = listOf("맛집여행", "문화탐방"),
-        days = listOf(
-            VideoAnalysisResult.DaySchedule(
-                day = 1,
-                items = listOf(
-                    VideoAnalysisResult.ScheduleItem(1, Category.EAT, "스시집", "맛있는 스시", null),
+        days =
+            listOf(
+                VideoAnalysisResult.DaySchedule(
+                    day = 1,
+                    items =
+                        listOf(
+                            VideoAnalysisResult.ScheduleItem(1, Category.EAT, "스시집", "맛있는 스시", null),
+                        ),
                 ),
             ),
-        ),
         timeline = timeline,
     )
 }
