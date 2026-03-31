@@ -48,13 +48,16 @@ class VideoAnalyzeEventListener(
             destination = result.destination
             title = result.title
             val itineraryItems = toItineraryItems(event.videoAnalysisTaskId, result)
+            val timelines = toTimelines(event.videoAnalysisTaskId, result)
             videoAnalysisResultSaver.save(
                 event.videoAnalysisTaskId,
                 itineraryItems,
+                summary = result.summary,
                 estimatedMinCost = result.estimatedMinCost,
                 estimatedMaxCost = result.estimatedMaxCost,
                 costBasis = result.costBasis,
                 hashtags = result.hashtags,
+                timelines = timelines,
             )
 
             val analyzeElapsed = System.currentTimeMillis() - startTime
@@ -126,5 +129,17 @@ class VideoAnalyzeEventListener(
             daySchedule.items.map { item ->
                 TravelItineraryItem.from(videoAnalysisTaskId, daySchedule, item)
             }
+        }
+
+    private fun toTimelines(
+        videoAnalysisTaskId: String,
+        result: VideoAnalysisResult,
+    ): List<VideoTimeline> =
+        result.timeline.map { timelineItem ->
+            VideoTimeline.create(
+                videoAnalysisTaskId = videoAnalysisTaskId,
+                timestampSeconds = timelineItem.timestampSeconds,
+                description = timelineItem.description,
+            )
         }
 }

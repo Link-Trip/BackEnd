@@ -77,163 +77,36 @@ class VideoAnalyzeAdapter(
         private const val VIDEO_MIME_TYPE = "video/mp4"
         private val DEFAULT_PROMPT =
             """
-            You are a travel video content analyzer specialized in extracting structured travel itineraries.
+            You are a travel video analyzer. Return ONLY a raw JSON object (no markdown, no explanation).
 
-            ============================================================
-            CRITICAL: YOUR RESPONSE MUST BE ONLY A VALID JSON OBJECT
-            ============================================================
-            - NO ```json``` markdown blocks
-            - NO text before or after the JSON
-            - NO explanations or comments
-            - ONLY the raw JSON object
+            If NOT travel-related → {"valid":false,"destination":null,"title":null,"summary":null,"estimatedMinCost":null,"estimatedMaxCost":null,"costBasis":null,"hashtags":null,"timeline":null,"days":null}
 
-            ============================================================
-            STEP 1: CONTENT VALIDATION
-            ============================================================
-            Is this video travel-related? (travel vlog, food tour, sightseeing, travel tips, etc.)
+            If travel-related → extract all fields below:
 
-            If NO (violence, adult content, unrelated topics, invalid link):
-            → Return: {"valid": false, "destination": null, "title": null, "estimatedMinCost": null, "estimatedMaxCost": null, "costBasis": null, "hashtags": null, "days": null}
+            EXAMPLE:
+            {"valid":true,"destination":"도쿄, 일본","title":"도쿄 3박 4일 여행","summary":"신주쿠에서 최고의 주말을 경험하세요. 숨겨진 명소와 야간 골목 문화까지 초점을 맞춥니다.","estimatedMinCost":800000,"estimatedMaxCost":1500000,"costBasis":"VIDEO_MENTIONED","hashtags":["맛집여행","문화탐방"],"timeline":[{"timestampSeconds":0,"description":"인트로 & 시부야 도착"},{"timestampSeconds":135,"description":"시부야 스크램블 교차로"},{"timestampSeconds":330,"description":"이치란 라멘 점심"}],"days":[{"day":1,"items":[{"order":1,"category":"EAT","name":"이치란 라멘","description":"돈코츠 라멘","tips":"오픈 전 줄서기 추천"}]}]}
 
-            If YES → Proceed to STEP 2
+            FIELD RULES (all values in Korean, English brand names preserved):
 
-            ============================================================
-            STEP 2: EXTRACT DESTINATION, TITLE, COST, HASHTAGS AND DAY-BY-DAY ITINERARY
-            ============================================================
-            First, identify the main travel destination from the video.
-            Then create a natural Korean title for this trip.
-            Then estimate the total travel cost shown or implied in the video.
-            Then select hashtags that best describe this trip.
-            Then extract the travel schedule in CHRONOLOGICAL ORDER, grouped by day.
-            Each item must have a category tag and appear in the order it was visited.
+            destination: "도시, 국가" format (e.g. "도쿄, 일본"). Multiple cities → primary city. Country-wide → country only. null if unknown.
+            title: Natural Korean trip title, under 20 chars (e.g. "도쿄 3박 4일 여행"). NOT "도시, 국가" format.
+            summary: 3-5 sentence Korean summary (max 300 chars). Focus on highlights, theme, vibe. null if unavailable.
+            estimatedMinCost/estimatedMaxCost: KRW integer for 1 person. Include food/lodging/transport/activities. Exclude international flights. Priority: video-mentioned cost (±10%, costBasis="VIDEO_MENTIONED") > sum of shown prices > estimated sum (costBasis="ITEM_ESTIMATED"). null if unestimable.
+            hashtags: Up to 3 from: "맛집여행","SNS 핫플레이스","가성비여행","럭셔리여행","힐링여행","액티비티","문화탐방","쇼핑","자연경관","역사탐방","카페투어","야경명소","로컬맛집","온천여행","축제/이벤트". Empty array if none.
+            timeline: 5-15 entries, chronological. Each: {"timestampSeconds": int, "description": Korean string under 30 chars}. Start near 0s. null if timestamps undeterminable.
+            days: Array of {"day": int, "items": [...]}. Infer days from context ("1일차", morning/night transitions). Single day if unclear.
+            items: {"order": sequential int from 1, "category": string, "name": string, "description": string|null, "tips": string|null}
 
-            {
-              "valid": true,
-              "destination": "도쿄, 일본",
-              "title": "도쿄 3박 4일 여행",
-              "estimatedMinCost": 800000,
-              "estimatedMaxCost": 1500000,
-              "costBasis": "VIDEO_MENTIONED",
-              "hashtags": ["맛집여행", "문화탐방", "쇼핑"],
-              "days": [
-                {
-                  "day": 1,
-                  "items": [
-                    {"order": 1, "category": "TRANSPORTATION_TRANSIT", "name": "나리타 익스프레스", "description": "공항에서 도쿄역까지 이동", "tips": "JR패스 사용 가능"},
-                    {"order": 2, "category": "EAT", "name": "이치란 라멘", "description": "돈코츠 라멘", "tips": "오픈 전 줄서기 추천"},
-                    {"order": 3, "category": "ATTRACTION", "name": "센소지", "description": "아사쿠사의 대표 사찰", "tips": null},
-                    {"order": 4, "category": "SHOPPING", "name": "돈키호테", "description": "과자, 화장품 구매", "tips": "면세 가능"}
-                  ]
-                },
-                {
-                  "day": 2,
-                  "items": [...]
-                }
-              ]
-            }
+            CATEGORIES (exact strings):
+            EAT: restaurants, cafes, street food, convenience store food (NOT airplane meals)
+            ATTRACTION: landmarks, museums, temples, parks (NOT generic city names)
+            SHOPPING: non-food stores, malls, duty-free (convenience store food → EAT)
+            TRANSPORTATION_HUB: airports, train stations, bus terminals
+            TRANSPORTATION_TRANSIT: subway/taxi/bus rides, passes (JR Pass, Suica)
 
-            ============================================================
-            DESTINATION RULES
-            ============================================================
-            - Extract the main travel destination in format: "도시, 국가" (e.g., "도쿄, 일본", "방콕, 태국", "파리, 프랑스")
-            - If multiple cities are visited, use the primary/most-visited city
-            - If the video covers an entire country or region, use "국가" only (e.g., "일본", "태국")
-            - Write in Korean
-            - "destination" is either: "도시, 국가" format, a country-only string when no single city is dominant, or null
+            IMPORTANT: No consecutive duplicate places within a day (merge them). Romanize foreign names to Korean (ラーメン→라멘). Use null for missing description/tips.
 
-            ============================================================
-            TITLE RULES
-            ============================================================
-            - Create a natural, appealing Korean title for this trip
-            - Format: "[도시] [일수] 여행" or similar natural Korean expression
-            - Examples: "도쿄 3박 4일 여행", "방콕 먹방 투어", "파리 혼자 여행", "오사카 2박 3일 맛집 탐방"
-            - If days are unclear, omit the duration (e.g., "후쿠오카 여행", "제주도 힐링 여행")
-            - Keep it concise (under 20 characters preferred)
-            - Do NOT use "도시, 국가" format for the title
-
-            ============================================================
-            ESTIMATED COST RULES
-            ============================================================
-            - Provide cost as a min-max range: "estimatedMinCost" and "estimatedMaxCost"
-            - Cost is for ONE person in Korean Won (KRW), integer only (e.g., 800000)
-            - INCLUDE: food, accommodation, local transportation, activities, entrance fees, shopping — everything shown or done in the video
-            - EXCLUDE: departure/arrival transportation only (international flights, intercity KTX/train to the destination)
-            - Priority 1: If the video explicitly shows or mentions total cost → use that as base, set min to -10% and max to +10%, costBasis = "VIDEO_MENTIONED"
-            - Priority 2: If no total is shown → sum up individual costs from the video (food prices, hotel rates, ticket prices mentioned/shown), costBasis = "ITEM_ESTIMATED"
-            - Priority 3: If individual prices are also unclear → estimate each item's realistic cost based on the specific places and activities extracted above, then sum, costBasis = "ITEM_ESTIMATED"
-            - Foreign currency must be converted to KRW at current approximate rates
-            - "costBasis" must be one of: "VIDEO_MENTIONED" (video explicitly states total/individual costs), "ITEM_ESTIMATED" (estimated from activities)
-            - Return null for all three (estimatedMinCost, estimatedMaxCost, costBasis) if cost cannot be reasonably estimated
-
-            ============================================================
-            HASHTAG RULES
-            ============================================================
-            - Select up to 3 hashtags that best describe this trip
-            - Choose from these predefined tags: "맛집여행", "SNS 핫플레이스", "가성비여행", "럭셔리여행", "힐링여행", "액티비티", "문화탐방", "쇼핑", "자연경관", "역사탐방", "카페투어", "야경명소", "로컬맛집", "온천여행", "축제/이벤트"
-            - Select tags that match the actual content of the video
-            - Return as a JSON array of strings: "hashtags": ["맛집여행", "문화탐방", ...]
-            - Maximum 3 hashtags per video
-            - If no tags are applicable, return an empty array: "hashtags": []
-
-            ============================================================
-            DAY DETECTION RULES
-            ============================================================
-            - If the video mentions "1일차", "첫째 날", "Day 1" etc., follow that structure
-            - If not explicitly mentioned, infer days from context (morning/night transitions, hotel check-in, sleeping scenes)
-            - If the video covers a single day or cannot determine days, use "day": 1 for all items
-            - order must be sequential within each day starting from 1
-
-            ============================================================
-            CATEGORY VALUES (use EXACTLY these strings)
-            ============================================================
-            - "EAT": Restaurants, cafes, bars, street food, convenience store food, food markets
-                     EXCLUDE: Airplane meals, in-flight food
-            - "ATTRACTION": Specific landmarks, museums, temples, parks, beaches
-                            EXCLUDE: Generic city names like "Seoul", "Tokyo", "Paris"
-            - "SHOPPING": Stores for NON-FOOD items (clothes, souvenirs, cosmetics), malls, duty-free
-                          EXCLUDE: Food at convenience store → use "EAT"
-            - "TRANSPORTATION_HUB": Airports, train stations, bus terminals — fixed transportation facilities that travelers visit
-            - "TRANSPORTATION_TRANSIT": Shuttle buses, subway rides, taxi rides, rental cars, passes (JR Pass, Suica, T-money), routes — the act of moving between places
-
-            ============================================================
-            DEDUPLICATION RULES
-            ============================================================
-            - NEVER repeat the same place in consecutive orders within a day
-            - If the video mentions the same place multiple times in sequence, merge into ONE item
-            - Combine all relevant tips and descriptions into the single merged item
-            - If a place is revisited later after other items on the same day, keep it as a separate item
-            - If a place is genuinely revisited on a DIFFERENT day, it may appear again
-
-            ============================================================
-            LANGUAGE RULES
-            ============================================================
-            - Write all values in Korean
-            - Keep English brand names in English (e.g., "Shake Shack", "Starbucks", "7-Eleven")
-            - Romanize Japanese/Chinese/Thai/Vietnamese to Korean pronunciation
-              (e.g., ラーメン → "라멘", 火鍋 → "훠궈", センソジ → "센소지")
-            - NO timestamps
-            - Use null for missing description or tips
-
-            ============================================================
-            OUTPUT VALIDATION CHECKLIST
-            ============================================================
-            Before responding, verify:
-            - Response is ONLY a JSON object (no other text)
-            - "destination" is a string in "도시, 국가" format, a country-only string, or null
-            - "title" is a natural Korean trip title string, or null
-            - "estimatedMinCost" and "estimatedMaxCost" are integers in KRW, or both null
-            - "costBasis" is one of "VIDEO_MENTIONED", "ITEM_ESTIMATED", or null
-            - "hashtags" is an array of strings (max 3), or null
-            - "days" is an array of day objects, each with "day" (int) and "items" (array)
-            - Each item has: order (int), category (string), name (string), description (string or null), tips (string or null)
-            - category is one of: EAT, ATTRACTION, SHOPPING, TRANSPORTATION_HUB, TRANSPORTATION_TRANSIT
-            - Items are in chronological visit order within each day
-            - Convenience store food is "EAT", not "SHOPPING"
-            - No airplane meals included
-            - No generic city names in attractions
-            - No duplicate names in consecutive orders within the same day
-
-            NOW ANALYZE THE VIDEO AND RETURN THE JSON:
+            NOW ANALYZE THE VIDEO:
             """.trimIndent()
 
         private fun stripMarkdownCodeBlock(text: String?): String {

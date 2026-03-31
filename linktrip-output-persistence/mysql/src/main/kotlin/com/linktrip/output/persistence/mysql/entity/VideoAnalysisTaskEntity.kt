@@ -36,6 +36,8 @@ class VideoAnalysisTaskEntity(
     var estimatedMinCost: Long? = null,
     @Column(name = "estimated_max_cost")
     var estimatedMaxCost: Long? = null,
+    @Column(name = "summary", columnDefinition = "TEXT")
+    var summary: String? = null,
     @Enumerated(EnumType.STRING)
     @Column(name = "cost_basis", length = 20)
     var costBasis: CostBasis? = null,
@@ -55,6 +57,7 @@ class VideoAnalysisTaskEntity(
             youtubeUrl = this.youtubeUrl,
             valid = this.valid,
             status = this.status,
+            summary = this.summary,
             estimatedMinCost = this.estimatedMinCost,
             estimatedMaxCost = this.estimatedMaxCost,
             costBasis = this.costBasis,
@@ -69,6 +72,7 @@ class VideoAnalysisTaskEntity(
                 youtubeUrl = videoAnalysisTask.youtubeUrl,
                 valid = videoAnalysisTask.valid,
                 status = videoAnalysisTask.status,
+                summary = videoAnalysisTask.summary,
                 estimatedMinCost = videoAnalysisTask.estimatedMinCost,
                 estimatedMaxCost = videoAnalysisTask.estimatedMaxCost,
                 costBasis = videoAnalysisTask.costBasis,

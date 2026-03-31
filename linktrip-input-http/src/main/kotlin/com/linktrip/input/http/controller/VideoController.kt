@@ -64,7 +64,7 @@ class VideoController(
             tripPlanUseCase.createFromAnalysisIfAbsent(memberId, videoAnalysisTaskId)
         }
 
-        val response = VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items)
+        val response = VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items, result.timelines)
         return when (result.videoAnalysisTask.status) {
             VideoAnalysisTaskStatus.PENDING -> ApiResponse.accepted(response)
             else -> ApiResponse.ok(response)

@@ -10,11 +10,13 @@ data class AiApiResponse(
     val valid: Boolean,
     val destination: String?,
     val title: String?,
+    val summary: String?,
     val estimatedMinCost: Long?,
     val estimatedMaxCost: Long?,
     val costBasis: String?,
     val hashtags: List<String>?,
     val days: List<DayDto>?,
+    val timeline: List<TimelineDto>?,
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class DayDto(
@@ -31,15 +33,31 @@ data class AiApiResponse(
         val tips: String?,
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class TimelineDto(
+        val timestampSeconds: Int?,
+        val description: String?,
+    )
+
     fun toDomain(): VideoAnalysisResult =
         VideoAnalysisResult(
             valid = this.valid,
             destination = this.destination,
             title = this.title,
+            summary = this.summary?.trim()?.takeIf { it.isNotEmpty() },
             estimatedMinCost = this.estimatedMinCost,
             estimatedMaxCost = this.estimatedMaxCost,
             costBasis = parseCostBasis(this.costBasis),
             hashtags = this.hashtags?.map { it.trim() }?.filter { it.isNotEmpty() }?.take(3) ?: emptyList(),
+            timeline =
+                this.timeline?.mapNotNull { dto ->
+                    val desc = dto.description?.trim()
+                    if (desc.isNullOrEmpty() || dto.timestampSeconds == null) return@mapNotNull null
+                    VideoAnalysisResult.TimelineItem(
+                        timestampSeconds = dto.timestampSeconds,
+                        description = desc,
+                    )
+                } ?: emptyList(),
             days =
                 this.days?.mapIndexed { dayIndex, dayDto ->
                     VideoAnalysisResult.DaySchedule(
