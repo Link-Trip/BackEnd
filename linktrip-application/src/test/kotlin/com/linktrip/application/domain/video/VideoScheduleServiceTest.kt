@@ -70,6 +70,7 @@ class VideoScheduleServiceTest {
         assertEquals(0, result.timelines[0].timestampSeconds)
         assertEquals("인트로", result.timelines[0].description)
         assertEquals(135, result.timelines[1].timestampSeconds)
+        assertEquals("스크램블 교차로", result.timelines[1].description)
     }
 
     @Test
