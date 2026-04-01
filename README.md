@@ -64,7 +64,7 @@ linktrip-bootstrap                 ← Spring Boot 진입점, DI 조립
  └─────────────────────────────┬───────────────────────────────┘
                                │
               ┌────────────────┼────────────────┐
-              ▼                ▼                ▼
+              ▲                ▲                ▲
      ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
      │ output-cache │ │  output-     │ │  output-http │
      │  (Caffeine)  │ │  persistence │ │  (YouTube,   │
@@ -133,7 +133,7 @@ POST /video/analyze { youtubeUrl }
 │  일정 저장 (EAT / ATTRACTION / SHOPPING / etc.) │
 │       │                                        │
 │  대기열 조회 → 각 요청자별 TripPlan 생성           │
-│       │                                       │
+│       │                                        │
 │  Google Places API 좌표 매핑 (병렬)              │
 │       │                                        │
 │  완료 알림 발송                                  │
@@ -141,6 +141,34 @@ POST /video/analyze { youtubeUrl }
                       │
                       ▼
 GET /video/{id}/schedule → 일정표 + 장소 좌표 반환
+
+```
+
+### 동시 요청 처리
+
+```
+같은 영상을 여러 사용자가 요청하는 경우:
+분석은 1회만 수행하고, 각 요청자의 여행 계획은 개별 생성
+
+User A: POST /analyze (영상 X) → 새 분석 시작, 대기열 등록, Event 발행
+User B: POST /analyze (영상 X) → PENDING 확인 → 대기열 등록 (Event 발행 안 함)
+...분석 완료...
+EventListener → 대기열 조회 → [User A, User B] → TripPlan 각각 생성
+```
+
+```
+분석 완료 후 요청하는 경우:
+
+User C: POST /analyze (영상 X) → COMPLETED 확인 → TripPlan 즉시 생성 (대기열 불필요)
+```
+
+```
+경쟁 조건 보완:
+
+분석 완료 커밋과 대기열 조회 사이에 등록된 요청이 누락될 수 있음
+→ GET /schedule 조회 시 TripPlan이 없으면 즉시 생성 (Lazy 보완)
+→ EXISTS 쿼리는 (member_id, video_analysis_task_id) 커버링 인덱스로 처리
+
 ```
 
 ### 상태 전이
