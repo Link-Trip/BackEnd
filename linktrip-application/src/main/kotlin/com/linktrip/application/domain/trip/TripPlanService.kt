@@ -67,6 +67,7 @@ class TripPlanService(
                 )
             }
         planItemPort.saveAll(tripPlanItems)
+        requestPort.markRaceConditionProcessed(memberId, videoAnalysisTaskId)
     }
 
     @Transactional(readOnly = true)
