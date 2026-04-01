@@ -28,8 +28,16 @@ class TripPlanRequestPersistenceAdapter(
         querydslRepository.findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId)
 
     @Transactional
-    override fun markAsProcessed(ids: List<String>) {
+    override fun markBatchProcessed(ids: List<String>) {
         val entities = jpaRepository.findAllById(ids)
         entities.forEach { it.processed = true }
+    }
+
+    @Transactional
+    override fun markRaceConditionProcessed(
+        memberId: String,
+        videoAnalysisTaskId: String,
+    ) {
+        querydslRepository.markRaceConditionProcessed(memberId, videoAnalysisTaskId)
     }
 }

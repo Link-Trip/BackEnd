@@ -98,7 +98,7 @@ class VideoAnalyzeEventListener(
             }
         }
         if (processedIds.isNotEmpty()) {
-            tripPlanRequestPort.markAsProcessed(processedIds)
+            tripPlanRequestPort.markBatchProcessed(processedIds)
         }
 
         logger.info {
