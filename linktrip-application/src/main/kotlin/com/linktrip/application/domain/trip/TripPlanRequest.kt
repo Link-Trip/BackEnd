@@ -7,10 +7,14 @@ data class TripPlanRequest(
     val id: String,
     val memberId: String,
     val videoAnalysisTaskId: String,
-    val processed: Boolean = false,
+    var processed: Boolean = false,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
+    fun markProcessed() {
+        this.processed = true
+    }
+
     companion object {
         fun create(
             memberId: String,

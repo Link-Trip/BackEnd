@@ -31,17 +31,4 @@ class TripPlanRequestQuerydslRepository(
             )
             .fetch()
 
-    fun markRaceConditionProcessed(
-        memberId: String,
-        videoAnalysisTaskId: String,
-    ): Long =
-        queryFactory
-            .update(request)
-            .set(request.processed, true)
-            .where(
-                request.memberId.eq(memberId),
-                request.videoAnalysisTaskId.eq(videoAnalysisTaskId),
-                request.processed.isFalse,
-            )
-            .execute()
 }

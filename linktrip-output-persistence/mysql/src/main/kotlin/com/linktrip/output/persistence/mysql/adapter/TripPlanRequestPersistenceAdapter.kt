@@ -27,17 +27,7 @@ class TripPlanRequestPersistenceAdapter(
     override fun findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId: String): List<String> =
         querydslRepository.findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId)
 
-    @Transactional
-    override fun markBatchProcessed(ids: List<String>) {
-        val entities = jpaRepository.findAllById(ids)
-        entities.forEach { it.processed = true }
-    }
-
-    @Transactional
-    override fun markRaceConditionProcessed(
-        memberId: String,
-        videoAnalysisTaskId: String,
-    ) {
-        querydslRepository.markRaceConditionProcessed(memberId, videoAnalysisTaskId)
+    override fun saveAll(requests: List<TripPlanRequest>) {
+        jpaRepository.saveAll(requests.map { TripPlanRequestEntity.from(it) })
     }
 }

@@ -86,24 +86,21 @@ class VideoAnalyzeEventListener(
         if (requests.isEmpty()) return
 
         val title = destination ?: "여행 계획"
-        val processedIds = mutableListOf<String>()
         requests.forEach { request ->
             runCatching {
                 tripPlanService.createFromAnalysisIfAbsent(request.memberId, videoAnalysisTaskId, title)
-                processedIds += request.id
+                request.markProcessed()
             }.onFailure { e ->
                 logger.error(e) {
                     "여행 계획 자동 생성 실패: taskId=$videoAnalysisTaskId, requestId=${request.id}"
                 }
             }
         }
-        if (processedIds.isNotEmpty()) {
-            tripPlanRequestPort.markBatchProcessed(processedIds)
-        }
+        tripPlanRequestPort.saveAll(requests)
 
         logger.info {
             "여행 계획 자동 생성: taskId=$videoAnalysisTaskId, " +
-                "성공=${processedIds.size}/${requests.size}"
+                "성공=${requests.count { it.processed }}/${requests.size}"
         }
     }
 
