@@ -30,5 +30,4 @@ class TripPlanRequestQuerydslRepository(
                 request.deleted.isFalse,
             )
             .fetch()
-
 }

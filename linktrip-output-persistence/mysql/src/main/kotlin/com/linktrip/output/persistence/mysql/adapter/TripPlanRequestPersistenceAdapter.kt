@@ -6,7 +6,6 @@ import com.linktrip.output.persistence.mysql.entity.TripPlanRequestEntity
 import com.linktrip.output.persistence.mysql.repository.TripPlanRequestJpaRepository
 import com.linktrip.output.persistence.mysql.repository.TripPlanRequestQuerydslRepository
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class TripPlanRequestPersistenceAdapter(
