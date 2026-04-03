@@ -6,7 +6,6 @@ import com.linktrip.output.persistence.mysql.entity.TripPlanRequestEntity
 import com.linktrip.output.persistence.mysql.repository.TripPlanRequestJpaRepository
 import com.linktrip.output.persistence.mysql.repository.TripPlanRequestQuerydslRepository
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class TripPlanRequestPersistenceAdapter(
@@ -27,9 +26,7 @@ class TripPlanRequestPersistenceAdapter(
     override fun findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId: String): List<String> =
         querydslRepository.findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId)
 
-    @Transactional
-    override fun markAsProcessed(ids: List<String>) {
-        val entities = jpaRepository.findAllById(ids)
-        entities.forEach { it.processed = true }
+    override fun saveAll(requests: List<TripPlanRequest>) {
+        jpaRepository.saveAll(requests.map { TripPlanRequestEntity.from(it) })
     }
 }

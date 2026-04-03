@@ -67,6 +67,12 @@ class TripPlanService(
                 )
             }
         planItemPort.saveAll(tripPlanItems)
+
+        val unprocessedRequests =
+            requestPort.findUnprocessedByVideoAnalysisTaskId(videoAnalysisTaskId)
+                .filter { it.memberId == memberId }
+                .onEach { it.markProcessed() }
+        requestPort.saveAll(unprocessedRequests)
     }
 
     @Transactional(readOnly = true)

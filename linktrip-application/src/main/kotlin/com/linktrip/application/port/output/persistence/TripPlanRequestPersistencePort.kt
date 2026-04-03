@@ -14,5 +14,5 @@ interface TripPlanRequestPersistencePort {
 
     fun findMemberIdsByVideoAnalysisTaskId(videoAnalysisTaskId: String): List<String>
 
-    fun markAsProcessed(ids: List<String>)
+    fun saveAll(requests: List<TripPlanRequest>)
 }
