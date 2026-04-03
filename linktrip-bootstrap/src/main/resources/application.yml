@@ -42,5 +42,9 @@ gcp:
   vertex-ai:
     location: ${GCP_VERTEX_AI_LOCATION:us-central1}
 
+oauth:
+  apple:
+    bundle-id: ${APPLE_BUNDLE_ID:}
+
 youtube:
   api-key: ${YOUTUBE_API_KEY}

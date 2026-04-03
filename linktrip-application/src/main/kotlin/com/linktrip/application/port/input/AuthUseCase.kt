@@ -1,7 +1,12 @@
 package com.linktrip.application.port.input
 
+import com.linktrip.application.domain.member.ProviderType
+
 interface AuthUseCase {
-    fun authenticateBySerial(serialNumber: String): AuthResult
+    fun socialLogin(
+        providerType: ProviderType,
+        accessToken: String,
+    ): AuthResult
 
     data class AuthResult(
         val memberId: String,

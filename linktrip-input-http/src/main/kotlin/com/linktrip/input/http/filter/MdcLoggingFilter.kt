@@ -25,7 +25,7 @@ class MdcLoggingFilter : Filter {
         val httpRequest = request as HttpServletRequest
         val httpResponse = response as HttpServletResponse
         val uri = httpRequest.requestURI
-        val skipLogging = FilterPaths.LOGGING_SKIP.any { uri.startsWith(it) }
+        val skipLogging = LOGGING_SKIP.any { uri.startsWith(it) }
         val startTime = System.currentTimeMillis()
 
         try {
@@ -81,4 +81,11 @@ class MdcLoggingFilter : Filter {
         request.getHeader("X-Forwarded-For")?.split(",")?.firstOrNull()?.trim()
             ?: request.getHeader("X-Real-IP")
             ?: request.remoteAddr
+
+    companion object {
+        private val LOGGING_SKIP =
+            listOf(
+                "/api/health/",
+            )
+    }
 }

@@ -3,9 +3,9 @@ package com.linktrip.input.http.ratelimit
 import com.linktrip.application.port.output.ratelimit.RateLimitBucketStore
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
-import com.linktrip.input.http.filter.JwtAuthenticationFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
@@ -19,7 +19,7 @@ class RateLimitInterceptor(
         handler: Any,
     ): Boolean {
         val memberId =
-            request.getAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE) as? String
+            SecurityContextHolder.getContext().authentication?.principal as? String
                 ?: return true
 
         val policy =

@@ -5,15 +5,23 @@ import java.time.LocalDateTime
 
 data class Member(
     val id: String,
-    val serialNumber: String,
+    val email: String?,
+    val providerType: ProviderType,
+    val providerId: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
-        fun create(serialNumber: String): Member =
+        fun create(
+            email: String?,
+            providerType: ProviderType,
+            providerId: String,
+        ): Member =
             Member(
                 id = IdGenerator.generate(),
-                serialNumber = serialNumber,
+                email = email,
+                providerType = providerType,
+                providerId = providerId,
             )
     }
 }

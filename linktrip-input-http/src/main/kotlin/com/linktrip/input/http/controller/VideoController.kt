@@ -8,7 +8,6 @@ import com.linktrip.application.port.input.VideoAnalyzeUseCase
 import com.linktrip.application.port.input.VideoScheduleUseCase
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
-import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.config.PaginationDefaults
 import com.linktrip.input.http.controller.docs.VideoDocs
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
@@ -18,6 +17,7 @@ import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorRespon
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptResponse
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
+import com.linktrip.input.http.security.AuthenticatedMember
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

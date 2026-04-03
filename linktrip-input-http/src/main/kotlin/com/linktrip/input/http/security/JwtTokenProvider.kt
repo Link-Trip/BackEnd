@@ -1,4 +1,4 @@
-package com.linktrip.input.http.auth
+package com.linktrip.input.http.security
 
 import com.linktrip.application.port.output.auth.TokenProvider
 import com.linktrip.common.exception.ExceptionCode
@@ -47,6 +47,9 @@ class JwtTokenProvider(
         } catch (e: JwtException) {
             logger.warn { "유효하지 않은 JWT 토큰: ${e.message}" }
             false
+        } catch (e: IllegalArgumentException) {
+            logger.warn { "잘못된 JWT 토큰: ${e.message}" }
+            false
         }
 
     override fun extractMemberId(token: String): String =
@@ -62,6 +65,9 @@ class JwtTokenProvider(
             throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_EXPIRED)
         } catch (e: JwtException) {
             logger.warn { "유효하지 않은 JWT 토큰으로 memberId 추출 시도: ${e.message}" }
+            throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
+        } catch (e: IllegalArgumentException) {
+            logger.warn { "잘못된 JWT 토큰으로 memberId 추출 시도: ${e.message}" }
             throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
         }
 }

@@ -1,0 +1,104 @@
+package com.linktrip.output.http.oauth.adapter
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.linktrip.application.domain.member.ProviderType
+import com.linktrip.application.port.output.auth.OAuthInfo
+import com.linktrip.application.port.output.auth.OAuthPort
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
+import com.linktrip.output.http.oauth.dto.ApplePublicKeyResponse
+import io.jsonwebtoken.Jwts
+import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.RSAPublicKeySpec
+import java.util.Base64
+
+private val logger = KotlinLogging.logger {}
+
+@Component
+class AppleOAuthAdapter(
+    @param:Qualifier("appleOAuthRestClient") private val restClient: RestClient,
+    private val objectMapper: ObjectMapper,
+    @param:Value("\${oauth.apple.bundle-id}") private val appleBundleId: String,
+) : OAuthPort {
+    override fun getProviderType(): ProviderType = ProviderType.APPLE
+
+    override fun requestUserInfo(accessToken: String): OAuthInfo {
+        val publicKeys = fetchApplePublicKeys()
+        val claims = validateAndExtractClaims(accessToken, publicKeys)
+
+        val providerId =
+            claims.subject
+                ?.takeIf { it.isNotBlank() }
+                ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
+        val email = claims["email"] as? String
+
+        logger.debug { "Apple 사용자 정보 조회 성공" }
+
+        return OAuthInfo(
+            providerType = ProviderType.APPLE,
+            providerId = providerId,
+            email = email,
+        )
+    }
+
+    private fun fetchApplePublicKeys(): ApplePublicKeyResponse =
+        restClient.get()
+            .uri("/auth/keys")
+            .retrieve()
+            .body<ApplePublicKeyResponse>()
+            ?: throw LinktripException(ExceptionCode.BAD_GATEWAY_OAUTH_PROVIDER)
+
+    private fun validateAndExtractClaims(
+        idToken: String,
+        publicKeys: ApplePublicKeyResponse,
+    ): io.jsonwebtoken.Claims {
+        try {
+            val tokenParts = idToken.split(".")
+            if (tokenParts.size != 3) throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
+
+            val headerJson = String(Base64.getUrlDecoder().decode(tokenParts[0]))
+            val headerMap = objectMapper.readValue(headerJson, Map::class.java)
+            val kid =
+                headerMap["kid"] as? String
+                    ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
+
+            val matchingKey =
+                publicKeys.keys.find { it.kid == kid }
+                    ?: throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
+
+            val publicKey = generatePublicKey(matchingKey)
+
+            return Jwts.parser()
+                .verifyWith(publicKey)
+                .requireIssuer(APPLE_ISSUER)
+                .requireAudience(appleBundleId)
+                .build()
+                .parseSignedClaims(idToken)
+                .payload
+        } catch (e: LinktripException) {
+            throw e
+        } catch (e: Exception) {
+            throw LinktripException(ExceptionCode.UNAUTHORIZED_TOKEN_INVALID)
+        }
+    }
+
+    private fun generatePublicKey(key: ApplePublicKeyResponse.AppleKey): RSAPublicKey {
+        val nBytes = Base64.getUrlDecoder().decode(key.n)
+        val eBytes = Base64.getUrlDecoder().decode(key.e)
+        val spec = RSAPublicKeySpec(BigInteger(1, nBytes), BigInteger(1, eBytes))
+        val keyFactory = KeyFactory.getInstance("RSA")
+        return keyFactory.generatePublic(spec) as RSAPublicKey
+    }
+
+    companion object {
+        private const val APPLE_ISSUER = "https://appleid.apple.com"
+    }
+}

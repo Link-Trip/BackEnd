@@ -1,4 +1,4 @@
-package com.linktrip.input.http.auth
+package com.linktrip.input.http.security
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
