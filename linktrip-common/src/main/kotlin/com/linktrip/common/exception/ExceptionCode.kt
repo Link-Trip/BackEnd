@@ -23,6 +23,9 @@ enum class ExceptionCode(
     NOT_FOUND_VIDEO_ANALYSIS_TASK(404, "영상 분석 작업을 찾을 수 없습니다."),
     NOT_FOUND_TRIP_PLAN(404, "여행 계획을 찾을 수 없습니다."),
 
+    // 409
+    DUPLICATE_REQUEST(409, "이미 처리 중이거나 처리된 요청입니다."),
+
     // 429
     TOO_MANY_REQUESTS(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
 
