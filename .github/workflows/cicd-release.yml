@@ -56,7 +56,7 @@ jobs:
       - name: GCP credentials 파일 생성
         env:
           GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
-        run: printf '%s' "$GCP_CREDENTIALS_JSON" | base64 -d > gcp-credentials.json
+        run: echo "$GCP_CREDENTIALS_JSON" > gcp-credentials.json
 
       - name: 배포 파일 EC2에 전송
         uses: appleboy/scp-action@master
