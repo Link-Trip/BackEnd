@@ -2,6 +2,7 @@ package com.linktrip.input.http.controller
 
 import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.UpdateTripPlanCommand
+import com.linktrip.common.annotation.Idempotent
 import com.linktrip.application.port.input.UpdateTripPlanItemCommand
 import com.linktrip.input.http.auth.AuthenticatedMember
 import com.linktrip.input.http.config.PaginationDefaults
@@ -66,6 +67,7 @@ class TripPlanController(
         return ApiResponse.ok(TripPlanDetailResponse.from(detail))
     }
 
+//    @Idempotent
     @DeleteMapping("/{tripPlanId}")
     override fun deleteTripPlan(
         @AuthenticatedMember memberId: String,

@@ -2,6 +2,7 @@ package com.linktrip.input.http.controller
 
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.application.port.input.DiscoverChannelUseCase
+import com.linktrip.common.annotation.Idempotent
 import com.linktrip.application.port.input.DiscoverVideoUseCase
 import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
@@ -37,6 +38,7 @@ class VideoController(
     private val discoverChannelUseCase: DiscoverChannelUseCase,
     private val tripPlanUseCase: TripPlanUseCase,
 ) : VideoDocs {
+//    @Idempotent
     @PostMapping("/analyze")
     override fun analyzeVideo(
         @AuthenticatedMember memberId: String,
