@@ -53,30 +53,33 @@ jobs:
           docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest .
           docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
-      - name: docker-compose.prod.yml EC2에 전송
+      - name: GCP credentials 파일 생성
+        run: echo '${{ secrets.GCP_CREDENTIALS_JSON }}' | base64 -d > gcp-credentials.json
+
+      - name: 배포 파일 EC2에 전송
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ec2-user
           key: ${{ secrets.SERVER_KEY }}
-          source: "docker/docker-compose.prod.yml"
+          source: "docker/docker-compose.prod.yml,gcp-credentials.json"
           target: "~/linktrip/"
-          strip_components: 1
+          strip_components: 0
+          overwrite: true
 
-      - name: EC2 배포
+      - name: EC2 파일 정리 및 배포
         uses: appleboy/ssh-action@master
         env:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           DISCORD_WEBHOOK_ERROR_URL: ${{ secrets.DISCORD_WEBHOOK_ERROR_URL }}
           DISCORD_MENTION_USER_ID: ${{ secrets.DISCORD_MENTION_USER_ID }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ec2-user
           key: ${{ secrets.SERVER_KEY }}
-          envs: JWT_SECRET_KEY,DISCORD_WEBHOOK_ERROR_URL,DISCORD_MENTION_USER_ID,GCP_PROJECT_ID,GCP_CREDENTIALS_JSON,YOUTUBE_API_KEY
+          envs: JWT_SECRET_KEY,DISCORD_WEBHOOK_ERROR_URL,DISCORD_MENTION_USER_ID,GCP_PROJECT_ID,YOUTUBE_API_KEY
           script: |
             set -e
 
@@ -85,8 +88,11 @@ jobs:
             # ECR 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com
 
-            # 배포 디렉토리 생성
+            # SCP로 전송된 파일 정리 (strip_components=0이라 docker/ 폴더 안에 들어감)
             mkdir -p $DEPLOY_DIR
+            mv -f $DEPLOY_DIR/docker/docker-compose.prod.yml $DEPLOY_DIR/docker-compose.prod.yml 2>/dev/null || true
+            rmdir $DEPLOY_DIR/docker 2>/dev/null || true
+            chmod 600 $DEPLOY_DIR/gcp-credentials.json
 
             # .env 파일 생성
             cat > $DEPLOY_DIR/.env << EOF
@@ -97,10 +103,6 @@ jobs:
             YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
             EOF
             chmod 600 $DEPLOY_DIR/.env
-
-            # GCP credentials JSON 파일 생성 (base64 디코딩)
-            echo "${GCP_CREDENTIALS_JSON}" | base64 -d > $DEPLOY_DIR/gcp-credentials.json
-            chmod 600 $DEPLOY_DIR/gcp-credentials.json
 
             # docker-compose 배포
             cd $DEPLOY_DIR
