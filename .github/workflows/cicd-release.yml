@@ -87,6 +87,13 @@ jobs:
 
             DEPLOY_DIR=~/linktrip
 
+            # Docker Compose 플러그인 설치 (없으면)
+            if ! docker compose version > /dev/null 2>&1; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m) -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+
             # ECR 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com
 
