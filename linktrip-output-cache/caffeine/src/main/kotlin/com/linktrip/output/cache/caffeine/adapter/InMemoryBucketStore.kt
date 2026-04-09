@@ -16,12 +16,20 @@ class InMemoryBucketStore : RateLimitBucketStore {
             .maximumSize(MAX_BUCKET_SIZE)
             .build<String, Bucket>()
 
-    override fun tryConsume(
+    override fun tryConsumeOrReject(
         key: String,
         policy: RateLimitPolicy,
     ): Boolean {
         val bucket = buckets.get(key) { createBucket(policy) }
         return bucket.tryConsume(1)
+    }
+
+    override fun waitAndConsume(
+        key: String,
+        policy: RateLimitPolicy,
+    ) {
+        val bucket = buckets.get(key) { createBucket(policy) }
+        bucket.asBlocking().consume(1)
     }
 
     private fun createBucket(policy: RateLimitPolicy): Bucket =
@@ -30,6 +38,7 @@ class InMemoryBucketStore : RateLimitBucketStore {
                 Bandwidth.builder()
                     .capacity(policy.capacity)
                     .refillGreedy(policy.refillTokens, policy.refillDuration)
+                    .initialTokens(policy.initialTokens)
                     .build(),
             )
             .build()
