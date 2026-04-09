@@ -90,8 +90,25 @@ class VideoAnalyzeAdapter(
                 }
             }
         } catch (e: Exception) {
-            logger.warn { "자막 추출 실패 (videoId=$videoId): ${e.message}" }
-            null
+            val message = e.message ?: ""
+            when {
+                message.contains("Too Many Requests", ignoreCase = true) ||
+                    message.contains("429", ignoreCase = true) -> {
+                    logger.error { "YouTube 자막 Rate Limit 초과 (videoId=$videoId): ${e.message}" }
+                    throw LinktripException(
+                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                        "YouTube 자막 요청이 Rate Limit에 걸렸습니다.",
+                    )
+                }
+                message.contains("Could not retrieve transcript", ignoreCase = true) -> {
+                    logger.warn { "자막이 존재하지 않는 영상 (videoId=$videoId)" }
+                    null
+                }
+                else -> {
+                    logger.error { "자막 추출 중 알 수 없는 오류 (videoId=$videoId): ${e.message}" }
+                    null
+                }
+            }
         }
 
     private fun analyzeFromTranscript(
