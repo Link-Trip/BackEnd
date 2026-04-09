@@ -116,10 +116,14 @@ jobs:
             # 네트워크 생성 (없으면)
             docker network create linktrip-network 2>/dev/null || true
 
+            # 기존 컨테이너 정리 (docker run으로 만든 잔여 컨테이너)
+            docker stop linktrip-app 2>/dev/null || true
+            docker rm linktrip-app 2>/dev/null || true
+
             # docker-compose 배포
             cd $DEPLOY_DIR
             docker compose -f docker-compose.prod.yml pull app
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
 
             echo ">>> 배포 완료"
