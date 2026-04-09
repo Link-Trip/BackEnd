@@ -16,6 +16,8 @@ interface VideoAnalysisTaskPersistencePort {
         status: VideoAnalysisTaskStatus,
     )
 
+    fun findPendingTasks(): List<VideoAnalysisTask>
+
     fun updateValidAndStatus(
         id: String,
         valid: Boolean,

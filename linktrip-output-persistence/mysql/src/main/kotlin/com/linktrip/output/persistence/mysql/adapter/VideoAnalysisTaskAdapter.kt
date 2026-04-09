@@ -23,6 +23,10 @@ class VideoAnalysisTaskAdapter(
     override fun findByYoutubeUrl(youtubeUrl: String): VideoAnalysisTask? =
         videoAnalysisTaskJpaRepository.findByYoutubeUrl(youtubeUrl)?.toDomain()
 
+    override fun findPendingTasks(): List<VideoAnalysisTask> =
+        videoAnalysisTaskJpaRepository.findByStatusOrderByCreatedAtAsc(VideoAnalysisTaskStatus.PENDING)
+            .map { it.toDomain() }
+
     override fun findById(id: String): VideoAnalysisTask? =
         videoAnalysisTaskJpaRepository.findById(
             id,
