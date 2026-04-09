@@ -113,6 +113,9 @@ jobs:
             EOF
             chmod 600 $DEPLOY_DIR/.env
 
+            # 네트워크 생성 (없으면)
+            docker network create linktrip-network 2>/dev/null || true
+
             # docker-compose 배포
             cd $DEPLOY_DIR
             docker compose -f docker-compose.prod.yml pull app

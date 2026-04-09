@@ -50,4 +50,4 @@ volumes:
 networks:
   linktrip-network:
     name: linktrip-network
-    driver: bridge
+    external: true
