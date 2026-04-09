@@ -34,7 +34,9 @@ class RateLimitInterceptorTest {
         // given
         val request = MockHttpServletRequest("POST", "/video/analyze")
         request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
-        whenever(rateLimitBucketStore.tryConsumeOrReject(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)))
+        whenever(
+            rateLimitBucketStore.tryConsumeOrReject(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)),
+        )
             .thenReturn(true)
 
         // when
@@ -49,7 +51,9 @@ class RateLimitInterceptorTest {
         // given
         val request = MockHttpServletRequest("POST", "/video/analyze")
         request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
-        whenever(rateLimitBucketStore.tryConsumeOrReject(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)))
+        whenever(
+            rateLimitBucketStore.tryConsumeOrReject(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)),
+        )
             .thenReturn(false)
 
         // when & then

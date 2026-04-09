@@ -7,9 +7,9 @@ import com.linktrip.application.port.output.persistence.TripPlanRequestPersisten
 import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import com.linktrip.application.port.output.queue.VideoAnalysisQueuePort
 import com.linktrip.application.port.output.ratelimit.RateLimitBucketStore
+import com.linktrip.application.port.output.ratelimit.RateLimitPolicy
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
-import com.linktrip.application.port.output.ratelimit.RateLimitPolicy
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 

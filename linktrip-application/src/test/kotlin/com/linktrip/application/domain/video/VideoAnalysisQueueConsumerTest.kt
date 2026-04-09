@@ -113,8 +113,14 @@ class VideoAnalysisQueueConsumerTest {
 
         // then
         verify(videoAnalysisTaskPersistencePort).updateValidAndStatus(
-            eq("s1"), eq(false), eq(VideoAnalysisTaskStatus.INVALID),
-            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+            eq("s1"),
+            eq(false),
+            eq(VideoAnalysisTaskStatus.INVALID),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
         )
         verify(videoAnalysisResultSaver, never()).save(
             any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any(), anyOrNull(),

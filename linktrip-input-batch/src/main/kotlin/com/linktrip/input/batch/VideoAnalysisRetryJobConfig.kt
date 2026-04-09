@@ -58,7 +58,10 @@ class VideoAnalysisRetryJobConfig(
             newTasks.forEach { task ->
                 videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl)
             }
-            logger.info { "방치된 PENDING 영상 분석 건 큐 재투입: ${newTasks.size}건 (${staleTasks.size - newTasks.size}건 이미 큐에 존재하여 스킵)" }
+            logger.info {
+                "방치된 PENDING 영상 분석 건 큐 재투입: ${newTasks.size}건 " +
+                    "(${staleTasks.size - newTasks.size}건 이미 큐에 존재하여 스킵)"
+            }
 
             RepeatStatus.FINISHED
         }
