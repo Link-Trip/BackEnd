@@ -3,6 +3,7 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import kotlinx.coroutines.Dispatchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -27,11 +28,15 @@ class PlaceEnrichServiceTest {
     @Mock
     lateinit var travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort
 
+    @Mock
+    lateinit var videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort
+
     private fun createService() =
         PlaceEnrichService(
             googlePlacesPort = googlePlacesPort,
             placeEnrichPersistencePort = placeEnrichPersistencePort,
             travelItineraryItemPersistencePort = travelItineraryItemPersistencePort,
+            videoAnalysisTaskPersistencePort = videoAnalysisTaskPersistencePort,
             placeEnrichDispatcher = Dispatchers.Unconfined,
         )
 

@@ -41,4 +41,19 @@ class SearchKeywordTest {
             "Loaded keywords must have at least 5 items for pickRandom() to work"
         }
     }
+
+    @Test
+    fun `getByRegion으로 아시아를 필터링하면_아시아 키워드만 반환되고_다른 region은 포함되지 않는다`() {
+        // when
+        val asiaKeywords = SearchKeywordLoader.getByRegion("아시아")
+
+        // then
+        assertTrue(asiaKeywords.isNotEmpty())
+        asiaKeywords.forEach { assertEquals("아시아", it.region) }
+    }
+
+    @Test
+    fun `존재하지 않는 region으로 필터링하면_빈 리스트를 반환한다`() {
+        assertTrue(SearchKeywordLoader.getByRegion("남극").isEmpty())
+    }
 }
