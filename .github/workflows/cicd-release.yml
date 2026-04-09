@@ -104,13 +104,11 @@ jobs:
             chmod 600 $DEPLOY_DIR/gcp-credentials.json
 
             # .env 파일 생성
-            cat > $DEPLOY_DIR/.env <<ENVEOF
-JWT_SECRET_KEY=${JWT_SECRET_KEY}
-DISCORD_WEBHOOK_ERROR_URL=${DISCORD_WEBHOOK_ERROR_URL}
-DISCORD_MENTION_USER_ID=${DISCORD_MENTION_USER_ID}
-GCP_PROJECT_ID=${GCP_PROJECT_ID}
-YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
-ENVEOF
+            echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > $DEPLOY_DIR/.env
+            echo "DISCORD_WEBHOOK_ERROR_URL=${DISCORD_WEBHOOK_ERROR_URL}" >> $DEPLOY_DIR/.env
+            echo "DISCORD_MENTION_USER_ID=${DISCORD_MENTION_USER_ID}" >> $DEPLOY_DIR/.env
+            echo "GCP_PROJECT_ID=${GCP_PROJECT_ID}" >> $DEPLOY_DIR/.env
+            echo "YOUTUBE_API_KEY=${YOUTUBE_API_KEY}" >> $DEPLOY_DIR/.env
             chmod 600 $DEPLOY_DIR/.env
 
             # 네트워크 생성 (없으면)
