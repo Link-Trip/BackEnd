@@ -1,6 +1,9 @@
 package com.linktrip.bootstrap
 
+import com.linktrip.application.domain.video.VideoAnalysisQueueConsumer
 import com.linktrip.application.domain.youtube.SearchKeywordLoader
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
+import com.linktrip.application.port.output.queue.VideoAnalysisQueuePort
 import com.linktrip.output.http.properties.GcpProperties
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
@@ -12,11 +15,16 @@ private val logger = KotlinLogging.logger {}
 @Component
 class ApplicationInitializer(
     private val gcpProperties: GcpProperties,
+    private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
+    private val videoAnalysisQueuePort: VideoAnalysisQueuePort,
+    private val videoAnalysisQueueConsumer: VideoAnalysisQueueConsumer,
 ) {
     @PostConstruct
     fun init() {
         validateGcpCredentialsFile()
         loadSearchKeywords()
+        reloadPendingAnalysisTasks()
+        videoAnalysisQueueConsumer.startConsuming()
     }
 
     private fun validateGcpCredentialsFile() {
@@ -32,5 +40,18 @@ class ApplicationInitializer(
         val keywords = SearchKeywordLoader.getAll()
         val elapsed = System.currentTimeMillis() - startTime
         logger.info { "검색 키워드 초기화 완료: ${keywords.size}개, ${elapsed}ms" }
+    }
+
+    private fun reloadPendingAnalysisTasks() {
+        val pendingTasks = videoAnalysisTaskPersistencePort.findPendingTasks()
+        if (pendingTasks.isEmpty()) {
+            logger.info { "재적재할 미처리 영상 분석 건 없음" }
+            return
+        }
+
+        pendingTasks.forEach { task ->
+            videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl)
+        }
+        logger.info { "미처리 영상 분석 건 큐 재적재 완료: ${pendingTasks.size}건" }
     }
 }
