@@ -1,0 +1,29 @@
+services:
+  app:
+    image: 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com/linktrip:latest
+    container_name: linktrip-app
+    restart: unless-stopped
+    expose:
+      - "8080"
+    mem_limit: 1280m
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=Asia/Seoul
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
+      - DISCORD_WEBHOOK_ERROR_URL=${DISCORD_WEBHOOK_ERROR_URL}
+      - DISCORD_MENTION_USER_ID=${DISCORD_MENTION_USER_ID}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_CREDENTIALS_PATH=/app/config/gcp-credentials.json
+      - GCP_VERTEX_AI_LOCATION=us-central1
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+    volumes:
+      - ./gcp-credentials.json:/app/config/gcp-credentials.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - linktrip-network
+
+networks:
+  linktrip-network:
+    name: linktrip-network
+    external: true

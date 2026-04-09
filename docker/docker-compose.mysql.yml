@@ -12,11 +12,14 @@ services:
       --collation-server=utf8mb4_0900_ai_ci
       --default-time-zone=+09:00
     volumes:
-      - ./mysql/data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
       - linktrip-network
+
+volumes:
+  mysql-data:
 
 networks:
   linktrip-network:
