@@ -67,6 +67,9 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 # Google Cloud
 google-genai = { group = "com.google.genai", name = "google-genai", version = "0.7.0" }
 
+# YouTube Transcript
+youtube-transcript-api = { group = "io.github.thoroldvix", name = "youtube-transcript-api", version = "0.4.0" }
+
 # Storage (AWS S3)
 aws-sdk-s3 = { group = "com.amazonaws", name = "aws-java-sdk-s3", version = "1.11.238" }
 
@@ -93,5 +96,5 @@ adaptor-persistence-mysql = ["spring-boot-starter-jpa", "mysql"]
 adaptor-cache-redis = ["spring-boot-starter-cache", "spring-boot-starter-redis"]
 adaptor-cache-caffeine = ["spring-boot-starter-cache", "caffeine", "bucket4j-core"]
 adaptor-storage-aws = ["spring-web", "aws-sdk-s3"]
-adaptor-output-http = ["spring-web", "google-genai"]
+adaptor-output-http = ["spring-web", "google-genai", "youtube-transcript-api"]
 adaptor-input-batch = ["spring-boot-starter-batch"]
