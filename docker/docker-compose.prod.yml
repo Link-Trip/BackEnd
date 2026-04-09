@@ -3,8 +3,8 @@ services:
     image: 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com/linktrip:latest
     container_name: linktrip-app
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     mem_limit: 1280m
     environment:
       - SPRING_PROFILES_ACTIVE=prod
