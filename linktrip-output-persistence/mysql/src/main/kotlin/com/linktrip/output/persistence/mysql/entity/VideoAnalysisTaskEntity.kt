@@ -41,6 +41,8 @@ class VideoAnalysisTaskEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "cost_basis", length = 20)
     var costBasis: CostBasis? = null,
+    @Column(name = "destination", length = 100)
+    var destination: String? = null,
 ) : BaseTimeEntity() {
     @PreRemove
     fun preventDeletion() {
@@ -61,6 +63,7 @@ class VideoAnalysisTaskEntity(
             estimatedMinCost = this.estimatedMinCost,
             estimatedMaxCost = this.estimatedMaxCost,
             costBasis = this.costBasis,
+            destination = this.destination,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
         )
@@ -76,6 +79,7 @@ class VideoAnalysisTaskEntity(
                 estimatedMinCost = videoAnalysisTask.estimatedMinCost,
                 estimatedMaxCost = videoAnalysisTask.estimatedMaxCost,
                 costBasis = videoAnalysisTask.costBasis,
+                destination = videoAnalysisTask.destination,
             )
     }
 }

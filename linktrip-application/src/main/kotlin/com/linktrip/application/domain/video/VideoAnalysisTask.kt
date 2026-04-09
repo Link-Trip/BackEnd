@@ -14,6 +14,7 @@ data class VideoAnalysisTask(
     val estimatedMinCost: Long? = null,
     val estimatedMaxCost: Long? = null,
     val costBasis: CostBasis? = null,
+    val destination: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {

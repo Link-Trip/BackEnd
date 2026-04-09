@@ -58,6 +58,7 @@ class VideoAnalyzeEventListener(
                 costBasis = result.costBasis,
                 hashtags = result.hashtags,
                 timelines = timelines,
+                destination = result.destination,
             )
 
             val analyzeElapsed = System.currentTimeMillis() - startTime

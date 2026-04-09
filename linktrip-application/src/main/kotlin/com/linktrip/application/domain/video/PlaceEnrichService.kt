@@ -3,6 +3,7 @@ package com.linktrip.application.domain.video
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
+import com.linktrip.application.port.output.persistence.VideoAnalysisTaskPersistencePort
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -17,6 +18,7 @@ class PlaceEnrichService(
     private val googlePlacesPort: GooglePlacesPort,
     private val placeEnrichPersistencePort: PlaceEnrichPersistencePort,
     private val travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort,
+    private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
     private val placeEnrichDispatcher: CoroutineDispatcher,
 ) {
     fun enrichPlaces(
@@ -70,7 +72,8 @@ class PlaceEnrichService(
 
         videoAnalysisTaskIds.forEach { videoAnalysisTaskId ->
             try {
-                enrichPlaces(videoAnalysisTaskId)
+                val destination = videoAnalysisTaskPersistencePort.findById(videoAnalysisTaskId)?.destination
+                enrichPlaces(videoAnalysisTaskId, destination)
             } catch (e: Exception) {
                 logger.error(e) { "장소 보강 리트라이 실패: videoAnalysisTaskId=$videoAnalysisTaskId" }
             }

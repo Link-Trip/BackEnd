@@ -49,6 +49,7 @@ class VideoAnalysisTaskAdapter(
         estimatedMinCost: Long?,
         estimatedMaxCost: Long?,
         costBasis: CostBasis?,
+        destination: String?,
     ) {
         val entity =
             videoAnalysisTaskJpaRepository.findById(id).orElseThrow {
@@ -60,5 +61,6 @@ class VideoAnalysisTaskAdapter(
         entity.estimatedMinCost = estimatedMinCost
         entity.estimatedMaxCost = estimatedMaxCost
         entity.costBasis = costBasis
+        entity.destination = destination
     }
 }
