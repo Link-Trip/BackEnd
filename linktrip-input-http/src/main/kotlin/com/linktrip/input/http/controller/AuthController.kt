@@ -1,6 +1,7 @@
 package com.linktrip.input.http.controller
 
 import com.linktrip.application.port.input.AuthUseCase
+import com.linktrip.input.http.controller.docs.AuthDocs
 import com.linktrip.input.http.controller.dto.request.AuthRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.AuthResponse
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 class AuthController(
     private val authUseCase: AuthUseCase,
-) {
+) : AuthDocs {
     @PostMapping("/login")
-    fun login(
+    override fun login(
         @Validated @RequestBody request: AuthRequest,
     ): ApiResponse<AuthResponse> {
         val result = authUseCase.authenticateBySerial(request.serialNumber)

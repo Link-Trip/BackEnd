@@ -41,14 +41,36 @@ interface VideoDocs {
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "400",
-                description = "잘못된 YouTube URL 형식",
+                description = "잘못된 YouTube URL 형식 또는 자막 없는 영상",
+                content = [
+                    Content(
+                        examples = [
+                            ExampleObject(
+                                name = "잘못된 URL",
+                                value =
+                                    """{"code":"BAD_REQUEST_YOUTUBE_URL",""" +
+                                        """"message":"유효하지 않은 YouTube URL입니다."}""",
+                            ),
+                            ExampleObject(
+                                name = "자막 없는 영상",
+                                value =
+                                    """{"code":"BAD_REQUEST_VIDEO",""" +
+                                        """"message":"자막을 추출할 수 없는 영상입니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "429",
+                description = "API 요청 횟수 초과",
                 content = [
                     Content(
                         examples = [
                             ExampleObject(
                                 value =
-                                    """{"code":"BAD_REQUEST_YOUTUBE_URL",""" +
-                                        """"message":"유효하지 않은 YouTube URL입니다."}""",
+                                    """{"code":"TOO_MANY_REQUESTS",""" +
+                                        """"message":"요청이 너무 많습니다. 잠시 후 다시 시도해주세요."}""",
                             ),
                         ],
                     ),

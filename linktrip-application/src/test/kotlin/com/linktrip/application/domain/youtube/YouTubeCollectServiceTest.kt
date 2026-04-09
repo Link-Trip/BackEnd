@@ -121,4 +121,94 @@ class YouTubeCollectServiceTest {
         // then - 예외가 전파되지 않고, 5개 키워드 모두 searchVideos가 호출된다
         verify(youTubePort, times(5)).searchVideos(any(), any())
     }
+
+    @Test
+    fun `collectVideosByRegion을 호출하면_해당 region의 키워드를 batchSize만큼 순차 처리한다`() {
+        // given - 아시아 키워드가 존재하고, 검색 결과는 빈 상태
+        whenever(youTubePort.searchVideos(any(), any())).thenReturn(emptyList())
+
+        // when - 아시아 region으로 2개씩 수집한다
+        service.collectVideosByRegion("아시아", 2)
+
+        // then - 정확히 2개의 키워드로 searchVideos가 호출된다
+        verify(youTubePort, times(2)).searchVideos(any(), any())
+    }
+
+    @Test
+    fun `collectVideosByRegion을 2번 연속 호출하면_이전 위치 다음부터 이어서 처리한다`() {
+        // given - 검색 결과는 빈 상태
+        whenever(youTubePort.searchVideos(any(), any())).thenReturn(emptyList())
+
+        // when - 아시아 region으로 2번 연속 수집한다
+        service.collectVideosByRegion("아시아", 2)
+        service.collectVideosByRegion("아시아", 2)
+
+        // then - 총 4개의 키워드로 searchVideos가 호출된다 (2 + 2)
+        verify(youTubePort, times(4)).searchVideos(any(), any())
+    }
+
+    @Test
+    fun `존재하지 않는 region으로 collectVideosByRegion을 호출하면_아무 처리도 하지 않는다`() {
+        // when - 존재하지 않는 region으로 수집한다
+        service.collectVideosByRegion("남극")
+
+        // then - searchVideos가 호출되지 않는다
+        verify(youTubePort, never()).searchVideos(any(), any())
+    }
+
+    @Test
+    fun `collectVideosByRegion에서 신규 영상을 발견하면_region 메타데이터를 태깅하여 저장한다`() {
+        // given - 검색 결과와 신규 영상이 존재
+        val searchResult =
+            YouTubeSearchResult(
+                videoId = "v-asia",
+                title = "도쿄 여행",
+                description = "desc",
+                thumbnailUrl = "thumb",
+                channelId = "ch1",
+                channelTitle = "channel",
+                publishedAt = "2024-01-01",
+            )
+        whenever(youTubePort.searchVideos(any(), any())).thenReturn(listOf(searchResult))
+        whenever(youTubeVideoPersistencePort.findExistingVideoIds(any())).thenReturn(emptySet())
+
+        val videoDetail =
+            YouTubeVideoMeta(
+                id = "id-1",
+                videoId = "v-asia",
+                title = "도쿄 여행",
+                description = "desc",
+                thumbnailUrl = "thumb",
+                channelId = "ch1",
+                channelTitle = "channel",
+                viewCount = 500,
+                likeCount = 50,
+                duration = "PT5M",
+                publishedAt = "2024-01-01",
+                region = "",
+                country = "",
+                city = null,
+                theme = null,
+            )
+        whenever(youTubePort.getVideoDetails(any())).thenReturn(listOf(videoDetail))
+
+        // when - 아시아 region으로 1개씩 수집한다
+        service.collectVideosByRegion("아시아", 1)
+
+        // then - 저장이 수행된다
+        verify(youTubeVideoPersistencePort).saveAll(any())
+    }
+
+    @Test
+    fun `collectVideosByRegion에서 batchSize가 키워드 수보다 크면_전체 키워드를 순환하며 처리한다`() {
+        // given - 검색 결과는 빈 상태
+        whenever(youTubePort.searchVideos(any(), any())).thenReturn(emptyList())
+        val asiaKeywordCount = SearchKeywordLoader.getByRegion("아시아").size
+
+        // when - batchSize를 키워드 수 + 2로 설정하여 수집한다
+        service.collectVideosByRegion("아시아", asiaKeywordCount + 2)
+
+        // then - 키워드 수 + 2만큼 호출된다 (순환하여 처음부터 다시)
+        verify(youTubePort, times(asiaKeywordCount + 2)).searchVideos(any(), any())
+    }
 }

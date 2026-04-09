@@ -12,10 +12,37 @@ class YouTubeCollectService(
     private val youTubePort: YouTubePort,
     private val youTubeVideoPersistencePort: YouTubeVideoPersistencePort,
 ) {
+    private val regionIndexMap = mutableMapOf<String, Int>()
+
     fun collectVideos() {
         val keywords = SearchKeywordLoader.pickRandom()
-        logger.info { "YouTube 영상 수집 시작 - 선택된 키워드: ${keywords.map { it.query }}" }
+        collectByKeywords(keywords)
+    }
 
+    fun collectVideosByRegion(
+        region: String,
+        batchSize: Int = DEFAULT_BATCH_SIZE,
+    ) {
+        val keywords = SearchKeywordLoader.getByRegion(region)
+        if (keywords.isEmpty()) {
+            logger.warn { "해당 region의 키워드가 없습니다: $region" }
+            return
+        }
+
+        val currentIndex = regionIndexMap.getOrDefault(region, 0)
+        val selectedKeywords = pickNextBatch(keywords, currentIndex, batchSize)
+
+        val nextIndex = (currentIndex + batchSize) % keywords.size
+        regionIndexMap[region] = nextIndex
+
+        logger.info {
+            "YouTube 영상 수집 시작 [$region] - 인덱스 $currentIndex → $nextIndex, " +
+                "키워드: ${selectedKeywords.map { it.query }}"
+        }
+        collectByKeywords(selectedKeywords)
+    }
+
+    private fun collectByKeywords(keywords: List<SearchKeyword>) {
         val allVideos = mutableListOf<YouTubeVideoMeta>()
 
         keywords.forEach { keyword ->
@@ -61,7 +88,20 @@ class YouTubeCollectService(
         }
     }
 
+    private fun pickNextBatch(
+        keywords: List<SearchKeyword>,
+        startIndex: Int,
+        batchSize: Int,
+    ): List<SearchKeyword> {
+        val result = mutableListOf<SearchKeyword>()
+        for (i in 0 until batchSize) {
+            result.add(keywords[(startIndex + i) % keywords.size])
+        }
+        return result
+    }
+
     companion object {
         private const val MAX_RESULTS_PER_KEYWORD = 10
+        private const val DEFAULT_BATCH_SIZE = 4
     }
 }

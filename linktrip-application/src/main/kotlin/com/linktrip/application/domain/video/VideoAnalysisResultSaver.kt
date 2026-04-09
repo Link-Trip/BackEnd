@@ -24,6 +24,7 @@ class VideoAnalysisResultSaver(
         costBasis: CostBasis? = null,
         hashtags: List<String> = emptyList(),
         timelines: List<VideoTimeline> = emptyList(),
+        destination: String? = null,
     ) {
         travelItineraryItemPersistencePort.saveAll(itineraryItems)
         videoTimelinePersistencePort.saveAll(timelines)
@@ -35,6 +36,7 @@ class VideoAnalysisResultSaver(
             estimatedMinCost = estimatedMinCost,
             estimatedMaxCost = estimatedMaxCost,
             costBasis = costBasis,
+            destination = destination,
         )
         saveHashtags(videoAnalysisTaskId, hashtags)
     }

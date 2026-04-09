@@ -33,7 +33,11 @@ class YouTubeCollectJobConfig(
     @Bean
     fun youTubeCollectTasklet(): Tasklet =
         Tasklet { _, _ ->
-            youTubeCollectService.collectVideos()
+            youTubeCollectService.collectVideosByRegion(COLLECT_REGION)
             RepeatStatus.FINISHED
         }
+
+    companion object {
+        private const val COLLECT_REGION = "아시아"
+    }
 }

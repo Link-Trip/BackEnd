@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.domain.trip.TripPlanRequest
 import com.linktrip.application.domain.trip.TripPlanService
 import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
 import com.linktrip.application.port.output.external.VideoAnalyzePort
@@ -62,7 +63,7 @@ class VideoAnalyzeEventListenerTest {
         inOrder.verify(videoAnalyzePort).analyze("https://youtube.com/1")
         inOrder.verify(
             videoAnalysisResultSaver,
-        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
+        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any(), anyOrNull())
         inOrder.verify(placeEnrichService).enrichPlaces("s1", "도쿄")
         inOrder.verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
     }
@@ -98,11 +99,12 @@ class VideoAnalyzeEventListenerTest {
             anyOrNull(),
             anyOrNull(),
             anyOrNull(),
+            anyOrNull(),
         )
         verify(
             videoAnalysisResultSaver,
             never(),
-        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
+        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any(), anyOrNull())
         verify(placeEnrichService, never()).enrichPlaces(any(), anyOrNull())
         verify(videoAnalysisNotificationPort, never()).notifyAnalysisComplete(any(), any())
     }
@@ -121,7 +123,7 @@ class VideoAnalyzeEventListenerTest {
         verify(
             videoAnalysisResultSaver,
             never(),
-        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any())
+        ).save(any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any(), anyOrNull())
     }
 
     @Test
@@ -174,6 +176,7 @@ class VideoAnalyzeEventListenerTest {
             eq(CostBasis.ITEM_ESTIMATED),
             eq(listOf("문화탐방", "쇼핑")),
             any(),
+            anyOrNull(),
         )
 
         val savedItems = itemsCaptor.firstValue
@@ -210,6 +213,7 @@ class VideoAnalyzeEventListenerTest {
             anyOrNull(),
             any(),
             any(),
+            anyOrNull(),
         )
     }
 
@@ -242,6 +246,7 @@ class VideoAnalyzeEventListenerTest {
             anyOrNull(),
             any(),
             timelinesCaptor.capture(),
+            anyOrNull(),
         )
 
         val savedTimelines = timelinesCaptor.firstValue
@@ -276,18 +281,96 @@ class VideoAnalyzeEventListenerTest {
             anyOrNull(),
             any(),
             timelinesCaptor.capture(),
+            anyOrNull(),
         )
         assertEquals(0, timelinesCaptor.firstValue.size)
     }
 
+    @Test
+    fun `장소 보강 중 예외가 발생해도_분석 결과는 COMPLETED 상태로 유지되고_알림이 전송된다`() {
+        // given - 분석은 성공하지만, 장소 보강에서 예외 발생
+        val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
+        val analysisResult = validAnalysisResult(destination = "도쿄")
+        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+        whenever(tripPlanRequestPort.findUnprocessedByVideoAnalysisTaskId("s1"))
+            .thenReturn(emptyList())
+        whenever(placeEnrichService.enrichPlaces("s1", "도쿄"))
+            .thenThrow(RuntimeException("Google Places API 오류"))
+        whenever(tripPlanRequestPort.findMemberIdsByVideoAnalysisTaskId("s1"))
+            .thenReturn(emptyList())
+
+        // when - 영상 분석을 실행한다
+        listener.handle(event)
+
+        // then - 분석 결과는 저장되고, 장소 보강 실패에도 알림이 전송된다
+        verify(videoAnalysisResultSaver).save(
+            any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any(), anyOrNull(),
+        )
+        verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
+        // updateStatus(FAILED)는 호출되지 않는다
+        verify(videoAnalysisTaskPersistencePort, never()).updateStatus(any(), any())
+    }
+
+    @Test
+    fun `여행 계획 자동 생성 시 3개 요청 중 1개가 실패하면_성공한 2개만 processed 표시되고_전체 저장된다`() {
+        // given - 미처리 요청 3개, 두 번째에서 예외 발생
+        val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
+        val analysisResult = validAnalysisResult(destination = "도쿄")
+        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+
+        val request1 = TripPlanRequest.create("member-1", "s1")
+        val request2 = TripPlanRequest.create("member-2", "s1")
+        val request3 = TripPlanRequest.create("member-3", "s1")
+        whenever(tripPlanRequestPort.findUnprocessedByVideoAnalysisTaskId("s1"))
+            .thenReturn(listOf(request1, request2, request3))
+
+        var callCount = 0
+        whenever(tripPlanService.createFromAnalysisIfAbsent(any(), any(), any())).thenAnswer {
+            callCount++
+            if (callCount == 2) throw RuntimeException("DB 오류")
+        }
+        whenever(tripPlanRequestPort.findMemberIdsByVideoAnalysisTaskId("s1"))
+            .thenReturn(listOf("member-1", "member-3"))
+
+        // when
+        listener.handle(event)
+
+        // then - 성공한 요청만 processed, 실패한 요청은 미처리, 전체 saveAll 호출
+        assertEquals(true, request1.processed)
+        assertEquals(false, request2.processed)
+        assertEquals(true, request3.processed)
+        verify(tripPlanRequestPort).saveAll(listOf(request1, request2, request3))
+    }
+
+    @Test
+    fun `title과 destination이 모두 null인 분석 결과이면_여행 계획 제목이 기본값으로 생성된다`() {
+        // given - title과 destination이 모두 null인 분석 결과
+        val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
+        val analysisResult = validAnalysisResult(destination = null, title = null)
+        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+
+        val request = TripPlanRequest.create("member-1", "s1")
+        whenever(tripPlanRequestPort.findUnprocessedByVideoAnalysisTaskId("s1"))
+            .thenReturn(listOf(request))
+        whenever(tripPlanRequestPort.findMemberIdsByVideoAnalysisTaskId("s1"))
+            .thenReturn(listOf("member-1"))
+
+        // when
+        listener.handle(event)
+
+        // then - 여행 계획 제목이 "여행 계획" 기본값으로 전달된다
+        verify(tripPlanService).createFromAnalysisIfAbsent("member-1", "s1", "여행 계획")
+    }
+
     private fun validAnalysisResult(
-        destination: String = "도쿄",
+        destination: String? = "도쿄",
         summary: String? = null,
+        title: String? = "도쿄 3박 4일 여행",
         timeline: List<VideoAnalysisResult.TimelineItem> = emptyList(),
     ) = VideoAnalysisResult(
         valid = true,
         destination = destination,
-        title = "도쿄 3박 4일 여행",
+        title = title,
         summary = summary,
         estimatedMinCost = 800000,
         estimatedMaxCost = 1200000,

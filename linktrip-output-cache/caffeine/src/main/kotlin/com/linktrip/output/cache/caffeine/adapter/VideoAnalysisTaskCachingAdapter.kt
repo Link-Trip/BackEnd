@@ -45,7 +45,17 @@ class VideoAnalysisTaskCachingAdapter(
         estimatedMinCost: Long?,
         estimatedMaxCost: Long?,
         costBasis: CostBasis?,
+        destination: String?,
     ) {
-        delegate.updateValidAndStatus(id, valid, status, summary, estimatedMinCost, estimatedMaxCost, costBasis)
+        delegate.updateValidAndStatus(
+            id,
+            valid,
+            status,
+            summary,
+            estimatedMinCost,
+            estimatedMaxCost,
+            costBasis,
+            destination,
+        )
     }
 }

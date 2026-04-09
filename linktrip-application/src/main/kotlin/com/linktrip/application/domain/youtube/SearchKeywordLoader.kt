@@ -11,6 +11,8 @@ object SearchKeywordLoader {
 
     fun getAll(): List<SearchKeyword> = keywords
 
+    fun getByRegion(region: String): List<SearchKeyword> = keywords.filter { it.region == region }
+
     fun pickRandom(count: Int = RANDOM_PICK_COUNT): List<SearchKeyword> = keywords.shuffled().take(count)
 
     private fun load(): List<SearchKeyword> {

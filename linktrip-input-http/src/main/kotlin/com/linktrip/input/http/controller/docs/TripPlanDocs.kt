@@ -120,10 +120,32 @@ interface TripPlanDocs {
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "403",
                 description = "본인의 여행 계획이 아닌 경우",
+                content = [
+                    Content(
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"FORBIDDEN_TRIP_PLAN",""" +
+                                        """"message":"해당 여행 계획에 접근할 수 없습니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 여행 계획 또는 아이템",
+                content = [
+                    Content(
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"NOT_FOUND_TRIP_PLAN",""" +
+                                        """"message":"여행 계획을 찾을 수 없습니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
         ],
     )
@@ -147,10 +169,32 @@ interface TripPlanDocs {
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "403",
                 description = "본인의 여행 계획이 아닌 경우",
+                content = [
+                    Content(
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"FORBIDDEN_TRIP_PLAN",""" +
+                                        """"message":"해당 여행 계획에 접근할 수 없습니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 여행 계획",
+                content = [
+                    Content(
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"NOT_FOUND_TRIP_PLAN",""" +
+                                        """"message":"여행 계획을 찾을 수 없습니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
         ],
     )

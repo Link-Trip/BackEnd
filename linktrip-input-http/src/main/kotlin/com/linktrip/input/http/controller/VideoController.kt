@@ -54,7 +54,7 @@ class VideoController(
         return ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(task))
     }
 
-    @GetMapping("/{videoAnalysisTaskId}/schedule")
+    @GetMapping("/schedule/{videoAnalysisTaskId}")
     override fun getVideoSchedule(
         @AuthenticatedMember memberId: String,
         @PathVariable videoAnalysisTaskId: String,

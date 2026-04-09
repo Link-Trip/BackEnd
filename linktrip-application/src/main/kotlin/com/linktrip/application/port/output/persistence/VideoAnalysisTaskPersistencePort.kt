@@ -24,5 +24,6 @@ interface VideoAnalysisTaskPersistencePort {
         estimatedMinCost: Long? = null,
         estimatedMaxCost: Long? = null,
         costBasis: CostBasis? = null,
+        destination: String? = null,
     )
 }
