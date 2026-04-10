@@ -19,12 +19,12 @@ class OpenApiConfiguration {
 
         val prod =
             Server()
-                .url("https://linktrip.cloud")
+                .url("https://linktrip.cloud/api")
                 .description("Production")
 
         val local =
             Server()
-                .url("http://localhost:8080")
+                .url("http://localhost:8080/api")
                 .description("Local")
 
         return OpenAPI()
