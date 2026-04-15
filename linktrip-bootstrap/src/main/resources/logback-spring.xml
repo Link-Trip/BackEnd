@@ -13,8 +13,10 @@
     <!-- dev 프로필 -->
     <springProfile name="dev">
         <logger name="com.linktrip" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
-        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>
+        <logger name="org.hibernate.stat" level="WARN"/>
+        <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/>
         <root level="INFO">
             <appender-ref ref="STDOUT"/>
         </root>
