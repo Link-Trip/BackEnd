@@ -80,5 +80,9 @@ class ProxyYoutubeClient(
     companion object {
         private const val PROXY_HOST = "p.webshare.io"
         private const val PROXY_PORT = 80
+
+        init {
+            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "")
+        }
     }
 }

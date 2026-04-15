@@ -9,6 +9,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - TZ=Asia/Seoul
+      - JAVA_OPTS=-Djdk.http.auth.tunneling.disabledSchemes=
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
