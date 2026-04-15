@@ -27,6 +27,13 @@ class VideoAnalysisTaskAdapter(
         videoAnalysisTaskJpaRepository.findByStatusOrderByCreatedAtAsc(VideoAnalysisTaskStatus.PENDING)
             .map { it.toDomain() }
 
+    override fun findReloadableTasks(): List<VideoAnalysisTask> =
+        videoAnalysisTaskJpaRepository
+            .findByStatusInOrderByCreatedAtAsc(
+                listOf(VideoAnalysisTaskStatus.PENDING, VideoAnalysisTaskStatus.PROCESSING),
+            )
+            .map { it.toDomain() }
+
     override fun findById(id: String): VideoAnalysisTask? =
         videoAnalysisTaskJpaRepository.findById(
             id,

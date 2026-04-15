@@ -43,15 +43,15 @@ class ApplicationInitializer(
     }
 
     private fun reloadPendingAnalysisTasks() {
-        val pendingTasks = videoAnalysisTaskPersistencePort.findPendingTasks()
-        if (pendingTasks.isEmpty()) {
+        val tasks = videoAnalysisTaskPersistencePort.findReloadableTasks()
+        if (tasks.isEmpty()) {
             logger.info { "재적재할 미처리 영상 분석 건 없음" }
             return
         }
 
-        pendingTasks.forEach { task ->
+        tasks.forEach { task ->
             videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl)
         }
-        logger.info { "미처리 영상 분석 건 큐 재적재 완료: ${pendingTasks.size}건" }
+        logger.info { "미처리 영상 분석 건 큐 재적재 완료: ${tasks.size}건" }
     }
 }

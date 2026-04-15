@@ -8,4 +8,6 @@ interface VideoAnalysisTaskJpaRepository : JpaRepository<VideoAnalysisTaskEntity
     fun findByYoutubeUrl(youtubeUrl: String): VideoAnalysisTaskEntity?
 
     fun findByStatusOrderByCreatedAtAsc(status: VideoAnalysisTaskStatus): List<VideoAnalysisTaskEntity>
+
+    fun findByStatusInOrderByCreatedAtAsc(statuses: Collection<VideoAnalysisTaskStatus>): List<VideoAnalysisTaskEntity>
 }

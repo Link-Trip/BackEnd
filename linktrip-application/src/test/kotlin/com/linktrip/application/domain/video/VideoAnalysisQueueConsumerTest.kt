@@ -68,7 +68,9 @@ class VideoAnalysisQueueConsumerTest {
         // given
         val consumer = createConsumer()
         val analysisResult = validAnalysisResult(destination = "도쿄")
-        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+        whenever(videoAnalyzePort.extractTranscript("https://youtube.com/1")).thenReturn("transcript")
+        whenever(videoAnalyzePort.analyzeFromTranscript("transcript", "https://youtube.com/1"))
+            .thenReturn(analysisResult)
         whenever(tripPlanRequestPort.findUnprocessedByVideoAnalysisTaskId("s1"))
             .thenReturn(emptyList())
         whenever(tripPlanRequestPort.findMemberIdsByVideoAnalysisTaskId("s1"))
@@ -104,7 +106,9 @@ class VideoAnalysisQueueConsumerTest {
                 days = emptyList(),
                 timeline = emptyList(),
             )
-        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(invalidResult)
+        whenever(videoAnalyzePort.extractTranscript("https://youtube.com/1")).thenReturn("transcript")
+        whenever(videoAnalyzePort.analyzeFromTranscript("transcript", "https://youtube.com/1"))
+            .thenReturn(invalidResult)
 
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
@@ -131,7 +135,9 @@ class VideoAnalysisQueueConsumerTest {
     fun `AI 분석 중 예외가 발생하면_FAILED 상태로 변경한다`() {
         // given
         val consumer = createConsumer()
-        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenThrow(RuntimeException("AI 오류"))
+        whenever(videoAnalyzePort.extractTranscript("https://youtube.com/1")).thenReturn("transcript")
+        whenever(videoAnalyzePort.analyzeFromTranscript("transcript", "https://youtube.com/1"))
+            .thenThrow(RuntimeException("AI 오류"))
 
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
@@ -147,7 +153,9 @@ class VideoAnalysisQueueConsumerTest {
         // given
         val consumer = createConsumer()
         val analysisResult = validAnalysisResult(destination = "도쿄")
-        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+        whenever(videoAnalyzePort.extractTranscript("https://youtube.com/1")).thenReturn("transcript")
+        whenever(videoAnalyzePort.analyzeFromTranscript("transcript", "https://youtube.com/1"))
+            .thenReturn(analysisResult)
         whenever(tripPlanRequestPort.findUnprocessedByVideoAnalysisTaskId("s1"))
             .thenReturn(emptyList())
         whenever(placeEnrichService.enrichPlaces("s1", "도쿄"))
@@ -165,7 +173,10 @@ class VideoAnalysisQueueConsumerTest {
             any(), any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), any(), any(), anyOrNull(),
         )
         verify(videoAnalysisNotificationPort).notifyAnalysisComplete(any(), any())
-        verify(videoAnalysisTaskPersistencePort, never()).updateStatus(any(), any())
+        // processAnalysis 진입 시 PROCESSING 으로는 전환되지만, 실패(FAILED) 나 재시도(PENDING) 로는 돌아가지 않아야 한다.
+        verify(videoAnalysisTaskPersistencePort).updateStatus("s1", VideoAnalysisTaskStatus.PROCESSING)
+        verify(videoAnalysisTaskPersistencePort, never()).updateStatus(eq("s1"), eq(VideoAnalysisTaskStatus.FAILED))
+        verify(videoAnalysisTaskPersistencePort, never()).updateStatus(eq("s1"), eq(VideoAnalysisTaskStatus.PENDING))
     }
 
     @Test
@@ -173,7 +184,9 @@ class VideoAnalysisQueueConsumerTest {
         // given
         val consumer = createConsumer()
         val analysisResult = validAnalysisResult(destination = "도쿄")
-        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+        whenever(videoAnalyzePort.extractTranscript("https://youtube.com/1")).thenReturn("transcript")
+        whenever(videoAnalyzePort.analyzeFromTranscript("transcript", "https://youtube.com/1"))
+            .thenReturn(analysisResult)
 
         val request1 = TripPlanRequest.create("member-1", "s1")
         val request2 = TripPlanRequest.create("member-2", "s1")
@@ -235,7 +248,9 @@ class VideoAnalysisQueueConsumerTest {
                     ),
                 timeline = emptyList(),
             )
-        whenever(videoAnalyzePort.analyze("https://youtube.com/1")).thenReturn(analysisResult)
+        whenever(videoAnalyzePort.extractTranscript("https://youtube.com/1")).thenReturn("transcript")
+        whenever(videoAnalyzePort.analyzeFromTranscript("transcript", "https://youtube.com/1"))
+            .thenReturn(analysisResult)
         whenever(tripPlanRequestPort.findUnprocessedByVideoAnalysisTaskId("s1"))
             .thenReturn(emptyList())
         whenever(tripPlanRequestPort.findMemberIdsByVideoAnalysisTaskId("s1"))

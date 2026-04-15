@@ -39,7 +39,6 @@ class VideoAnalysisQueueConsumer(
         while (!Thread.currentThread().isInterrupted) {
             try {
                 val event = videoAnalysisQueuePort.dequeue() ?: continue
-                rateLimitBucketStore.waitAndConsume(RATE_LIMIT_KEY, RateLimitPolicy.GEMINI_API)
                 processAnalysis(event)
             } catch (_: InterruptedException) {
                 Thread.currentThread().interrupt()
@@ -55,11 +54,22 @@ class VideoAnalysisQueueConsumer(
         val startTime = System.currentTimeMillis()
         logger.info { "영상 분석 시작: id=${event.videoAnalysisTaskId}, url=${event.youtubeUrl}" }
 
+        // 처리 중 상태로 전환하여 재시도 배치가 중복 재투입하지 못하게 한다.
+        videoAnalysisTaskPersistencePort.updateStatus(
+            event.videoAnalysisTaskId,
+            VideoAnalysisTaskStatus.PROCESSING,
+        )
+
         val destination: String?
         val title: String?
 
         try {
-            val result = videoAnalyzePort.analyze(event.youtubeUrl)
+            // 1단계: 자막 추출 (YouTube). 이 단계 실패는 Gemini 토큰을 소모하지 않는다.
+            val transcript = videoAnalyzePort.extractTranscript(event.youtubeUrl)
+
+            // 2단계: Gemini 분석. 실제 Gemini 호출 직전에만 토큰을 차감한다.
+            rateLimitBucketStore.waitAndConsume(RATE_LIMIT_KEY, RateLimitPolicy.GEMINI_API)
+            val result = videoAnalyzePort.analyzeFromTranscript(transcript, event.youtubeUrl)
 
             if (!result.valid) {
                 logger.warn { "유효하지 않은 영상: id=${event.videoAnalysisTaskId}" }
@@ -96,6 +106,11 @@ class VideoAnalysisQueueConsumer(
             when (e.exceptionCode) {
                 ExceptionCode.BAD_GATEWAY_YOUTUBE -> {
                     logger.warn { "YouTube Rate Limit으로 재시도 큐 등록: id=${event.videoAnalysisTaskId}" }
+                    // 재시도 배치가 주울 수 있도록 PENDING 으로 되돌린다.
+                    videoAnalysisTaskPersistencePort.updateStatus(
+                        event.videoAnalysisTaskId,
+                        VideoAnalysisTaskStatus.PENDING,
+                    )
                     videoAnalysisQueuePort.enqueue(event.videoAnalysisTaskId, event.youtubeUrl)
                 }
                 ExceptionCode.BAD_REQUEST_VIDEO -> {

@@ -60,7 +60,7 @@ class VideoAnalyzeAdapter(
             .onFailure { logger.warn(it) { "Gemini Client 종료 중 에러 발생" } }
     }
 
-    override fun analyze(youtubeUrl: String): VideoAnalysisResult {
+    override fun extractTranscript(youtubeUrl: String): String {
         val videoId = extractVideoId(youtubeUrl)
         val transcript = tryExtractTranscript(videoId)
 
@@ -69,9 +69,17 @@ class VideoAnalyzeAdapter(
             throw LinktripException(ExceptionCode.BAD_REQUEST_VIDEO, "자막을 추출할 수 없는 영상입니다.")
         }
 
-        logger.info { "자막 기반 분석 시작: videoId=$videoId (${transcript.length}자)" }
+        logger.info { "자막 추출 완료: videoId=$videoId (${transcript.length}자)" }
         logger.debug { "자막 원문 (마지막 500자):\n${transcript.takeLast(500)}" }
-        return analyzeFromTranscript(transcript, videoId)
+        return transcript
+    }
+
+    override fun analyzeFromTranscript(
+        transcript: String,
+        youtubeUrl: String,
+    ): VideoAnalysisResult {
+        val videoId = extractVideoId(youtubeUrl)
+        return analyzeFromTranscriptInternal(transcript, videoId)
     }
 
     private fun tryExtractTranscript(videoId: String): String? =
@@ -111,7 +119,7 @@ class VideoAnalyzeAdapter(
             }
         }
 
-    private fun analyzeFromTranscript(
+    private fun analyzeFromTranscriptInternal(
         transcript: String,
         videoId: String,
     ): VideoAnalysisResult {
