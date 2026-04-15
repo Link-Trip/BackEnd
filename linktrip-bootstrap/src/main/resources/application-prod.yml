@@ -12,3 +12,8 @@ spring:
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+youtube:
+  proxy:
+    username: ${YOUTUBE_PROXY_USERNAME}
+    password: ${YOUTUBE_PROXY_PASSWORD}

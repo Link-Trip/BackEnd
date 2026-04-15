@@ -12,6 +12,7 @@ import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.output.http.dto.AiApiResponse
 import com.linktrip.output.http.properties.GcpProperties
+import com.linktrip.output.http.properties.YouTubeProperties
 import io.github.thoroldvix.api.TranscriptApiFactory
 import io.github.thoroldvix.api.YoutubeTranscriptApi
 import mu.KotlinLogging
@@ -31,6 +32,7 @@ private val logger = KotlinLogging.logger {}
 class VideoAnalyzeAdapter(
     private val gcpProperties: GcpProperties,
     private val objectMapper: ObjectMapper,
+    private val youTubeProperties: YouTubeProperties,
 ) : VideoAnalyzePort {
     private val credentials: GoogleCredentials by lazy {
         FileInputStream(gcpProperties.credentialsPath).use { stream ->
@@ -51,7 +53,18 @@ class VideoAnalyzeAdapter(
     }
 
     private val transcriptApi: YoutubeTranscriptApi by lazy {
-        TranscriptApiFactory.createDefault()
+        if (youTubeProperties.proxy.isEnabled()) {
+            logger.info { "YouTube 자막 프록시 활성화 (prod)" }
+            TranscriptApiFactory.createWithClient(
+                ProxyYoutubeClient(
+                    youTubeProperties.proxy.username,
+                    youTubeProperties.proxy.password,
+                ),
+            )
+        } else {
+            logger.info { "YouTube 자막 직접 연결 (dev)" }
+            TranscriptApiFactory.createDefault()
+        }
     }
 
     @PreDestroy

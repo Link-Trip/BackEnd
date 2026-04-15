@@ -18,6 +18,8 @@ services:
       - GCP_CREDENTIALS_PATH=/app/config/gcp-credentials.json
       - GCP_VERTEX_AI_LOCATION=us-central1
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - YOUTUBE_PROXY_USERNAME=${YOUTUBE_PROXY_USERNAME}
+      - YOUTUBE_PROXY_PASSWORD=${YOUTUBE_PROXY_PASSWORD}
     volumes:
       - ./gcp-credentials.json:/app/config/gcp-credentials.json:ro
       - /etc/localtime:/etc/localtime:ro
