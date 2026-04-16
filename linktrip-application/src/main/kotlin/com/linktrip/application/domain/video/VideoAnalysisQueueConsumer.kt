@@ -105,13 +105,12 @@ class VideoAnalysisQueueConsumer(
         } catch (e: LinktripException) {
             when (e.exceptionCode) {
                 ExceptionCode.BAD_GATEWAY_YOUTUBE -> {
-                    logger.warn { "YouTube Rate Limit으로 재시도 큐 등록: id=${event.videoAnalysisTaskId}" }
-                    // 재시도 배치가 주울 수 있도록 PENDING 으로 되돌린다.
+                    logger.warn { "YouTube Rate Limit으로 재시도 대기: id=${event.videoAnalysisTaskId}" }
+                    // 즉시 재큐하지 않고, 재시도 배치가 다음 주기에 다시 적재하도록 한다.
                     videoAnalysisTaskPersistencePort.updateStatus(
                         event.videoAnalysisTaskId,
                         VideoAnalysisTaskStatus.PENDING,
                     )
-                    videoAnalysisQueuePort.enqueue(event.videoAnalysisTaskId, event.youtubeUrl)
                 }
                 ExceptionCode.BAD_REQUEST_VIDEO -> {
                     logger.warn { "자막 없는 영상 INVALID 처리: id=${event.videoAnalysisTaskId}" }

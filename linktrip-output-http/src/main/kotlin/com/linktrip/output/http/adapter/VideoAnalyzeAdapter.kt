@@ -126,8 +126,11 @@ class VideoAnalyzeAdapter(
                     null
                 }
                 else -> {
-                    logger.error { "자막 추출 중 알 수 없는 오류 (videoId=$videoId): ${e.message}" }
-                    null
+                    logger.error(e) { "자막 추출 중 일시적 오류 (videoId=$videoId)" }
+                    throw LinktripException(
+                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                        "YouTube 자막 조회 중 일시적 오류가 발생했습니다.",
+                    )
                 }
             }
         }
