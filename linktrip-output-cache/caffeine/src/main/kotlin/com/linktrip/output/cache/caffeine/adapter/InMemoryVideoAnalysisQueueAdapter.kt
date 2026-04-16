@@ -1,4 +1,4 @@
-package com.linktrip.application.infra.queue
+package com.linktrip.output.cache.caffeine.adapter
 
 import com.linktrip.application.domain.video.VideoAnalyzeEvent
 import com.linktrip.application.port.output.queue.VideoAnalysisQueuePort
