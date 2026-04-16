@@ -1,5 +1,6 @@
 package com.linktrip.input.batch
 
+import com.linktrip.application.port.output.queue.VideoAnalysisQueuePort
 import mu.KotlinLogging
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
@@ -13,6 +14,7 @@ private val logger = KotlinLogging.logger {}
 class VideoAnalysisRetryJobScheduler(
     private val jobLauncher: JobLauncher,
     private val videoAnalysisRetryJob: Job,
+    private val videoAnalysisQueuePort: VideoAnalysisQueuePort,
 ) {
     @Scheduled(cron = "0 */5 * * * *")
     fun run() {
@@ -32,5 +34,10 @@ class VideoAnalysisRetryJobScheduler(
         } catch (e: Exception) {
             logger.error(e) { "영상 분석 재시도 Job 실패" }
         }
+    }
+
+    @Scheduled(fixedDelay = 10_000)
+    fun logQueueSize() {
+        logger.info { "영상 분석 큐 사이즈: ${videoAnalysisQueuePort.size()}" }
     }
 }
