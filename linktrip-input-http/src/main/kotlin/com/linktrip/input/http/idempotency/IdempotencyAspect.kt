@@ -29,8 +29,9 @@ class IdempotencyAspect(
     ): Any? {
         val request = currentRequest() ?: return joinPoint.proceed()
         val key = buildScopedKey(request) ?: return joinPoint.proceed()
+        val cached = idempotencyStore.find(key)
 
-        return when (idempotencyStore.find(key)?.status) {
+        return when (cached?.status) {
             IdempotencyStatus.PROCESSING -> {
                 logger.info { "멱등성 키 중복 요청 차단 (처리 중): key=$key" }
                 throw LinktripException(ExceptionCode.DUPLICATE_REQUEST)
@@ -38,7 +39,7 @@ class IdempotencyAspect(
 
             IdempotencyStatus.COMPLETED -> {
                 logger.info { "멱등성 키 캐시 응답 반환: key=$key" }
-                idempotencyStore.find(key)!!.body
+                cached.body
             }
 
             IdempotencyStatus.FAILED, null -> execute(key, joinPoint)
