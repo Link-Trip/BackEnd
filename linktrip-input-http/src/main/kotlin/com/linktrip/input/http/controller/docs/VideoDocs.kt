@@ -9,6 +9,7 @@ import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptRespons
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -33,9 +34,18 @@ interface VideoDocs {
             - `FAILED`: 분석 실패 (재요청 시 재분석)
 
             **멱등성:**
-            - 현재 이 API에는 `Idempotency-Key` 기반 멱등성 처리가 적용되어 있지 않습니다.
-            - 앱스토어 배포 이후 컨트롤러에 멱등성 처리를 적용할 예정입니다.
+            - `GET`을 제외한 모든 API는 `Idempotency-Key` 헤더가 필수입니다.
+            - 동일한 `Idempotency-Key`로 처리 중인 요청이 있으면 409를 반환합니다.
         """,
+        parameters = [
+            Parameter(
+                name = "Idempotency-Key",
+                description = "멱등성 키 (UUID v4 권장, non-GET 요청 필수)",
+                `in` = ParameterIn.HEADER,
+                required = true,
+                example = "550e8400-e29b-41d4-a716-446655440000",
+            ),
+        ],
     )
     @ApiResponses(
         value = [
@@ -45,10 +55,16 @@ interface VideoDocs {
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "400",
-                description = "잘못된 YouTube URL 형식 또는 자막 없는 영상",
+                description = "잘못된 YouTube URL 형식, 자막 없는 영상 또는 Idempotency-Key 헤더 누락",
                 content = [
                     Content(
                         examples = [
+                            ExampleObject(
+                                name = "멱등성 키 누락",
+                                value =
+                                    """{"code":"BAD_REQUEST_MISSING_IDEMPOTENCY_KEY",""" +
+                                        """"message":"Idempotency-Key 헤더는 필수입니다."}""",
+                            ),
                             ExampleObject(
                                 name = "잘못된 URL",
                                 value =
@@ -60,6 +76,21 @@ interface VideoDocs {
                                 value =
                                     """{"code":"BAD_REQUEST_VIDEO",""" +
                                         """"message":"자막을 추출할 수 없는 영상입니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "409",
+                description = "동일한 멱등성 키의 요청이 이미 처리 중인 경우",
+                content = [
+                    Content(
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"DUPLICATE_REQUEST",""" +
+                                        """"message":"이미 요청한 값입니다."}""",
                             ),
                         ],
                     ),

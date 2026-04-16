@@ -66,7 +66,6 @@ class TripPlanController(
         return ApiResponse.ok(TripPlanDetailResponse.from(detail))
     }
 
-    // TODO(#56): 앱스토어 배포 이후 @Idempotent 적용 예정
     @DeleteMapping("/{tripPlanId}")
     override fun deleteTripPlan(
         @AuthenticatedMember memberId: String,

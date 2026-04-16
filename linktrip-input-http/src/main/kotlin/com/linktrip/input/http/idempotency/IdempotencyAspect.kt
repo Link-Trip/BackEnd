@@ -1,8 +1,6 @@
 package com.linktrip.input.http.idempotency
 
-import com.linktrip.application.port.output.idempotency.IdempotencyStatus
 import com.linktrip.application.port.output.idempotency.IdempotencyStore
-import com.linktrip.common.annotation.Idempotent
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.input.http.filter.JwtAuthenticationFilter
@@ -11,6 +9,7 @@ import mu.KotlinLogging
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
+import org.aspectj.lang.annotation.Pointcut
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
@@ -22,28 +21,23 @@ private val logger = KotlinLogging.logger {}
 class IdempotencyAspect(
     private val idempotencyStore: IdempotencyStore,
 ) {
-    @Around("@annotation(idempotent)")
-    fun checkIdempotency(
-        joinPoint: ProceedingJoinPoint,
-        idempotent: Idempotent,
-    ): Any? {
+    @Pointcut(
+        "@within(org.springframework.web.bind.annotation.RestController) && execution(public * *(..)) && " +
+            "!within(com.linktrip.input.http.controller.HealthCheckController) && " +
+            "!within(com.linktrip.input.http.controller.YouTubeTestController)",
+    )
+    fun nonGetRequestInProtectedController() {
+    }
+
+    @Around("nonGetRequestInProtectedController()")
+    fun checkIdempotency(joinPoint: ProceedingJoinPoint): Any? {
         val request = currentRequest() ?: return joinPoint.proceed()
-        val key = buildScopedKey(request) ?: return joinPoint.proceed()
-        val cached = idempotencyStore.find(key)
-
-        return when (cached?.status) {
-            IdempotencyStatus.PROCESSING -> {
-                logger.info { "멱등성 키 중복 요청 차단 (처리 중): key=$key" }
-                throw LinktripException(ExceptionCode.DUPLICATE_REQUEST)
-            }
-
-            IdempotencyStatus.COMPLETED -> {
-                logger.info { "멱등성 키 캐시 응답 반환: key=$key" }
-                cached.body
-            }
-
-            IdempotencyStatus.FAILED, null -> execute(key, joinPoint)
+        if (request.method == GET_METHOD) {
+            return joinPoint.proceed()
         }
+
+        val key = buildScopedKey(request)
+        return execute(key, joinPoint)
     }
 
     private fun execute(
@@ -56,21 +50,20 @@ class IdempotencyAspect(
         }
 
         return try {
-            val result = joinPoint.proceed()
-            idempotencyStore.saveCompleted(key, result)
-            result
+            joinPoint.proceed()
         } catch (t: Throwable) {
-            idempotencyStore.saveFailed(key)
             throw t
+        } finally {
+            idempotencyStore.release(key)
         }
     }
 
-    private fun buildScopedKey(request: HttpServletRequest): String? {
+    private fun buildScopedKey(request: HttpServletRequest): String {
         val rawKey =
             request.getHeader(IDEMPOTENCY_KEY_HEADER)
                 ?.trim()
                 ?.takeIf { it.isNotEmpty() }
-                ?: return null
+                ?: throw LinktripException(ExceptionCode.BAD_REQUEST_MISSING_IDEMPOTENCY_KEY)
 
         val memberId =
             request.getAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE) as? String
@@ -84,5 +77,6 @@ class IdempotencyAspect(
 
     companion object {
         private const val IDEMPOTENCY_KEY_HEADER = "Idempotency-Key"
+        private const val GET_METHOD = "GET"
     }
 }
