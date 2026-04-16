@@ -37,7 +37,7 @@ class VideoController(
     private val discoverChannelUseCase: DiscoverChannelUseCase,
     private val tripPlanUseCase: TripPlanUseCase,
 ) : VideoDocs {
-//    @Idempotent
+    // TODO(#56): 앱스토어 배포 이후 @Idempotent 적용 예정
     @PostMapping("/analyze")
     override fun analyzeVideo(
         @AuthenticatedMember memberId: String,
