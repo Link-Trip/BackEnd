@@ -23,7 +23,10 @@ interface IdempotencyStore {
     /**
      * 처리 완료된 결과를 저장한다.
      */
-    fun saveCompleted(key: String, body: Any?)
+    fun saveCompleted(
+        key: String,
+        body: Any?,
+    )
 
     /**
      * 처리 실패를 기록한다.

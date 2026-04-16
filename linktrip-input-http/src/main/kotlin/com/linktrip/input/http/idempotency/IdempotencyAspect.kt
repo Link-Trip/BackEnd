@@ -5,6 +5,7 @@ import com.linktrip.application.port.output.idempotency.IdempotencyStore
 import com.linktrip.common.annotation.Idempotent
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
+import com.linktrip.input.http.filter.JwtAuthenticationFilter
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import org.aspectj.lang.ProceedingJoinPoint
@@ -22,8 +23,12 @@ class IdempotencyAspect(
     private val idempotencyStore: IdempotencyStore,
 ) {
     @Around("@annotation(idempotent)")
-    fun checkIdempotency(joinPoint: ProceedingJoinPoint, idempotent: Idempotent): Any? {
-        val key = extractIdempotencyKey() ?: return joinPoint.proceed()
+    fun checkIdempotency(
+        joinPoint: ProceedingJoinPoint,
+        idempotent: Idempotent,
+    ): Any? {
+        val request = currentRequest() ?: return joinPoint.proceed()
+        val key = buildScopedKey(request) ?: return joinPoint.proceed()
 
         return when (idempotencyStore.find(key)?.status) {
             IdempotencyStatus.PROCESSING -> {
@@ -40,7 +45,10 @@ class IdempotencyAspect(
         }
     }
 
-    private fun execute(key: String, joinPoint: ProceedingJoinPoint): Any? {
+    private fun execute(
+        key: String,
+        joinPoint: ProceedingJoinPoint,
+    ): Any? {
         if (!idempotencyStore.tryLock(key)) {
             logger.info { "멱등성 키 락 획득 실패: key=$key" }
             throw LinktripException(ExceptionCode.DUPLICATE_REQUEST)
@@ -50,15 +58,24 @@ class IdempotencyAspect(
             val result = joinPoint.proceed()
             idempotencyStore.saveCompleted(key, result)
             result
-        } catch (e: Exception) {
+        } catch (t: Throwable) {
             idempotencyStore.saveFailed(key)
-            throw e
+            throw t
         }
     }
 
-    private fun extractIdempotencyKey(): String? {
-        val request = currentRequest() ?: return null
-        return request.getHeader(IDEMPOTENCY_KEY_HEADER)
+    private fun buildScopedKey(request: HttpServletRequest): String? {
+        val rawKey =
+            request.getHeader(IDEMPOTENCY_KEY_HEADER)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return null
+
+        val memberId =
+            request.getAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE) as? String
+                ?: "anonymous"
+
+        return "${request.method}:${request.requestURI}:$memberId:$rawKey"
     }
 
     private fun currentRequest(): HttpServletRequest? =

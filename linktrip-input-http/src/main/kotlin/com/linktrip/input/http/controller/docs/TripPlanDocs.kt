@@ -6,7 +6,6 @@ import com.linktrip.input.http.controller.dto.response.TripPlanCursorResponse
 import com.linktrip.input.http.controller.dto.response.TripPlanDetailResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -163,19 +162,9 @@ interface TripPlanDocs {
             특정 여행 계획을 소프트 삭제합니다. 삭제 후 목록에서 더 이상 조회되지 않습니다.
 
             **멱등성:**
-            - `Idempotency-Key` 헤더에 UUID를 포함하면 중복 요청을 방지합니다.
-            - 동일 키로 재요청 시: 처리 중이면 409, 처리 완료면 이전 결과를 반환합니다.
-            - 헤더 미포함 시 멱등성 검사 없이 정상 처리됩니다.
+            - 현재 이 API에는 `Idempotency-Key` 기반 멱등성 처리가 적용되어 있지 않습니다.
+            - 앱스토어 배포 이후 컨트롤러에 멱등성 처리를 적용할 예정입니다.
         """,
-        parameters = [
-            Parameter(
-                name = "Idempotency-Key",
-                description = "멱등성 키 (UUID v4 권장, 중복 요청 방지용)",
-                `in` = ParameterIn.HEADER,
-                required = false,
-                example = "550e8400-e29b-41d4-a716-446655440000",
-            ),
-        ],
     )
     @ApiResponses(
         value = [
@@ -208,21 +197,6 @@ interface TripPlanDocs {
                                 value =
                                     """{"code":"NOT_FOUND_TRIP_PLAN",""" +
                                         """"message":"여행 계획을 찾을 수 없습니다."}""",
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-            io.swagger.v3.oas.annotations.responses.ApiResponse(
-                responseCode = "409",
-                description = "동일 멱등성 키로 중복 요청 (처리 중)",
-                content = [
-                    Content(
-                        examples = [
-                            ExampleObject(
-                                value =
-                                    """{"code":"DUPLICATE_REQUEST",""" +
-                                        """"message":"이미 처리 중이거나 처리된 요청입니다."}""",
                             ),
                         ],
                     ),

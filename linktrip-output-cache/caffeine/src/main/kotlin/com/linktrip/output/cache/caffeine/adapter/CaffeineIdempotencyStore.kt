@@ -16,8 +16,7 @@ class CaffeineIdempotencyStore : IdempotencyStore {
             .maximumSize(MAX_SIZE)
             .build()
 
-    override fun find(key: String): CachedResponse? =
-        cache.getIfPresent(key)
+    override fun find(key: String): CachedResponse? = cache.getIfPresent(key)
 
     override fun tryLock(key: String): Boolean {
         val processing = CachedResponse(status = IdempotencyStatus.PROCESSING)
@@ -25,7 +24,10 @@ class CaffeineIdempotencyStore : IdempotencyStore {
         return existing === processing
     }
 
-    override fun saveCompleted(key: String, body: Any?) {
+    override fun saveCompleted(
+        key: String,
+        body: Any?,
+    ) {
         cache.put(key, CachedResponse(status = IdempotencyStatus.COMPLETED, body = body))
     }
 
