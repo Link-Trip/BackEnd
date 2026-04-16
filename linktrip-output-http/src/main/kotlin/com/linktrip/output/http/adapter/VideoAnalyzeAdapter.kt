@@ -12,6 +12,7 @@ import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.output.http.dto.AiApiResponse
 import com.linktrip.output.http.properties.GcpProperties
+import com.linktrip.output.http.properties.YouTubeProperties
 import io.github.thoroldvix.api.TranscriptApiFactory
 import io.github.thoroldvix.api.YoutubeTranscriptApi
 import mu.KotlinLogging
@@ -31,6 +32,7 @@ private val logger = KotlinLogging.logger {}
 class VideoAnalyzeAdapter(
     private val gcpProperties: GcpProperties,
     private val objectMapper: ObjectMapper,
+    private val youTubeProperties: YouTubeProperties,
 ) : VideoAnalyzePort {
     private val credentials: GoogleCredentials by lazy {
         FileInputStream(gcpProperties.credentialsPath).use { stream ->
@@ -51,7 +53,18 @@ class VideoAnalyzeAdapter(
     }
 
     private val transcriptApi: YoutubeTranscriptApi by lazy {
-        TranscriptApiFactory.createDefault()
+        if (youTubeProperties.proxy.isEnabled()) {
+            logger.info { "YouTube 자막 프록시 활성화 (prod)" }
+            TranscriptApiFactory.createWithClient(
+                ProxyYoutubeClient(
+                    youTubeProperties.proxy.username,
+                    youTubeProperties.proxy.password,
+                ),
+            )
+        } else {
+            logger.info { "YouTube 자막 직접 연결 (dev)" }
+            TranscriptApiFactory.createDefault()
+        }
     }
 
     @PreDestroy
@@ -60,7 +73,7 @@ class VideoAnalyzeAdapter(
             .onFailure { logger.warn(it) { "Gemini Client 종료 중 에러 발생" } }
     }
 
-    override fun analyze(youtubeUrl: String): VideoAnalysisResult {
+    override fun extractTranscript(youtubeUrl: String): String {
         val videoId = extractVideoId(youtubeUrl)
         val transcript = tryExtractTranscript(videoId)
 
@@ -69,9 +82,17 @@ class VideoAnalyzeAdapter(
             throw LinktripException(ExceptionCode.BAD_REQUEST_VIDEO, "자막을 추출할 수 없는 영상입니다.")
         }
 
-        logger.info { "자막 기반 분석 시작: videoId=$videoId (${transcript.length}자)" }
-        logger.debug { "자막 원문 (마지막 500자):\n${transcript.takeLast(500)}" }
-        return analyzeFromTranscript(transcript, videoId)
+        logger.info { "자막 추출 완료: videoId=$videoId (${transcript.length}자)" }
+        logger.debug { "자막 프리뷰: ${transcript.take(TRANSCRIPT_PREVIEW_LENGTH).replace("\n", " ")}..." }
+        return transcript
+    }
+
+    override fun analyzeFromTranscript(
+        transcript: String,
+        youtubeUrl: String,
+    ): VideoAnalysisResult {
+        val videoId = extractVideoId(youtubeUrl)
+        return analyzeFromTranscriptInternal(transcript, videoId)
     }
 
     private fun tryExtractTranscript(videoId: String): String? =
@@ -90,11 +111,31 @@ class VideoAnalyzeAdapter(
                 }
             }
         } catch (e: Exception) {
-            logger.warn { "자막 추출 실패 (videoId=$videoId): ${e.message}" }
-            null
+            val message = e.message ?: ""
+            when {
+                message.contains("Too Many Requests", ignoreCase = true) ||
+                    message.contains("429", ignoreCase = true) -> {
+                    logger.error { "YouTube 자막 Rate Limit 초과 (videoId=$videoId): ${e.message}" }
+                    throw LinktripException(
+                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                        "YouTube 자막 요청이 Rate Limit에 걸렸습니다.",
+                    )
+                }
+                message.contains("Could not retrieve transcript", ignoreCase = true) -> {
+                    logger.warn { "자막이 존재하지 않는 영상 (videoId=$videoId)" }
+                    null
+                }
+                else -> {
+                    logger.error(e) { "자막 추출 중 일시적 오류 (videoId=$videoId)" }
+                    throw LinktripException(
+                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                        "YouTube 자막 조회 중 일시적 오류가 발생했습니다.",
+                    )
+                }
+            }
         }
 
-    private fun analyzeFromTranscript(
+    private fun analyzeFromTranscriptInternal(
         transcript: String,
         videoId: String,
     ): VideoAnalysisResult {
@@ -109,10 +150,23 @@ class VideoAnalyzeAdapter(
                 )
 
             val rawText = response.text()
-            logger.debug { "Gemini 응답 원문:\n$rawText" }
+            logger.debug { "Gemini 응답 길이: ${rawText?.length ?: 0}자" }
             val jsonText = stripMarkdownCodeBlock(rawText)
-            val aiResponse = objectMapper.readValue(jsonText, AiApiResponse::class.java)
-            logger.info { "Gemini 분석 결과: title=${aiResponse.title}, destination=${aiResponse.destination}" }
+            val aiResponse =
+                try {
+                    objectMapper.readValue(jsonText, AiApiResponse::class.java)
+                } catch (e: Exception) {
+                    logger.error { "Gemini 응답 JSON 파싱 실패: videoId=$videoId, raw=$rawText" }
+                    throw e
+                }
+            logger.info {
+                "Gemini 분석 결과: videoId=$videoId, title=${aiResponse.title}, " +
+                    "destination=${aiResponse.destination}, " +
+                    "cost=${aiResponse.estimatedMinCost}~${aiResponse.estimatedMaxCost}"
+            }
+            if (aiResponse.valid && (aiResponse.estimatedMinCost == null || aiResponse.estimatedMaxCost == null)) {
+                logger.warn { "가격 추출 실패(프롬프트 개선 필요): videoId=$videoId, title=${aiResponse.title}" }
+            }
             return aiResponse.toDomain()
         } catch (e: LinktripException) {
             throw e
@@ -149,6 +203,7 @@ class VideoAnalyzeAdapter(
         private const val API_VERSION = "v1"
         private const val MODEL = "gemini-2.5-flash"
         private const val VIDEO_MIME_TYPE = "video/mp4"
+        private const val TRANSCRIPT_PREVIEW_LENGTH = 150
 
         private fun extractVideoId(youtubeUrl: String): String {
             val patterns =
@@ -197,17 +252,40 @@ class VideoAnalyzeAdapter(
             4. "당일치기" or single day = "당일" in title (e.g. "오사카 당일 여행").
             5. Title examples: "도쿄 3박 4일 여행", "상하이 1박 2일 미식여행", "오사카 당일 맛집투어".
             summary: 3-5 sentence Korean summary (max 300 chars). Focus on highlights, theme, vibe. null if unavailable.
-            estimatedMinCost/estimatedMaxCost: KRW integer for 1 person.
-            COST CALCULATION RULES:
-            1. Look for total cost summaries in the transcript ("총 경비", "총 비용", "정산", "총 얼마", "만원").
-            2. If a breakdown is found (e.g. 항공 40만 + 숙소 17만 + 식비 20만 + 교통 4만 + 기타 14만 = 총 95만):
+            estimatedMinCost/estimatedMaxCost: KRW integer for 1 person. NEVER null — always provide a range.
+            COST CALCULATION RULES (try in order, stop at first applicable):
+            1. Total cost with breakdown in transcript (e.g. 항공 40만 + 숙소 17만 + 식비 20만 + 교통 4만 + 기타 14만 = 총 95만):
                → EXCLUDE only international flight costs (항공편, 비행기값)
-               → SUM everything else: lodging(숙소) + food(식비) + local transport(교통비) + activities + shopping + all other costs
-               → Example: 총 95만 - 항공 40만 = 55만 → range: 49.5만 ~ 60.5만 (±10%)
-            3. If no breakdown but total mentioned → subtract estimated flight cost, then ±10%.
-            4. If no total but individual prices mentioned → sum all mentioned prices (costBasis="ITEM_ESTIMATED").
-            5. costBasis: "VIDEO_MENTIONED" ONLY when using actual numbers from the transcript. "ITEM_ESTIMATED" when summing individual prices.
-            6. You MUST provide estimates unless the transcript shows absolutely zero price information.
+               → SUM everything else: lodging(숙소) + food(식비) + local transport(교통비) + activities + shopping + etc.
+               → Apply ±10% range. Example: 55만 → 49.5만 ~ 60.5만. costBasis="VIDEO_MENTIONED".
+            2. Total mentioned without breakdown → subtract estimated flight cost (country-dependent), then ±10%. costBasis="VIDEO_MENTIONED".
+            3. Individual prices mentioned but no total → sum all mentioned prices, ±15%. costBasis="ITEM_ESTIMATED".
+            4. NO price info at all → ESTIMATE per-place using your real-world knowledge of each specific venue:
+               For EACH item in the itinerary (by name), determine the typical spend based on that venue's actual pricing:
+                 - EAT: the signature/popular menu price at that specific restaurant.
+                   Examples: 이치란 라멘 → 라멘 세트 약 12,000원 / 스시로 → 회전초밥 2인당 약 10,000원 /
+                            블루보틀 도쿄 → 커피 약 7,000원 / 츠케멘 츠지타 → 츠케멘 약 13,000원.
+                   If restaurant is unknown or generic (e.g. "현지 카페"), use cuisine-type average
+                   (라멘 12,000 / 스시 25,000 / 카페 8,000 / 스트릿푸드 5,000 / 파인다이닝 80,000).
+                 - ATTRACTION: the actual entry/ticket fee for that landmark.
+                   Examples: 도쿄타워 전망대 약 18,000원 / 유니버설 스튜디오 재팬 약 95,000원 /
+                            센소지(사찰) 무료 / 에펠탑 전망대 약 42,000원 / 루브르 박물관 약 30,000원.
+                   Unknown attractions: park/temple 0 / museum 15,000 / observation deck 20,000 / theme park 90,000.
+                 - SHOPPING: typical per-visit spend at that store type.
+                   Examples: 돈키호테 방문 시 약 50,000원 / 아웃렛 방문 시 약 150,000원 /
+                            편의점 간식 약 5,000원 / 기념품샵 약 20,000원.
+                 - TRANSPORTATION_HUB: 0 (airports/stations are waypoints, no spend).
+                 - TRANSPORTATION_TRANSIT: actual fare/pass price.
+                   Examples: JR Pass 7일권 약 350,000원 / Suica 충전 약 30,000원 /
+                            도쿄 지하철 1회 약 2,500원 / 택시 1회 약 15,000원.
+               Then add LODGING per night based on the destination and what you infer from the itinerary quality
+               (business/호스텔 60,000 / 일반 비즈니스호텔 100,000 / 중급 150,000 / 고급·리조트 250,000),
+               multiplied by (일수 - 1) if 당일치기가 아니면, else 0.
+               SUM all per-place estimates + lodging. Apply ±20% range. costBasis="ITEM_ESTIMATED".
+               IMPORTANT: The result should be a MEANINGFUL total that reflects the actual venues visited,
+               not generic averages. If a venue is clearly a high-end place, use its actual higher price point.
+            5. Sanity check: final min must be ≥ 50,000 (당일치기 최소). If lower, re-check — you likely missed items or used too-low estimates.
+            6. NEVER return null for estimatedMinCost/estimatedMaxCost. At minimum use rule 4.
             hashtags: Up to 3 from: "맛집여행","SNS 핫플레이스","가성비여행","럭셔리여행","힐링여행","액티비티","문화탐방","쇼핑","자연경관","역사탐방","카페투어","야경명소","로컬맛집","온천여행","축제/이벤트". Empty array if none.
             timeline: 5-15 entries, chronological. Use timestamps from the transcript [M:SS] or [H:MM:SS]. Each: {"timestampSeconds": int, "description": Korean string under 30 chars}. null if timestamps undeterminable.
             days: Array of {"day": int, "items": [...]}.

@@ -6,7 +6,7 @@ services:
     environment:
       - TZ=Asia/Seoul
       - MYSQL_DATABASE=linktrip
-      - MYSQL_ROOT_PASSWORD=12345678
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     command: >
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_0900_ai_ci

@@ -16,6 +16,14 @@ interface VideoAnalysisTaskPersistencePort {
         status: VideoAnalysisTaskStatus,
     )
 
+    fun findPendingTasks(): List<VideoAnalysisTask>
+
+    /**
+     * 앱 재시작 시 큐에 재적재할 대상: PENDING + PROCESSING.
+     * PROCESSING 은 이전 프로세스가 처리 중 크래시로 남긴 상태일 수 있으므로 함께 복구한다.
+     */
+    fun findReloadableTasks(): List<VideoAnalysisTask>
+
     fun updateValidAndStatus(
         id: String,
         valid: Boolean,

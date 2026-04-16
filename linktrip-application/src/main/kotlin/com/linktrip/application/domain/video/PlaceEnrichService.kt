@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.port.input.PlaceEnrichUseCase
 import com.linktrip.application.port.output.external.GooglePlacesPort
 import com.linktrip.application.port.output.persistence.PlaceEnrichPersistencePort
 import com.linktrip.application.port.output.persistence.TravelItineraryItemPersistencePort
@@ -20,10 +21,10 @@ class PlaceEnrichService(
     private val travelItineraryItemPersistencePort: TravelItineraryItemPersistencePort,
     private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
     private val placeEnrichDispatcher: CoroutineDispatcher,
-) {
-    fun enrichPlaces(
+) : PlaceEnrichUseCase {
+    override fun enrichPlaces(
         videoAnalysisTaskId: String,
-        destination: String? = null,
+        destination: String?,
     ) {
         val items = travelItineraryItemPersistencePort.findRetryableItems(videoAnalysisTaskId)
 
@@ -60,7 +61,7 @@ class PlaceEnrichService(
             PlaceEnrichResult(itemId = item.id, place = null, success = false)
         }
 
-    fun retryAll() {
+    override fun retryAll() {
         val videoAnalysisTaskIds = travelItineraryItemPersistencePort.findVideoAnalysisTaskIdsWithRetryableItems()
 
         if (videoAnalysisTaskIds.isEmpty()) {

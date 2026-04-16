@@ -34,7 +34,9 @@ class RateLimitInterceptorTest {
         // given
         val request = MockHttpServletRequest("POST", "/video/analyze")
         request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
-        whenever(rateLimitBucketStore.tryConsume(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)))
+        whenever(
+            rateLimitBucketStore.tryConsumeOrReject(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)),
+        )
             .thenReturn(true)
 
         // when
@@ -49,7 +51,9 @@ class RateLimitInterceptorTest {
         // given
         val request = MockHttpServletRequest("POST", "/video/analyze")
         request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
-        whenever(rateLimitBucketStore.tryConsume(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)))
+        whenever(
+            rateLimitBucketStore.tryConsumeOrReject(eq("member1:VIDEO_ANALYZE"), eq(RateLimitPolicy.VIDEO_ANALYZE)),
+        )
             .thenReturn(false)
 
         // when & then
@@ -70,7 +74,7 @@ class RateLimitInterceptorTest {
 
         // then - bucketStore 호출 없이 통과
         assertTrue(result)
-        verify(rateLimitBucketStore, never()).tryConsume(any(), any())
+        verify(rateLimitBucketStore, never()).tryConsumeOrReject(any(), any())
     }
 
     @Test
@@ -78,7 +82,7 @@ class RateLimitInterceptorTest {
         // given
         val request = MockHttpServletRequest("GET", "/video/abc123/schedule")
         request.setAttribute(JwtAuthenticationFilter.MEMBER_ID_ATTRIBUTE, "member1")
-        whenever(rateLimitBucketStore.tryConsume(eq("member1:DEFAULT"), eq(RateLimitPolicy.DEFAULT)))
+        whenever(rateLimitBucketStore.tryConsumeOrReject(eq("member1:DEFAULT"), eq(RateLimitPolicy.DEFAULT)))
             .thenReturn(true)
 
         // when
@@ -86,6 +90,6 @@ class RateLimitInterceptorTest {
 
         // then
         assertTrue(result)
-        verify(rateLimitBucketStore).tryConsume(eq("member1:DEFAULT"), eq(RateLimitPolicy.DEFAULT))
+        verify(rateLimitBucketStore).tryConsumeOrReject(eq("member1:DEFAULT"), eq(RateLimitPolicy.DEFAULT))
     }
 }

@@ -1,6 +1,6 @@
 package com.linktrip.input.batch
 
-import com.linktrip.application.domain.video.PlaceEnrichService
+import com.linktrip.application.port.input.PlaceEnrichUseCase
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
@@ -16,7 +16,7 @@ import org.springframework.transaction.PlatformTransactionManager
 class PlaceEnrichJobConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
-    private val placeEnrichService: PlaceEnrichService,
+    private val placeEnrichUseCase: PlaceEnrichUseCase,
 ) {
     @Bean
     fun placeEnrichRetryJob(): Job =
@@ -33,7 +33,7 @@ class PlaceEnrichJobConfig(
     @Bean
     fun placeEnrichRetryTasklet(): Tasklet =
         Tasklet { _, _ ->
-            placeEnrichService.retryAll()
+            placeEnrichUseCase.retryAll()
             RepeatStatus.FINISHED
         }
 }

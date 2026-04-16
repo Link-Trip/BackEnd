@@ -15,16 +15,12 @@ class VideoAnalyzeService(
         val normalizedUrl = VideoAnalysisTask.normalizeUrl(youtubeUrl)
 
         videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)?.let { existing ->
-            return when (existing.status) {
-                VideoAnalysisTaskStatus.PENDING -> existing
-                VideoAnalysisTaskStatus.COMPLETED -> existing
-                VideoAnalysisTaskStatus.INVALID -> existing
-                VideoAnalysisTaskStatus.FAILED -> {
-                    videoAnalysisTaskPersistencePort.updateStatus(existing.id, VideoAnalysisTaskStatus.PENDING)
-                    Events.raise(VideoAnalyzeEvent(existing.id, normalizedUrl))
-                    existing.copy(status = VideoAnalysisTaskStatus.PENDING)
-                }
-            }
+            // FAILED 가 아니면 현재 상태를 그대로 반환 (이미 처리 중이거나 완료된 건 재분석하지 않음).
+            if (existing.status != VideoAnalysisTaskStatus.FAILED) return existing
+
+            videoAnalysisTaskPersistencePort.updateStatus(existing.id, VideoAnalysisTaskStatus.PENDING)
+            Events.raise(VideoAnalyzeEvent(existing.id, normalizedUrl))
+            return existing.copy(status = VideoAnalysisTaskStatus.PENDING)
         }
 
         val videoAnalysisTask = videoAnalysisTaskPersistencePort.save(VideoAnalysisTask.create(normalizedUrl))

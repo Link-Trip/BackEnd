@@ -9,6 +9,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - TZ=Asia/Seoul
+      - JAVA_OPTS=-Djdk.http.auth.tunneling.disabledSchemes=
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
       - DISCORD_WEBHOOK_ERROR_URL=${DISCORD_WEBHOOK_ERROR_URL}
@@ -17,6 +19,8 @@ services:
       - GCP_CREDENTIALS_PATH=/app/config/gcp-credentials.json
       - GCP_VERTEX_AI_LOCATION=us-central1
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - YOUTUBE_PROXY_USERNAME=${YOUTUBE_PROXY_USERNAME}
+      - YOUTUBE_PROXY_PASSWORD=${YOUTUBE_PROXY_PASSWORD}
     volumes:
       - ./gcp-credentials.json:/app/config/gcp-credentials.json:ro
       - /etc/localtime:/etc/localtime:ro

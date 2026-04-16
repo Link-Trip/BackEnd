@@ -21,6 +21,10 @@ class VideoAnalysisTaskCachingAdapter(
 
     override fun findByYoutubeUrl(youtubeUrl: String): VideoAnalysisTask? = delegate.findByYoutubeUrl(youtubeUrl)
 
+    override fun findPendingTasks(): List<VideoAnalysisTask> = delegate.findPendingTasks()
+
+    override fun findReloadableTasks(): List<VideoAnalysisTask> = delegate.findReloadableTasks()
+
     @Cacheable(
         value = [CacheConfig.VIDEO_ANALYSIS_TASK],
         key = "#id",
