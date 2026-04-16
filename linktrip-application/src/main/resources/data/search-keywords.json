@@ -66,10 +66,6 @@
 
   {"query": "마카오 여행 브이로그", "region": "아시아", "country": "마카오", "city": "마카오", "theme": "마카오"},
 
-  {"query": "시엠립 여행 브이로그", "region": "아시아", "country": "캄보디아", "city": "시엠립", "theme": "캄보디아"},
-  {"query": "프놈펜 여행 브이로그", "region": "아시아", "country": "캄보디아", "city": "프놈펜", "theme": "캄보디아"},
-  {"query": "캄보디아 여행 브이로그", "region": "아시아", "country": "캄보디아", "city": null, "theme": "캄보디아"},
-
   {"query": "울란바토르 여행 브이로그", "region": "아시아", "country": "몽골", "city": "울란바토르", "theme": "몽골"},
   {"query": "테를지 여행 브이로그", "region": "아시아", "country": "몽골", "city": "테를지", "theme": "몽골"},
   {"query": "몽골 여행 브이로그", "region": "아시아", "country": "몽골", "city": null, "theme": "몽골"},
@@ -195,11 +191,6 @@
   {"query": "오흐리드 여행 브이로그", "region": "유럽", "country": "북마케도니아", "city": "오흐리드", "theme": "북마케도니아"},
   {"query": "북마케도니아 여행 브이로그", "region": "유럽", "country": "북마케도니아", "city": null, "theme": "북마케도니아"},
 
-  {"query": "블라디보스토크 여행 브이로그", "region": "유럽", "country": "러시아", "city": "블라디보스토크", "theme": "러시아"},
-  {"query": "모스크바 여행 브이로그", "region": "유럽", "country": "러시아", "city": "모스크바", "theme": "러시아"},
-  {"query": "상트페테르부르크 여행 브이로그", "region": "유럽", "country": "러시아", "city": "상트페테르부르크", "theme": "러시아"},
-  {"query": "러시아 여행 브이로그", "region": "유럽", "country": "러시아", "city": null, "theme": "러시아"},
-
   {"query": "레이캬비크 여행 브이로그", "region": "유럽", "country": "아이슬란드", "city": "레이캬비크", "theme": "아이슬란드"},
   {"query": "아이슬란드 여행 브이로그", "region": "유럽", "country": "아이슬란드", "city": null, "theme": "아이슬란드"},
 
@@ -281,9 +272,6 @@
   {"query": "케이프타운 여행 브이로그", "region": "아프리카", "country": "남아프리카공화국", "city": "케이프타운", "theme": "남아프리카공화국"},
   {"query": "요하네스버그 여행 브이로그", "region": "아프리카", "country": "남아프리카공화국", "city": "요하네스버그", "theme": "남아프리카공화국"},
   {"query": "남아프리카공화국 여행 브이로그", "region": "아프리카", "country": "남아프리카공화국", "city": null, "theme": "남아프리카공화국"},
-
-  {"query": "빅토리아폴스 여행 브이로그", "region": "아프리카", "country": "짐바브웨", "city": "빅토리아폴스", "theme": "짐바브웨"},
-  {"query": "짐바브웨 여행 브이로그", "region": "아프리카", "country": "짐바브웨", "city": null, "theme": "짐바브웨"},
 
   {"query": "포트루이스 여행 브이로그", "region": "아프리카", "country": "모리셔스", "city": "포트루이스", "theme": "모리셔스"},
   {"query": "모리셔스 여행 브이로그", "region": "아프리카", "country": "모리셔스", "city": null, "theme": "모리셔스"},
