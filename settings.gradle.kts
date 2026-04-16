@@ -17,3 +17,5 @@ include("linktrip-output-cache:caffeine")
 include("linktrip-output-persistence:mysql")
 include("linktrip-output-storage:aws")
 include("linktrip-output-http")
+
+includeBuild("linktrip-domain-test")
