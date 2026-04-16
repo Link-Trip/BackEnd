@@ -1,5 +1,7 @@
 package com.linktrip.application.domain.youtube
 
+import com.linktrip.application.domain.video.VideoAnalysisTask
+import com.linktrip.application.port.input.VideoAnalyzeUseCase
 import com.linktrip.application.port.output.external.YouTubePort
 import com.linktrip.application.port.output.persistence.YouTubeVideoPersistencePort
 import mu.KotlinLogging
@@ -11,6 +13,7 @@ private val logger = KotlinLogging.logger {}
 class YouTubeCollectService(
     private val youTubePort: YouTubePort,
     private val youTubeVideoPersistencePort: YouTubeVideoPersistencePort,
+    private val videoAnalyzeUseCase: VideoAnalyzeUseCase,
 ) {
     private val regionIndexMap = mutableMapOf<String, Int>()
 
@@ -84,7 +87,18 @@ class YouTubeCollectService(
 
         if (allVideos.isNotEmpty()) {
             youTubeVideoPersistencePort.saveAll(allVideos)
+            requestVideoAnalysis(allVideos)
             logger.info { "YouTube 영상 수집 완료 - 총 ${allVideos.size}건 저장" }
+        }
+    }
+
+    private fun requestVideoAnalysis(videos: List<YouTubeVideoMeta>) {
+        videos.forEach { video ->
+            try {
+                videoAnalyzeUseCase.analyzeVideo(VideoAnalysisTask.buildUrl(video.videoId))
+            } catch (e: Exception) {
+                logger.warn(e) { "영상 분석 요청 실패: videoId=${video.videoId}" }
+            }
         }
     }
 
