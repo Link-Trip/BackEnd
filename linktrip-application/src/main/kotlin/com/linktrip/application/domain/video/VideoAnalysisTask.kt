@@ -21,7 +21,7 @@ data class VideoAnalysisTask(
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
-        private const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
+        const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
 
         /**
          * 지원 URL 형식:
