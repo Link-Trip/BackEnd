@@ -12,9 +12,7 @@ import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import com.linktrip.output.http.dto.AiApiResponse
 import com.linktrip.output.http.properties.GcpProperties
-import com.linktrip.output.http.properties.YouTubeProperties
-import io.github.thoroldvix.api.TranscriptApiFactory
-import io.github.thoroldvix.api.YoutubeTranscriptApi
+import io.github.thoroldvix.api.TranscriptRetrievalException
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.FileInputStream
@@ -32,7 +30,7 @@ private val logger = KotlinLogging.logger {}
 class VideoAnalyzeAdapter(
     private val gcpProperties: GcpProperties,
     private val objectMapper: ObjectMapper,
-    private val youTubeProperties: YouTubeProperties,
+    private val transcriptClient: YoutubeTranscriptClient,
 ) : VideoAnalyzePort {
     private val credentials: GoogleCredentials by lazy {
         FileInputStream(gcpProperties.credentialsPath).use { stream ->
@@ -50,21 +48,6 @@ class VideoAnalyzeAdapter(
             .httpOptions(HttpOptions.builder().apiVersion(API_VERSION).build())
             .credentials(credentials)
             .build()
-    }
-
-    private val transcriptApi: YoutubeTranscriptApi by lazy {
-        if (youTubeProperties.proxy.isEnabled()) {
-            logger.info { "YouTube 자막 프록시 활성화 (prod)" }
-            TranscriptApiFactory.createWithClient(
-                ProxyYoutubeClient(
-                    youTubeProperties.proxy.username,
-                    youTubeProperties.proxy.password,
-                ),
-            )
-        } else {
-            logger.info { "YouTube 자막 직접 연결 (dev)" }
-            TranscriptApiFactory.createDefault()
-        }
     }
 
     @PreDestroy
@@ -97,43 +80,33 @@ class VideoAnalyzeAdapter(
 
     private fun tryExtractTranscript(videoId: String): String? =
         try {
-            val transcriptList = transcriptApi.listTranscripts(videoId)
-            val transcript =
-                runCatching { transcriptList.findTranscript("ko") }
-                    .recoverCatching { transcriptList.findTranscript("en") }
-                    .recoverCatching { transcriptList.findGeneratedTranscript("ko") }
-                    .recoverCatching { transcriptList.findGeneratedTranscript("en") }
-                    .getOrNull()
-
-            transcript?.fetch()?.let { content ->
-                content.content.joinToString("\n") { fragment ->
-                    "[${formatTimestamp(fragment.start.toLong())}] ${fragment.text}"
-                }
-            }
-        } catch (e: Exception) {
-            val message = e.message ?: ""
-            when {
-                message.contains("Too Many Requests", ignoreCase = true) ||
-                    message.contains("429", ignoreCase = true) -> {
-                    logger.error { "YouTube 자막 Rate Limit 초과 (videoId=$videoId): ${e.message}" }
-                    throw LinktripException(
-                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
-                        "YouTube 자막 요청이 Rate Limit에 걸렸습니다.",
-                    )
-                }
-                message.contains("Could not retrieve transcript", ignoreCase = true) -> {
-                    logger.warn { "자막이 존재하지 않는 영상 (videoId=$videoId)" }
-                    null
-                }
-                else -> {
-                    logger.error(e) { "자막 추출 중 일시적 오류 (videoId=$videoId)" }
-                    throw LinktripException(
-                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
-                        "YouTube 자막 조회 중 일시적 오류가 발생했습니다.",
-                    )
-                }
-            }
+            transcriptClient.fetchTranscript(videoId)
+        } catch (e: TranscriptRetrievalException) {
+            // 라이브러리가 우리 LinktripException 을 한 단계 감쌌을 수 있어 cause 를 우선 확인.
+            (e.cause as? LinktripException)?.let { throw it }
+            classifyAmbiguousFailure(videoId, e)
+        } catch (e: IllegalArgumentException) {
+            logger.warn { "videoId 형식 오류 (videoId=$videoId): ${e.message}" }
+            null
         }
+
+    /**
+     * 모호한 자막 실패 → sentinel ping 으로 "프록시 죽음" vs "영상 고유 문제" 분류.
+     */
+    private fun classifyAmbiguousFailure(
+        videoId: String,
+        cause: TranscriptRetrievalException,
+    ): String? {
+        if (transcriptClient.isProxyHealthy()) {
+            logger.warn(cause) { "Sentinel 정상 → 자막 없음/영상 접근 불가 (videoId=$videoId)" }
+            return null
+        }
+        logger.warn(cause) { "Sentinel 실패 → IP 차단 의심 (videoId=$videoId)" }
+        throw LinktripException(
+            ExceptionCode.BAD_GATEWAY_YOUTUBE,
+            "Sentinel 확인 결과 IP 차단 의심.",
+        )
+    }
 
     private fun analyzeFromTranscriptInternal(
         transcript: String,
@@ -176,7 +149,16 @@ class VideoAnalyzeAdapter(
         }
     }
 
-    private fun analyzeFromVideo(youtubeUrl: String): VideoAnalysisResult {
+    /**
+     * 자막 없이 Gemini 가 YouTube 영상 자체를 직접 인제스트해 분석하는 fallback.
+     *
+     * 현재 미사용:
+     * - 자막 기반 분석 대비 토큰 소비량이 약 25배에 달해 비용이 크게 증가한다.
+     * - 자막이 추출되는 영상은 [analyzeFromTranscript] 가 먼저 처리하므로 호출 경로가 닿지 않는다.
+     *
+     * 자막 추출 자체가 불가능한 영상에 대한 fallback 으로 와이어업할 경우에만 사용한다.
+     */
+    private fun analyzeByAiVideoIngestion(youtubeUrl: String): VideoAnalysisResult {
         try {
             val response =
                 client.models.generateContent(
@@ -215,17 +197,6 @@ class VideoAnalyzeAdapter(
                 )
             return patterns.firstNotNullOfOrNull { it.find(youtubeUrl)?.groupValues?.get(1) }
                 ?: throw LinktripException(ExceptionCode.BAD_REQUEST_YOUTUBE_URL)
-        }
-
-        private fun formatTimestamp(totalSeconds: Long): String {
-            val hours = totalSeconds / 3600
-            val minutes = (totalSeconds % 3600) / 60
-            val seconds = totalSeconds % 60
-            return if (hours > 0) {
-                "%d:%02d:%02d".format(hours, minutes, seconds)
-            } else {
-                "%d:%02d".format(minutes, seconds)
-            }
         }
 
         private val TRANSCRIPT_PROMPT =
