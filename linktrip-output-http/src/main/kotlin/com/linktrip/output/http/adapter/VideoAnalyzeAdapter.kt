@@ -101,10 +101,10 @@ class VideoAnalyzeAdapter(
             logger.warn(cause) { "Sentinel 정상 → 자막 없음/영상 접근 불가 (videoId=$videoId)" }
             return null
         }
-        logger.warn(cause) { "Sentinel 실패 → IP 차단 의심 (videoId=$videoId)" }
+        logger.warn(cause) { "Sentinel 실패 → 전 프록시 IP 차단 확정 (videoId=$videoId)" }
         throw LinktripException(
             ExceptionCode.BAD_GATEWAY_YOUTUBE,
-            "Sentinel 확인 결과 IP 차단 의심.",
+            "Sentinel 확인 결과 전 프록시 IP 차단 확정.",
         )
     }
 

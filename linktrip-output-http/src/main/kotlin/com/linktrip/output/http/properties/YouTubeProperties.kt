@@ -9,10 +9,10 @@ data class YouTubeProperties(
     val healthCheck: HealthCheckProperties = HealthCheckProperties(),
 ) {
     data class ProxyProperties(
-        val username: String = "",
         val password: String = "",
+        val usernames: List<String> = emptyList(),
     ) {
-        fun isEnabled(): Boolean = username.isNotBlank() && password.isNotBlank()
+        fun isEnabled(): Boolean = password.isNotBlank() && usernames.isNotEmpty()
     }
 
     data class HealthCheckProperties(

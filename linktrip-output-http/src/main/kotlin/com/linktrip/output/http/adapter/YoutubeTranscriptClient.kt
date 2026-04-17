@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger {}
  * - 자막 추출 (요약 흐름)
  * - sentinel ping 을 통한 프록시 헬스 체크 (모호한 실패 분류)
  *
- * 두 흐름 모두 같은 [transcriptApi] 인스턴스를 통과하므로 프록시 설정/HTTP 동작이 일관된다.
+ * 두 흐름 모두 같은 [transcriptApi] 인스턴스를 통과하므로 프록시 라운드로빈/HTTP 동작이 일관된다.
  */
 @Component
 class YoutubeTranscriptClient(
@@ -22,11 +22,11 @@ class YoutubeTranscriptClient(
 ) {
     private val transcriptApi: YoutubeTranscriptApi by lazy {
         if (youTubeProperties.proxy.isEnabled()) {
-            logger.info { "YouTube 자막 프록시 활성화 (prod)" }
+            logger.info { "YouTube 자막 프록시 활성화 (prod, ${youTubeProperties.proxy.usernames.size}개 프록시 로테이션)" }
             TranscriptApiFactory.createWithClient(
                 ProxyYoutubeClient(
-                    youTubeProperties.proxy.username,
-                    youTubeProperties.proxy.password,
+                    usernames = youTubeProperties.proxy.usernames,
+                    password = youTubeProperties.proxy.password,
                 ),
             )
         } else {
@@ -59,11 +59,11 @@ class YoutubeTranscriptClient(
     }
 
     /**
-     * 프록시(IP) 가 정상인지 sentinel 영상으로 매번 즉시 확인.
+     * sentinel 영상으로 프록시(IP) 가 정상인지 매번 즉시 확인.
      *
-     * 큐 컨슈머가 이미 자연스러운 rate limit 이라 호출 빈도가 낮고, IP 차단은 실시간 상태가 중요하므로 캐시 없음.
+     * 내부에서 [ProxyYoutubeClient] 라운드로빈이 동작하므로, 이 ping 실패 = 등록된 모든 프록시 차단 확정.
      *
-     * @return true = 프록시 정상, false = 차단 의심 (또는 sentinel 미설정)
+     * @return true = 적어도 하나의 프록시가 정상, false = 전 프록시 차단 확정 (또는 sentinel 미설정)
      */
     fun isProxyHealthy(): Boolean {
         val sentinelId = youTubeProperties.healthCheck.sentinelVideoId
@@ -77,10 +77,9 @@ class YoutubeTranscriptClient(
                 transcriptApi.listTranscripts(sentinelId)
                 true
             }.getOrElse { e ->
-                logger.warn(e) { "Sentinel ping 실패: videoId=$sentinelId" }
+                logger.warn(e) { "Sentinel ping 실패 — 전 프록시 차단 확정 (sentinelId=$sentinelId)" }
                 false
             }
-
         logger.info { "프록시 헬스체크 결과: healthy=$healthy (sentinelId=$sentinelId)" }
         return healthy
     }
