@@ -78,7 +78,7 @@ class VideoAnalyzeServiceTest {
 
     @Test
     fun `신규 BATCH 요청이면_BATCH source 로 task 가 저장되어 통계 분류가 가능하다`() {
-        // given - YouTube 정기 수집/백필 스케줄러가 신규 영상을 분석 요청
+        // given - YouTube 정기 수집/backfill  스케줄러가 신규 영상을 분석 요청
         val url = "https://www.youtube.com/watch?v=batch1"
         whenever(videoAnalysisTaskPersistencePort.findByYoutubeUrl(url)).thenReturn(null)
         val saved =
