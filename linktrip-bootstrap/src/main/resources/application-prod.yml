@@ -15,5 +15,5 @@ jwt:
 
 youtube:
   proxy:
-    username: ${YOUTUBE_PROXY_USERNAME}
     password: ${YOUTUBE_PROXY_PASSWORD}
+    usernames: ${YOUTUBE_PROXY_USERNAMES}
