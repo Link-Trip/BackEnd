@@ -16,7 +16,6 @@ import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
-import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptResponse
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -41,7 +40,7 @@ class VideoController(
     override fun analyzeVideo(
         @AuthenticatedMember memberId: String,
         @Validated @RequestBody request: VideoAnalyzeRequest,
-    ): ApiResponse<VideoAnalyzeAcceptResponse> {
+    ): ApiResponse<VideoAnalyzeResponse> {
         val task = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
 
         when (task.status) {
@@ -51,7 +50,21 @@ class VideoController(
             else -> tripPlanUseCase.registerRequest(memberId, task.id)
         }
 
-        return ApiResponse.accepted(VideoAnalyzeAcceptResponse.from(task))
+        // COMPLETED 면 결과 인라인 반환해서 클라이언트가 추가 폴링 없이 바로 사용. 그 외엔 status 만 의미 있음.
+        val response =
+            if (task.status == VideoAnalysisTaskStatus.COMPLETED) {
+                val result = videoScheduleUseCase.getVideoSchedule(task.id)
+                VideoAnalyzeResponse.from(result.videoAnalysisTask, result.items, result.timelines)
+            } else {
+                VideoAnalyzeResponse.from(task, emptyList(), emptyList())
+            }
+
+        return when (task.status) {
+            VideoAnalysisTaskStatus.PENDING,
+            VideoAnalysisTaskStatus.PROCESSING,
+            -> ApiResponse.accepted(response)
+            else -> ApiResponse.ok(response)
+        }
     }
 
     @GetMapping("/schedule/{videoAnalysisTaskId}")
