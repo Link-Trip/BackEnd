@@ -37,6 +37,7 @@ class VideoScheduleServiceTest {
                 youtubeUrl = "https://youtube.com/1",
                 valid = true,
                 status = VideoAnalysisTaskStatus.COMPLETED,
+                source = Source.USER,
             )
         val items =
             listOf(

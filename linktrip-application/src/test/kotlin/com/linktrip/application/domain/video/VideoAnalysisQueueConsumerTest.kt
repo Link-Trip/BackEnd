@@ -79,7 +79,7 @@ class VideoAnalysisQueueConsumerTest {
         // when - processAnalysis를 직접 호출 (리플렉션 대신 consumer 내부 메서드 테스트)
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
         method.isAccessible = true
-        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1"))
+        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER))
 
         // then
         verify(videoAnalysisResultSaver).save(
@@ -113,7 +113,7 @@ class VideoAnalysisQueueConsumerTest {
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
         method.isAccessible = true
-        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1"))
+        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER))
 
         // then
         verify(videoAnalysisTaskPersistencePort).updateValidAndStatus(
@@ -142,7 +142,7 @@ class VideoAnalysisQueueConsumerTest {
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
         method.isAccessible = true
-        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1"))
+        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER))
 
         // then
         verify(videoAnalysisTaskPersistencePort).updateStatus("s1", VideoAnalysisTaskStatus.FAILED)
@@ -166,7 +166,7 @@ class VideoAnalysisQueueConsumerTest {
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
         method.isAccessible = true
-        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1"))
+        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER))
 
         // then - 분석 결과는 저장되고, 알림도 전송된다
         verify(videoAnalysisResultSaver).save(
@@ -205,7 +205,7 @@ class VideoAnalysisQueueConsumerTest {
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
         method.isAccessible = true
-        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1"))
+        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER))
 
         // then
         assertEquals(true, request1.processed)
@@ -259,7 +259,7 @@ class VideoAnalysisQueueConsumerTest {
         // when
         val method = consumer.javaClass.getDeclaredMethod("processAnalysis", VideoAnalyzeEvent::class.java)
         method.isAccessible = true
-        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1"))
+        method.invoke(consumer, VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER))
 
         // then
         val itemsCaptor = argumentCaptor<List<TravelItineraryItem>>()
