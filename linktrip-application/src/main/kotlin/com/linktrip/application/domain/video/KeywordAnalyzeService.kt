@@ -64,7 +64,10 @@ class KeywordAnalyzeService(
 
     private fun analyzeVideo(videoId: String): VideoAnalysisTask? =
         try {
-            videoAnalyzeUseCase.analyzeVideo(VideoAnalysisTask.buildUrl(videoId))
+            videoAnalyzeUseCase.analyzeVideo(
+                youtubeUrl = VideoAnalysisTask.buildUrl(videoId),
+                source = Source.BATCH,
+            )
         } catch (e: Exception) {
             logger.warn { "영상 분석 요청 스킵: videoId=$videoId, reason=${e.message}" }
             null

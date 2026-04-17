@@ -1,6 +1,7 @@
 package com.linktrip.output.persistence.mysql.entity
 
 import com.linktrip.application.domain.video.CostBasis
+import com.linktrip.application.domain.video.Source
 import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.common.exception.ExceptionCode
@@ -32,6 +33,9 @@ class VideoAnalysisTaskEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     var status: VideoAnalysisTaskStatus = VideoAnalysisTaskStatus.PENDING,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source", nullable = false, length = 20)
+    val source: Source,
     @Column(name = "estimated_min_cost")
     var estimatedMinCost: Long? = null,
     @Column(name = "estimated_max_cost")
@@ -59,6 +63,7 @@ class VideoAnalysisTaskEntity(
             youtubeUrl = this.youtubeUrl,
             valid = this.valid,
             status = this.status,
+            source = this.source,
             summary = this.summary,
             estimatedMinCost = this.estimatedMinCost,
             estimatedMaxCost = this.estimatedMaxCost,
@@ -75,6 +80,7 @@ class VideoAnalysisTaskEntity(
                 youtubeUrl = videoAnalysisTask.youtubeUrl,
                 valid = videoAnalysisTask.valid,
                 status = videoAnalysisTask.status,
+                source = videoAnalysisTask.source,
                 summary = videoAnalysisTask.summary,
                 estimatedMinCost = videoAnalysisTask.estimatedMinCost,
                 estimatedMaxCost = videoAnalysisTask.estimatedMaxCost,

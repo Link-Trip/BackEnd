@@ -16,7 +16,9 @@ class VideoAnalyzeEventListener(
     @Async("VideoAnalyzeExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handle(event: VideoAnalyzeEvent) {
-        logger.info { "영상 분석 큐 등록: id=${event.videoAnalysisTaskId}, url=${event.youtubeUrl}" }
-        videoAnalysisQueuePort.enqueue(event.videoAnalysisTaskId, event.youtubeUrl)
+        logger.info {
+            "영상 분석 큐 등록: id=${event.videoAnalysisTaskId}, source=${event.source}, url=${event.youtubeUrl}"
+        }
+        videoAnalysisQueuePort.enqueue(event.videoAnalysisTaskId, event.youtubeUrl, event.source)
     }
 }

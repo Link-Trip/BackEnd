@@ -1,5 +1,6 @@
 package com.linktrip.input.http.controller
 
+import com.linktrip.application.domain.video.Source
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.application.port.input.DiscoverChannelUseCase
 import com.linktrip.application.port.input.DiscoverVideoUseCase
@@ -41,7 +42,7 @@ class VideoController(
         @AuthenticatedMember memberId: String,
         @Validated @RequestBody request: VideoAnalyzeRequest,
     ): ApiResponse<VideoAnalyzeResponse> {
-        val task = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl)
+        val task = videoAnalyzeUseCase.analyzeVideo(request.youtubeUrl, Source.USER)
 
         when (task.status) {
             VideoAnalysisTaskStatus.COMPLETED ->
