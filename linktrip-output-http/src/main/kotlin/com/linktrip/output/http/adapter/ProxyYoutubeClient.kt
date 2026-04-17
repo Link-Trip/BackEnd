@@ -1,5 +1,7 @@
 package com.linktrip.output.http.adapter
 
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
 import io.github.thoroldvix.api.YoutubeClient
 import mu.KotlinLogging
 import java.net.Authenticator
@@ -47,14 +49,7 @@ class ProxyYoutubeClient(
             requestBuilder.header(key, value)
         }
 
-        val response =
-            client.send(
-                requestBuilder.build(),
-                HttpResponse.BodyHandlers.ofString(),
-            )
-
-        logger.debug { "프록시 요청: url=$url, status=${response.statusCode()}" }
-        return response.body()
+        return execute(requestBuilder.build(), url)
     }
 
     override fun post(
@@ -68,13 +63,45 @@ class ProxyYoutubeClient(
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build()
 
+        return execute(request, url)
+    }
+
+    private fun execute(
+        request: HttpRequest,
+        url: String,
+    ): String {
         val response =
             client.send(
                 request,
                 HttpResponse.BodyHandlers.ofString(),
             )
+        val status = response.statusCode()
+        val body = response.body() ?: ""
 
-        return response.body()
+        logger.debug { "프록시 요청: url=$url, status=$status, bytes=${body.length}" }
+
+        throwIfFailureStatus(status)
+        return body
+    }
+
+    private fun throwIfFailureStatus(status: Int) {
+        when {
+            status == 429 || status == 403 ->
+                throw LinktripException(
+                    ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                    "프록시 IP 차단 의심: status=$status",
+                )
+            status in 500..599 ->
+                throw LinktripException(
+                    ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                    "YouTube 일시 오류: status=$status",
+                )
+            status !in 200..299 ->
+                throw LinktripException(
+                    ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                    "예상치 못한 HTTP 응답: status=$status",
+                )
+        }
     }
 
     companion object {
