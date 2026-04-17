@@ -9,6 +9,6 @@ enum class Source(val priority: Int) {
     /** 사용자 직접 요청 (POST /video/analyze 등). 항상 먼저 처리. */
     USER(0),
 
-    /** 시스템 배치/수집 (YouTube 정기 수집, stranded 백필 등). USER 가 비었을 때만 처리. */
+    /** 시스템 배치/수집 (YouTube 정기 수집, stranded backfill  등). USER 가 비었을 때만 처리. */
     BATCH(10),
 }
