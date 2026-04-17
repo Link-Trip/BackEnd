@@ -44,6 +44,9 @@ class YouTubeVideoPersistenceAdapter(
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
+    override fun findUnanalyzedVideoIds(limit: Int): List<String> = querydslRepository.findUnanalyzedVideoIds(limit)
+
+    @Transactional(readOnly = true)
     override fun findAllByTheme(
         theme: String,
         cursor: LocalDateTime?,
