@@ -55,7 +55,8 @@ class InMemoryVideoAnalysisQueueAdapter : VideoAnalysisQueuePort {
 
     override fun size(): Int = queue.size
 
-    override fun contains(videoAnalysisTaskId: String): Boolean = queue.any { it.event.videoAnalysisTaskId == videoAnalysisTaskId }
+    override fun contains(videoAnalysisTaskId: String): Boolean =
+        queue.any { it.event.videoAnalysisTaskId == videoAnalysisTaskId }
 
     companion object {
         private const val INITIAL_CAPACITY = 16
