@@ -42,4 +42,3 @@ class YouTubeVideoCachingAdapter(
     // backfill 스케줄러 전용 — 매번 최신 미처리 영상 조회 필요하므로 캐시 안 함
     override fun findUnanalyzedVideoIds(limit: Int): List<String> = delegate.findUnanalyzedVideoIds(limit)
 }
-
