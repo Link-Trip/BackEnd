@@ -17,3 +17,9 @@ youtube:
   proxy:
     password: ${YOUTUBE_PROXY_PASSWORD}
     usernames: ${YOUTUBE_PROXY_USERNAMES}
+
+batch:
+  video-analysis-backfill:
+    # 수집은 됐지만 (youtube_video) 한 번도 분석된 적 없는 영상을 BATCH 우선순위로 자동 분석.
+    # 10분마다 5건씩. dev 에서는 토큰 비용 통제 위해 기본 비활성.
+    enabled: true
