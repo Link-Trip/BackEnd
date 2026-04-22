@@ -4,6 +4,7 @@ import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
 import io.github.thoroldvix.api.YoutubeClient
 import mu.KotlinLogging
+import java.io.IOException
 import java.net.Authenticator
 import java.net.InetSocketAddress
 import java.net.PasswordAuthentication
@@ -12,6 +13,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -21,9 +23,10 @@ private val logger = KotlinLogging.logger {}
  * [proxyClients] 에 지정된 순서대로 각 프록시로 요청을 시도한다 (우선순위 = 리스트 순서).
  * - 2xx → 성공 반환
  * - 429/403 (IP 차단) → 다음 프록시 시도
+ * - IOException (DNS/연결/읽기 타임아웃 등 네트워크 장애) → 다음 프록시 시도
  * - 5xx / 기타 비2xx → 즉시 [LinktripException] throw (일시 오류는 큐 컨슈머가 PENDING 으로 재시도)
  *
- * 전체 프록시가 429/403 으로 소진되면 IP 전면 차단으로 간주하고 [LinktripException] throw.
+ * 모든 프록시가 차단/네트워크 장애로 소진되면 [LinktripException] throw.
  */
 class ProxyYoutubeClient(
     usernames: List<String>,
@@ -40,7 +43,11 @@ class ProxyYoutubeClient(
         url: String,
         headers: Map<String, String>,
     ): String {
-        val builder = HttpRequest.newBuilder().uri(URI.create(url)).GET()
+        val builder =
+            HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .GET()
         headers.forEach { (key, value) -> builder.header(key, value) }
         return executeWithRotation(builder.build(), url)
     }
@@ -52,6 +59,7 @@ class ProxyYoutubeClient(
         val request =
             HttpRequest.newBuilder()
                 .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build()
@@ -63,8 +71,24 @@ class ProxyYoutubeClient(
         url: String,
     ): String {
         var lastBlockedStatus = -1
+        var lastNetworkFailure: String? = null
         for (proxy in proxyClients) {
-            val response = proxy.httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+            val response =
+                try {
+                    proxy.httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+                } catch (e: IOException) {
+                    // 네트워크 장애 (DNS, 연결 거부, 타임아웃 등) → 라운드로빈 의도대로 다음 프록시로
+                    logger.warn(e) { "프록시 통신 실패로 다음 프록시 시도: username=${proxy.username}" }
+                    lastNetworkFailure = e.message ?: e::class.simpleName
+                    continue
+                } catch (_: InterruptedException) {
+                    // 컨슈머 스레드 중단 신호 — interrupt flag 복원 후 종료
+                    Thread.currentThread().interrupt()
+                    throw LinktripException(
+                        ExceptionCode.BAD_GATEWAY_YOUTUBE,
+                        "프록시 요청 중단됨",
+                    )
+                }
             val status = response.statusCode()
             val body = response.body() ?: ""
 
@@ -91,7 +115,8 @@ class ProxyYoutubeClient(
         }
         throw LinktripException(
             ExceptionCode.BAD_GATEWAY_YOUTUBE,
-            "전 프록시 IP 차단 확정 (마지막 status=$lastBlockedStatus, proxies=${proxyClients.size}개)",
+            "전 프록시 소진 (마지막 차단=$lastBlockedStatus, 마지막 네트워크 실패=$lastNetworkFailure, " +
+                "proxies=${proxyClients.size}개)",
         )
     }
 
@@ -100,6 +125,7 @@ class ProxyYoutubeClient(
         password: String,
     ): HttpClient =
         HttpClient.newBuilder()
+            .connectTimeout(CONNECT_TIMEOUT)
             .proxy(ProxySelector.of(InetSocketAddress(PROXY_HOST, PROXY_PORT)))
             .authenticator(
                 object : Authenticator() {
@@ -113,6 +139,18 @@ class ProxyYoutubeClient(
     companion object {
         private const val PROXY_HOST = "p.webshare.io"
         private const val PROXY_PORT = 80
+
+        /** 프록시까지의 TCP 연결 수립 타임아웃. 죽은 프록시에서 무한 대기 방지. */
+        private val CONNECT_TIMEOUT: Duration = Duration.ofSeconds(10)
+
+        /**
+         * YouTube 응답까지의 전체 요청 타임아웃.
+         *
+         * 긴 영상(1시간+) 의 자막 XML 다운로드 + 해외 프록시 RTT 까지 감안해서 넉넉히 60초.
+         * 너무 짧으면 멀쩡한 프록시도 false-timeout 으로 다음 프록시 시도하게 되어 라운드로빈 가속만 됨.
+         * 그래도 무한 대기는 방지 (느린 프록시가 컨슈머 스레드 점유 안 하도록).
+         */
+        private val REQUEST_TIMEOUT: Duration = Duration.ofSeconds(60)
 
         init {
             System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "")
