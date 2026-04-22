@@ -5,7 +5,6 @@ import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
-import com.linktrip.input.http.controller.dto.response.VideoAnalyzeAcceptResponse
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -23,15 +22,21 @@ interface VideoDocs {
             YouTube URL을 전달하면 AI(Gemini)가 영상을 분석하여 여행 일정, 타임라인, 요약 등을 추출합니다.
 
             **처리 흐름:**
-            1. 최초 요청 → 분석 작업 생성 후 202 Accepted 반환 (비동기 분석 시작)
-            2. 동일 URL 재요청 → 기존 분석 결과 상태 반환 (중복 분석 방지)
-            3. 이전 분석 실패(FAILED) URL 재요청 → 재분석 시작
+            1. 최초 요청 → 분석 작업 생성 후 202 Accepted 반환 (비동기 분석 시작, schedule 폴링 필요)
+            2. 동일 URL 재요청
+                - 분석 완료된 영상이면 → 200 OK + 결과 데이터 인라인 반환 (추가 폴링 불필요)
+                - 진행 중이면 → 202 Accepted + 현재 상태만 반환
+            3. 이전 분석 실패(FAILED) URL 재요청 → 재분석 시작 (202 Accepted)
 
-            **상태값:**
-            - `PENDING`: 분석 진행 중 (폴링 필요)
-            - `COMPLETED`: 분석 완료 (schedule API로 상세 조회 가능)
-            - `INVALID`: 여행 영상이 아닌 것으로 판정
-            - `FAILED`: 분석 실패 (재요청 시 재분석)
+            **상태값 / HTTP 상태 코드:**
+            - `PENDING` → 202 Accepted: 분석 진행 중. 결과 필드는 비어있음. schedule API 폴링 필요
+            - `PROCESSING` → 202 Accepted: 컨슈머가 처리 중. 결과 필드는 비어있음
+            - `COMPLETED` → 200 OK: 분석 완료. 응답에 모든 결과 데이터 포함 (추가 호출 불필요)
+            - `INVALID` → 200 OK: 여행 영상이 아닌 것으로 판정. 결과 필드는 비어있음
+            - `FAILED` → 202 Accepted: 직전 실패 후 재분석 시작 (status 는 PENDING 으로 응답)
+
+            **응답 shape:**
+            schedule API(GET /video/schedule/{id}) 와 동일한 [VideoAnalyzeResponse]. status 가 COMPLETED 일 때만 결과 필드가 채워짐.
 
             **멱등성:**
             - `GET`을 제외한 모든 API는 `Idempotency-Key` 헤더가 필수입니다.
@@ -50,8 +55,12 @@ interface VideoDocs {
     @ApiResponses(
         value = [
             io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "200",
+                description = "이미 분석 완료된 영상 (COMPLETED/INVALID) — 결과 인라인 반환",
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "202",
-                description = "분석 요청 접수 완료",
+                description = "분석 진행 중 (PENDING/PROCESSING) — 폴링 필요",
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "400",
@@ -116,7 +125,7 @@ interface VideoDocs {
     fun analyzeVideo(
         @Parameter(hidden = true) memberId: String,
         request: VideoAnalyzeRequest,
-    ): ApiResponse<VideoAnalyzeAcceptResponse>
+    ): ApiResponse<VideoAnalyzeResponse>
 
     @Operation(
         summary = "영상 분석 결과 상세 조회",

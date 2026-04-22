@@ -17,14 +17,26 @@ class VideoAnalyzeEventListenerTest {
     lateinit var listener: VideoAnalyzeEventListener
 
     @Test
-    fun `이벤트를 수신하면_큐에 enqueue만 수행한다`() {
-        // given
-        val event = VideoAnalyzeEvent("s1", "https://youtube.com/1")
+    fun `USER 이벤트를 수신하면_큐에 USER source 로 enqueue 한다`() {
+        // given - 사용자 직접 요청에서 발생한 이벤트
+        val event = VideoAnalyzeEvent("s1", "https://youtube.com/1", Source.USER)
 
         // when
         listener.handle(event)
 
-        // then - 큐에 넣기만 하고 직접 분석하지 않는다
-        verify(videoAnalysisQueuePort).enqueue("s1", "https://youtube.com/1")
+        // then - event 의 source 가 그대로 큐로 전달되어야 USER 우선순위가 보장된다
+        verify(videoAnalysisQueuePort).enqueue("s1", "https://youtube.com/1", Source.USER)
+    }
+
+    @Test
+    fun `BATCH 이벤트를 수신하면_큐에 BATCH source 로 enqueue 한다`() {
+        // given - 배치/수집에서 발생한 이벤트
+        val event = VideoAnalyzeEvent("s2", "https://youtube.com/2", Source.BATCH)
+
+        // when
+        listener.handle(event)
+
+        // then - BATCH source 가 보존되어 사용자 요청보다 후순위로 처리됨
+        verify(videoAnalysisQueuePort).enqueue("s2", "https://youtube.com/2", Source.BATCH)
     }
 }

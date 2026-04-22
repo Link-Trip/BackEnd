@@ -10,6 +10,8 @@ data class VideoAnalysisTask(
     val youtubeUrl: String,
     val valid: Boolean,
     val status: VideoAnalysisTaskStatus,
+    /** 이 task 를 생성한 출처 (audit + 큐 재시도 priority 결정용). 한 번 정해지면 변경하지 않는다. */
+    val source: Source,
     val summary: String? = null,
     val estimatedMinCost: Long? = null,
     val estimatedMaxCost: Long? = null,
@@ -19,7 +21,7 @@ data class VideoAnalysisTask(
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
-        private const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
+        const val YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
 
         /**
          * 지원 URL 형식:
@@ -45,13 +47,17 @@ data class VideoAnalysisTask(
         private val VIDEO_ID_REGEX =
             Regex("(?:youtube\\.com/(?:watch\\?v=|embed/|shorts/)|youtu\\.be/)([\\w-]+)")
 
-        fun create(youtubeUrl: String): VideoAnalysisTask {
+        fun create(
+            youtubeUrl: String,
+            source: Source,
+        ): VideoAnalysisTask {
             val normalizedUrl = normalizeUrl(youtubeUrl)
             return VideoAnalysisTask(
                 id = IdGenerator.generate(),
                 youtubeUrl = normalizedUrl,
                 valid = false,
                 status = VideoAnalysisTaskStatus.PENDING,
+                source = source,
             )
         }
 

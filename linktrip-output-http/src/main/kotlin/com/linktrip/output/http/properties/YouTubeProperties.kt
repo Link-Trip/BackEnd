@@ -6,11 +6,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class YouTubeProperties(
     val apiKey: String,
     val proxy: ProxyProperties = ProxyProperties(),
+    val healthCheck: HealthCheckProperties = HealthCheckProperties(),
 ) {
     data class ProxyProperties(
-        val username: String = "",
         val password: String = "",
+        val usernames: List<String> = emptyList(),
     ) {
-        fun isEnabled(): Boolean = username.isNotBlank() && password.isNotBlank()
+        fun isEnabled(): Boolean = password.isNotBlank() && usernames.isNotEmpty()
     }
+
+    data class HealthCheckProperties(
+        val sentinelVideoId: String = "",
+    )
 }

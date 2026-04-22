@@ -11,7 +11,10 @@ class VideoAnalyzeService(
     private val videoAnalysisTaskPersistencePort: VideoAnalysisTaskPersistencePort,
 ) : VideoAnalyzeUseCase {
     @Transactional
-    override fun analyzeVideo(youtubeUrl: String): VideoAnalysisTask {
+    override fun analyzeVideo(
+        youtubeUrl: String,
+        source: Source,
+    ): VideoAnalysisTask {
         val normalizedUrl = VideoAnalysisTask.normalizeUrl(youtubeUrl)
 
         videoAnalysisTaskPersistencePort.findByYoutubeUrl(normalizedUrl)?.let { existing ->
@@ -19,12 +22,13 @@ class VideoAnalyzeService(
             if (existing.status != VideoAnalysisTaskStatus.FAILED) return existing
 
             videoAnalysisTaskPersistencePort.updateStatus(existing.id, VideoAnalysisTaskStatus.PENDING)
-            Events.raise(VideoAnalyzeEvent(existing.id, normalizedUrl))
+            Events.raise(VideoAnalyzeEvent(existing.id, normalizedUrl, source))
             return existing.copy(status = VideoAnalysisTaskStatus.PENDING)
         }
 
-        val videoAnalysisTask = videoAnalysisTaskPersistencePort.save(VideoAnalysisTask.create(normalizedUrl))
-        Events.raise(VideoAnalyzeEvent(videoAnalysisTask.id, normalizedUrl))
+        val videoAnalysisTask =
+            videoAnalysisTaskPersistencePort.save(VideoAnalysisTask.create(normalizedUrl, source))
+        Events.raise(VideoAnalyzeEvent(videoAnalysisTask.id, normalizedUrl, source))
 
         return videoAnalysisTask
     }

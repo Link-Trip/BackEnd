@@ -50,7 +50,7 @@ class ApplicationInitializer(
         }
 
         tasks.forEach { task ->
-            videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl)
+            videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl, task.source)
         }
         logger.info { "미처리 영상 분석 건 큐 재적재 완료: ${tasks.size}건" }
     }

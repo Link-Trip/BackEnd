@@ -44,3 +44,5 @@ gcp:
 
 youtube:
   api-key: ${YOUTUBE_API_KEY}
+  health-check:
+    sentinel-video-id: TVM6Nswlfbg

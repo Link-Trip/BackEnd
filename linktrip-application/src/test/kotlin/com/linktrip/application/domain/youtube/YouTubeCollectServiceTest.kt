@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.youtube
 
+import com.linktrip.application.domain.video.Source
 import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
 import com.linktrip.application.port.output.external.YouTubePort
@@ -46,8 +47,8 @@ class YouTubeCollectServiceTest {
             )
         whenever(youTubePort.searchVideos(any(), any())).thenReturn(listOf(searchResult))
         whenever(youTubeVideoPersistencePort.findExistingVideoIds(any())).thenReturn(emptySet())
-        whenever(videoAnalyzeUseCase.analyzeVideo(any())).thenReturn(
-            VideoAnalysisTask.create("https://www.youtube.com/watch?v=v1"),
+        whenever(videoAnalyzeUseCase.analyzeVideo(any(), any())).thenReturn(
+            VideoAnalysisTask.create("https://www.youtube.com/watch?v=v1", Source.BATCH),
         )
 
         val videoDetail =
@@ -75,7 +76,7 @@ class YouTubeCollectServiceTest {
 
         // then - 메타데이터가 태깅되어 저장된다
         verify(youTubeVideoPersistencePort).saveAll(any())
-        verify(videoAnalyzeUseCase, times(5)).analyzeVideo("https://www.youtube.com/watch?v=v1")
+        verify(videoAnalyzeUseCase, times(5)).analyzeVideo("https://www.youtube.com/watch?v=v1", Source.BATCH)
     }
 
     @Test
@@ -99,7 +100,7 @@ class YouTubeCollectServiceTest {
 
         // then - 모두 중복이므로 저장을 수행하지 않는다
         verify(youTubeVideoPersistencePort, never()).saveAll(any())
-        verify(videoAnalyzeUseCase, never()).analyzeVideo(any())
+        verify(videoAnalyzeUseCase, never()).analyzeVideo(any(), any())
     }
 
     @Test
@@ -113,7 +114,7 @@ class YouTubeCollectServiceTest {
         // then - 상세 조회와 저장을 모두 건너뛴다
         verify(youTubePort, never()).getVideoDetails(any())
         verify(youTubeVideoPersistencePort, never()).saveAll(any())
-        verify(videoAnalyzeUseCase, never()).analyzeVideo(any())
+        verify(videoAnalyzeUseCase, never()).analyzeVideo(any(), any())
     }
 
     @Test
@@ -182,8 +183,8 @@ class YouTubeCollectServiceTest {
             )
         whenever(youTubePort.searchVideos(any(), any())).thenReturn(listOf(searchResult))
         whenever(youTubeVideoPersistencePort.findExistingVideoIds(any())).thenReturn(emptySet())
-        whenever(videoAnalyzeUseCase.analyzeVideo(any())).thenReturn(
-            VideoAnalysisTask.create("https://www.youtube.com/watch?v=v-asia"),
+        whenever(videoAnalyzeUseCase.analyzeVideo(any(), any())).thenReturn(
+            VideoAnalysisTask.create("https://www.youtube.com/watch?v=v-asia", Source.BATCH),
         )
 
         val videoDetail =
@@ -211,7 +212,7 @@ class YouTubeCollectServiceTest {
 
         // then - 저장이 수행된다
         verify(youTubeVideoPersistencePort).saveAll(any())
-        verify(videoAnalyzeUseCase).analyzeVideo("https://www.youtube.com/watch?v=v-asia")
+        verify(videoAnalyzeUseCase).analyzeVideo("https://www.youtube.com/watch?v=v-asia", Source.BATCH)
     }
 
     @Test

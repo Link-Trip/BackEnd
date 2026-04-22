@@ -59,24 +59,34 @@ class VideoAnalysisTaskTest {
     }
 
     @Test
-    fun `create는 정규화된 URL로 PENDING 상태의 VideoAnalysisTask를 생성한다`() {
-        // given - youtu.be 단축 URL
+    fun `create는 정규화된 URL로 PENDING 상태와 지정된 source로 VideoAnalysisTask를 생성한다`() {
+        // given - youtu.be 단축 URL + USER source
         val shortUrl = "https://youtu.be/abc123"
 
         // when
-        val task = VideoAnalysisTask.create(shortUrl)
+        val task = VideoAnalysisTask.create(shortUrl, Source.USER)
 
-        // then - 정규화된 URL, PENDING 상태, valid=false
+        // then - 정규화된 URL, PENDING 상태, valid=false, source=USER
         assertEquals("https://www.youtube.com/watch?v=abc123", task.youtubeUrl)
         assertEquals(VideoAnalysisTaskStatus.PENDING, task.status)
+        assertEquals(Source.USER, task.source)
         assertFalse(task.valid)
         assertTrue(task.id.isNotBlank())
     }
 
     @Test
+    fun `create에 BATCH source를 전달하면_source=BATCH로 task가 생성되어 통계 분류가 가능하다`() {
+        // when - BATCH source 로 생성
+        val task = VideoAnalysisTask.create("https://youtu.be/abc123", Source.BATCH)
+
+        // then - source=BATCH 로 audit 정보가 박혀 통계 집계 가능
+        assertEquals(Source.BATCH, task.source)
+    }
+
+    @Test
     fun `create에 유효하지 않은 URL을 전달하면 예외가 발생한다`() {
         assertThrows<LinktripException> {
-            VideoAnalysisTask.create("https://naver.com/video")
+            VideoAnalysisTask.create("https://naver.com/video", Source.USER)
         }
     }
 }

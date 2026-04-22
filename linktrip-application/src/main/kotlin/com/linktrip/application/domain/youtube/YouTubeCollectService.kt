@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.youtube
 
+import com.linktrip.application.domain.video.Source
 import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
 import com.linktrip.application.port.output.external.YouTubePort
@@ -95,7 +96,10 @@ class YouTubeCollectService(
     private fun requestVideoAnalysis(videos: List<YouTubeVideoMeta>) {
         videos.forEach { video ->
             try {
-                videoAnalyzeUseCase.analyzeVideo(VideoAnalysisTask.buildUrl(video.videoId))
+                videoAnalyzeUseCase.analyzeVideo(
+                    youtubeUrl = VideoAnalysisTask.buildUrl(video.videoId),
+                    source = Source.BATCH,
+                )
             } catch (e: Exception) {
                 logger.warn(e) { "영상 분석 요청 실패: videoId=${video.videoId}" }
             }

@@ -56,7 +56,7 @@ class VideoAnalysisRetryJobConfig(
             }
 
             newTasks.forEach { task ->
-                videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl)
+                videoAnalysisQueuePort.enqueue(task.id, task.youtubeUrl, task.source)
             }
             logger.info {
                 "방치된 PENDING 영상 분석 건 큐 재투입: ${newTasks.size}건 " +
