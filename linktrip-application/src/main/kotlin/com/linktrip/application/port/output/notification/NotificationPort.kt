@@ -1,5 +1,6 @@
 package com.linktrip.application.port.output.notification
 
+import com.linktrip.application.domain.notification.CostAlertEvent
 import com.linktrip.application.domain.notification.ExceptionAlertEvent
 
 /**
@@ -8,4 +9,6 @@ import com.linktrip.application.domain.notification.ExceptionAlertEvent
  */
 interface NotificationPort {
     fun sendExceptionAlert(event: ExceptionAlertEvent)
+
+    fun sendCostAlert(event: CostAlertEvent)
 }
