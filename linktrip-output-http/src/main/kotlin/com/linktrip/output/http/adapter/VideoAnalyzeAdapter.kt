@@ -6,6 +6,9 @@ import com.google.genai.Client
 import com.google.genai.types.Content
 import com.google.genai.types.HttpOptions
 import com.google.genai.types.Part
+import com.linktrip.application.domain.quota.ApiCallCounterService
+import com.linktrip.application.domain.quota.ApiQuotaGuardService
+import com.linktrip.application.domain.quota.ApiType
 import com.linktrip.application.domain.video.VideoAnalysisResult
 import com.linktrip.application.port.output.external.VideoAnalyzePort
 import com.linktrip.common.exception.ExceptionCode
@@ -31,6 +34,8 @@ class VideoAnalyzeAdapter(
     private val gcpProperties: GcpProperties,
     private val objectMapper: ObjectMapper,
     private val transcriptClient: YoutubeTranscriptClient,
+    private val apiQuotaGuardService: ApiQuotaGuardService,
+    private val apiCallCounterService: ApiCallCounterService,
 ) : VideoAnalyzePort {
     private val credentials: GoogleCredentials by lazy {
         FileInputStream(gcpProperties.credentialsPath).use { stream ->
@@ -112,6 +117,9 @@ class VideoAnalyzeAdapter(
         transcript: String,
         videoId: String,
     ): VideoAnalysisResult {
+        if (apiQuotaGuardService.isExceeded(ApiType.GEMINI)) {
+            throw LinktripException(ExceptionCode.BAD_GATEWAY_GEMINI)
+        }
         try {
             val response =
                 client.models.generateContent(
@@ -121,6 +129,7 @@ class VideoAnalyzeAdapter(
                     ),
                     null,
                 )
+            apiCallCounterService.recordSuccess(ApiType.GEMINI)
 
             val rawText = response.text()
             logger.debug { "Gemini 응답 길이: ${rawText?.length ?: 0}자" }
@@ -159,6 +168,9 @@ class VideoAnalyzeAdapter(
      * 자막 추출 자체가 불가능한 영상에 대한 fallback 으로 와이어업할 경우에만 사용한다.
      */
     private fun analyzeByAiVideoIngestion(youtubeUrl: String): VideoAnalysisResult {
+        if (apiQuotaGuardService.isExceeded(ApiType.GEMINI)) {
+            throw LinktripException(ExceptionCode.BAD_GATEWAY_GEMINI)
+        }
         try {
             val response =
                 client.models.generateContent(
@@ -169,6 +181,7 @@ class VideoAnalyzeAdapter(
                     ),
                     null,
                 )
+            apiCallCounterService.recordSuccess(ApiType.GEMINI)
 
             val jsonText = stripMarkdownCodeBlock(response.text())
             val aiResponse = objectMapper.readValue(jsonText, AiApiResponse::class.java)
