@@ -46,3 +46,17 @@ youtube:
   api-key: ${YOUTUBE_API_KEY}
   health-check:
     sentinel-video-id: TVM6Nswlfbg
+
+api:
+  # 외부 API 일일 호출 한도. 초과 시 컨슈머가 dequeue 자체를 멈춰 비용 발생 호출을 사전 차단.
+  # null/미설정 = 무제한 (가드 비활성).
+  daily-quota:
+    gemini: ${API_DAILY_QUOTA_GEMINI:500}
+    youtube-data: ${API_DAILY_QUOTA_YOUTUBE_DATA:9000}
+    google-places: ${API_DAILY_QUOTA_GOOGLE_PLACES:3000}
+  # API 1회 호출당 추정 비용 (KRW). 누적 비용이 1000원 단위로 임계값 넘으면 Discord 알림.
+  # 단가는 공급사 가격 변동에 맞춰 운영 중 조정.
+  cost-per-call-krw:
+    gemini: ${API_COST_GEMINI_KRW:50}
+    youtube-data: ${API_COST_YOUTUBE_DATA_KRW:0}
+    google-places: ${API_COST_GOOGLE_PLACES_KRW:7}
