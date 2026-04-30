@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
@@ -47,8 +47,21 @@ class TripPlanServiceTest {
     @Mock
     lateinit var hashtagPort: HashtagPersistencePort
 
-    @InjectMocks
-    lateinit var service: TripPlanService
+    private lateinit var service: TripPlanService
+
+    @BeforeEach
+    fun setUp() {
+        // @InjectMocks 는 Long 같은 단순 타입을 주입 못 하므로 명시 생성.
+        service =
+            TripPlanService(
+                planPort = planPort,
+                planItemPort = planItemPort,
+                itineraryItemPort = itineraryItemPort,
+                requestPort = requestPort,
+                hashtagPort = hashtagPort,
+                dailyVideoAnalyzeLimit = 10L,
+            )
+    }
 
     @Nested
     inner class RegisterRequest {
