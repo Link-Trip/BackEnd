@@ -20,7 +20,8 @@ class ApiDailyCostAlertPersistenceAdapter(
     private val jpaRepository: ApiDailyCostAlertJpaRepository,
 ) : ApiDailyCostAlertPersistencePort {
     @Transactional(readOnly = true)
-    override fun findLastSentThresholdKrw(date: LocalDate): Long? = jpaRepository.findByAlertDate(date)?.lastSentThresholdKrw
+    override fun findLastSentThresholdKrw(date: LocalDate): Long? =
+        jpaRepository.findByAlertDate(date)?.lastSentThresholdKrw
 
     @Transactional
     override fun upsert(alert: ApiDailyCostAlert) {
