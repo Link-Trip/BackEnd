@@ -6,6 +6,7 @@ import com.linktrip.output.persistence.mysql.entity.TripPlanRequestEntity
 import com.linktrip.output.persistence.mysql.repository.TripPlanRequestJpaRepository
 import com.linktrip.output.persistence.mysql.repository.TripPlanRequestQuerydslRepository
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class TripPlanRequestPersistenceAdapter(
@@ -29,4 +30,9 @@ class TripPlanRequestPersistenceAdapter(
     override fun saveAll(requests: List<TripPlanRequest>) {
         jpaRepository.saveAll(requests.map { TripPlanRequestEntity.from(it) })
     }
+
+    override fun countByMemberIdAndDate(
+        memberId: String,
+        date: LocalDate,
+    ): Long = querydslRepository.countByMemberIdAndDate(memberId, date)
 }

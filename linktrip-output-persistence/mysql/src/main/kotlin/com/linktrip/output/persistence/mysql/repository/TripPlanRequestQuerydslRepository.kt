@@ -4,6 +4,7 @@ import com.linktrip.output.persistence.mysql.entity.QTripPlanRequestEntity
 import com.linktrip.output.persistence.mysql.entity.TripPlanRequestEntity
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Repository
 class TripPlanRequestQuerydslRepository(
@@ -30,4 +31,22 @@ class TripPlanRequestQuerydslRepository(
                 request.deleted.isFalse,
             )
             .fetch()
+
+    fun countByMemberIdAndDate(
+        memberId: String,
+        date: LocalDate,
+    ): Long {
+        val startOfDay = date.atStartOfDay()
+        val startOfNextDay = date.plusDays(1).atStartOfDay()
+        return queryFactory
+            .select(request.count())
+            .from(request)
+            .where(
+                request.memberId.eq(memberId),
+                request.createdAt.goe(startOfDay),
+                request.createdAt.lt(startOfNextDay),
+                request.deleted.isFalse,
+            )
+            .fetchOne() ?: 0L
+    }
 }
