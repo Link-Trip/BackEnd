@@ -155,8 +155,18 @@ class ApiCallCounterServiceTest {
         whenever(countPort.findAllByDate(LocalDate.now())).thenReturn(
             listOf(
                 ApiCallCount(id = "g", apiType = ApiType.GEMINI, callDate = LocalDate.now(), callCount = geminiCount),
-                ApiCallCount(id = "y", apiType = ApiType.YOUTUBE_DATA, callDate = LocalDate.now(), callCount = youtubeDataCount),
-                ApiCallCount(id = "p", apiType = ApiType.GOOGLE_PLACES, callDate = LocalDate.now(), callCount = googlePlacesCount),
+                ApiCallCount(
+                    id = "y",
+                    apiType = ApiType.YOUTUBE_DATA,
+                    callDate = LocalDate.now(),
+                    callCount = youtubeDataCount,
+                ),
+                ApiCallCount(
+                    id = "p",
+                    apiType = ApiType.GOOGLE_PLACES,
+                    callDate = LocalDate.now(),
+                    callCount = googlePlacesCount,
+                ),
             ),
         )
         whenever(costPolicyPort.perCallKrw(ApiType.GEMINI)).thenReturn(50L)
