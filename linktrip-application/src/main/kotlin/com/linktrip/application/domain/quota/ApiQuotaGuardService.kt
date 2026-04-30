@@ -2,6 +2,8 @@ package com.linktrip.application.domain.quota
 
 import com.linktrip.application.port.output.quota.ApiCallCountPersistencePort
 import com.linktrip.application.port.output.quota.ApiQuotaPolicyPort
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -21,7 +23,9 @@ class ApiQuotaGuardService(
     fun isAnyApiExceeded(): Boolean = ApiType.entries.any { isExceeded(it) }
 
     fun isExceeded(apiType: ApiType): Boolean {
-        val limit = policyPort.dailyLimit(apiType) ?: return false
+        val limit =
+            policyPort.dailyLimit(apiType)
+                ?: throw LinktripException(ExceptionCode.INTERNAL_QUOTA_POLICY_NOT_CONFIGURED)
         val current = countPort.findByApiTypeAndDate(apiType, LocalDate.now())?.callCount ?: 0L
         val exceeded = current >= limit
         if (exceeded) {
