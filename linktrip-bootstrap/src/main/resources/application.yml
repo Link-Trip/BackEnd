@@ -62,3 +62,9 @@ api:
     gemini: ${API_COST_GEMINI_KRW:50}
     youtube-data: ${API_COST_YOUTUBE_DATA_KRW:0}
     google-places: ${API_COST_GOOGLE_PLACES_KRW:7}
+
+member:
+  # 멤버 1명이 하루에 요청할 수 있는 서로 다른 영상 분석 수.
+  # trip_plan_request 의 (member_id, task_id) unique 덕에 같은 영상 중복 요청은 카운트 X.
+  # 초과 시 TOO_MANY_REQUESTS_VIDEO_ANALYZE_DAILY 로 응답하며 어뷰징 방지에 사용.
+  daily-video-analyze-limit: ${MEMBER_DAILY_VIDEO_ANALYZE_LIMIT:10}

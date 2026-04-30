@@ -29,6 +29,7 @@ enum class ExceptionCode(
 
     // 429
     TOO_MANY_REQUESTS(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
+    TOO_MANY_REQUESTS_VIDEO_ANALYZE_DAILY(429, "오늘 요청 가능한 영상 분석 한도를 초과했습니다. 내일 다시 시도해주세요."),
 
     // 500
     INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
