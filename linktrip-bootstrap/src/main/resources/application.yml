@@ -49,7 +49,9 @@ youtube:
 
 api:
   # 외부 API 일일 호출 한도. 초과 시 컨슈머가 dequeue 자체를 멈춰 비용 발생 호출을 사전 차단.
-  # null/미설정 = 무제한 (가드 비활성).
+  # 환경변수 미설정 시 아래 default 값이 적용된다. 키 자체가 누락되면
+  # ApiQuotaGuardService 가 fail-closed 로 throw → 가드가 조용히 비활성화되는 사고를 막는다.
+  # 무제한 운영이 필요하면 환경변수에 매우 큰 값을 명시할 것.
   daily-quota:
     gemini: ${API_DAILY_QUOTA_GEMINI:500}
     youtube-data: ${API_DAILY_QUOTA_YOUTUBE_DATA:9000}
