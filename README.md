@@ -7,7 +7,7 @@
 | 분류 | 기술 |
 |------|------|
 | Language | Kotlin 1.9.25, JDK 21 |
-| Framework | Spring Boot 3.4, Spring Batch, Spring Security |
+| Framework | Spring Boot 3.4, Spring Batch |
 | ORM / Query | JPA, QueryDSL |
 | Database | MySQL |
 | Cache | Caffeine Cache |
@@ -230,44 +230,126 @@ VideoAnalyzeService                  VideoAnalyzeEventListener        VideoAnaly
 | `INVALID` | 200 | id / url / status 만 | 자막 없음 등 영구 종료 |
 | `PENDING` / `PROCESSING` | 202 | id / url / status 만 | 클라이언트 폴링 |
 
-### 자막 실패 분류 (sentinel ping)
-
-라이브러리(`youtube-transcript-api`) 가 단일 예외 타입만 던져 원인 모호 → sentinel 영상 ping 으로 분류:
-
-```
-자막 추출 시도
-  ├─ HTTP 429/403 → ProxyYoutubeClient 가 즉시 다음 프록시 시도
-  ├─ 라이브러리 TRE (모호) → sentinel ping
-  │   ├─ sentinel 정상 → 영상 고유 문제 (자막 없음 등) → INVALID
-  │   └─ sentinel 실패 → 전 프록시 차단 확정 → PENDING
-  └─ 자막 추출 성공
-```
-
 ### 동시 요청 처리
 
-```
-같은 영상을 여러 사용자가 요청하는 경우:
-분석은 1회만 수행하고, 각 요청자의 여행 계획은 개별 생성
+같은 영상을 여러 사용자가 동시에 / 시차로 요청해도 **분석은 정확히 1회만 수행**하고, 각 요청자에게 **개별 TripPlan 을 생성**합니다.
+영상의 현재 상태에 따라 처리 분기가 달라지며, 분석 완료 시점에 race condition 이 발생해도 Lazy 보완으로 자가 복구합니다.
 
-User A: POST /analyze (영상 X) → 새 분석 시작, 대기열 등록, Event 발행
-User B: POST /analyze (영상 X) → PENDING 확인 → 대기열 등록 (Event 발행 안 함)
-...분석 완료...
-EventListener → 대기열 조회 → [User A, User B] → TripPlan 각각 생성
+#### 시나리오 1 — 신규 영상 (User A 가 처음 요청)
+
+`video_analysis_task` 도 없고 분석도 진행 중이 아닌 영상. **Task 생성 + 대기열 등록 + 이벤트 발행** 모두 수행.
+
+```mermaid
+sequenceDiagram
+    participant UA as User A
+    participant Svc as VideoAnalyzeService
+    participant DB as DB
+    participant Q as 분석 큐
+
+    UA->>Svc: POST /analyze (영상 X)
+    activate Svc
+    Note over Svc: @Transactional
+    Svc->>DB: SELECT task by url
+    DB-->>Svc: not found
+    Svc->>DB: INSERT task (PENDING)
+    Svc->>DB: INSERT trip_plan_request (User A)
+    Svc->>Q: VideoAnalyzeEvent 발행<br/>(AFTER_COMMIT 에 enqueue)
+    Svc-->>UA: 202 Accepted
+    deactivate Svc
 ```
 
-```
-분석 완료 후 요청하는 경우:
+#### 시나리오 2 — 분석 진행 중 영상 (User B 가 뒤따라 요청)
 
-User C: POST /analyze (영상 X) → COMPLETED 확인 → TripPlan 즉시 생성 + 응답에 결과 인라인
+`task` 가 이미 `PENDING` / `PROCESSING`. **대기열만 등록**하고 **이벤트는 발행 안 함** → 중복 분석 차단.
+
+```mermaid
+sequenceDiagram
+    participant UB as User B
+    participant Svc as VideoAnalyzeService
+    participant DB as DB
+    participant Q as 분석 큐
+
+    UB->>Svc: POST /analyze (영상 X)
+    activate Svc
+    Svc->>DB: SELECT task by url
+    DB-->>Svc: PENDING (이미 큐에 있음)
+    Svc->>DB: INSERT trip_plan_request (User B)
+    Note over Svc: 이벤트 발행 ❌<br/>큐에 중복 enqueue 안 함
+    Svc-->>UB: 202 Accepted
+    deactivate Svc
+
+    Note over Q,DB: ... 분석 완료 후 ...
+    Q->>DB: 대기열 조회 → [User A, User B]
+    Q->>DB: 각자에게 TripPlan 생성
 ```
 
-```
-경쟁 조건 보완:
+#### 시나리오 3 — 이미 완료된 영상 (User C 가 나중에 요청)
 
-분석 완료 커밋과 대기열 조회 사이에 등록된 요청이 누락될 수 있음
-→ GET /schedule 조회 시 TripPlan이 없으면 즉시 생성 (Lazy 보완)
-→ EXISTS 쿼리는 (member_id, video_analysis_task_id) 커버링 인덱스로 처리
+`task.status = COMPLETED` 이고 분석 결과가 DB 에 있는 상태. **분석 큐 안 거치고 즉시 TripPlan 생성 + 결과 인라인 200**.
+
+```mermaid
+sequenceDiagram
+    participant UC as User C
+    participant Svc as VideoAnalyzeService
+    participant DB as DB
+
+    UC->>Svc: POST /analyze (영상 X)
+    activate Svc
+    Svc->>DB: SELECT task by url
+    DB-->>Svc: COMPLETED
+    Svc->>DB: INSERT TripPlan (User C)
+    Svc->>DB: SELECT 분석 결과 (요약 / 일정 / 타임라인)
+    Svc-->>UC: 200 OK + 결과 인라인
+    deactivate Svc
 ```
+
+#### Race condition + Lazy 보완
+
+**문제**: 분석 완료 커밋과 Consumer 의 대기열 조회 사이의 좁은 창에서 들어온 요청은 `trip_plan_request` 에 들어가긴 하지만 Consumer 가 이미 대기열을 조회한 뒤라 **누락**될 수 있음.
+
+```mermaid
+sequenceDiagram
+    participant UD as User D
+    participant Svc as VideoAnalyzeService
+    participant DB as DB
+    participant Q as Consumer
+
+    Note over Q: 분석 진행 중...
+    Q->>DB: UPDATE task SET status = COMPLETED
+    Q->>DB: COMMIT
+
+    rect rgb(255, 240, 240)
+        Note over UD,DB: race window — Consumer 가 대기열 조회하기 직전
+        UD->>Svc: POST /analyze (영상 X)
+        Svc->>DB: SELECT task → COMPLETED 보임
+        Note over Svc: 시나리오 3 으로 분기되어<br/>TripPlan 즉시 생성됨 ✓
+        Svc-->>UD: 200 OK + 결과
+    end
+
+    Q->>DB: 대기열 조회 → User D 빠질 수 있음
+    Note over Q: 다른 분기에서 누락 시?<br/>아래 Lazy 보완으로 복구
+```
+
+**보완 — GET `/schedule` Lazy 생성**: 어떤 경로로 누락되더라도, 사용자가 일정표를 조회하는 시점에 TripPlan 이 없으면 즉시 생성합니다. 두 번째 요청부터는 정상.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant Ctl as ScheduleController
+    participant DB as DB
+
+    U->>Ctl: GET /video/{id}/schedule
+    activate Ctl
+    Ctl->>DB: SELECT TripPlan WHERE member_id = ?
+    DB-->>Ctl: not found
+    Note over Ctl: Lazy 보완 발동
+    Ctl->>DB: INSERT TripPlan (User)
+    Ctl->>DB: SELECT 분석 결과 + 좌표
+    Ctl-->>U: 일정표 + 장소 좌표
+    deactivate Ctl
+```
+
+**왜 EXISTS 쿼리가 빠른가**: `trip_plan` 의 `(member_id, video_analysis_task_id)` 가 **유니크 인덱스 + 커버링 인덱스** 라, "이 멤버의 plan 이 있는지" 체크가 인덱스 만으로 끝나 테이블 접근 0.
 
 ### 상태 전이
 
@@ -277,6 +359,85 @@ PENDING ──→ COMPLETED (분석 성공)
    ├──→ FAILED    (AI 분석 오류) ──→ 재요청 시 PENDING 복원
    └──→ PENDING   (IP 차단 / 일시 오류) ──→ 5분 후 재시도 배치가 픽업
 ```
+
+---
+
+## 자막 추출 — 프록시 라운드로빈 + 실패 분류
+
+YouTube 자막 API 는 IP 차단 / 지역 차단 / 영상 자체의 자막 부재 등 실패 원인이 다양한데, 라이브러리 (`youtube-transcript-api`) 가 모두 단일 예외 타입으로 던져 원인 구분이 안 됩니다.
+이 시스템은 **(1) 프록시 라운드로빈으로 IP 차단을 자동 우회**하고, **(2) sentinel ping 으로 모호한 실패 원인을 분류**해 재시도 가치가 있는 실패 (`PENDING`) 와 영구 종료 (`INVALID`) 를 구별합니다.
+
+### 프록시 라운드로빈 (webshare)
+
+```mermaid
+sequenceDiagram
+    participant Caller as 요청
+    participant Proxy as ProxyYoutubeClient
+    participant YT as YouTube
+
+    Note over Proxy: current = KR (sticky)
+    Caller->>Proxy: videoId
+    Proxy->>YT: GET (한국 IP)
+    YT-->>Proxy: HTTP 200 (자막 ok)
+    Proxy-->>Caller: 자막
+    Note over Proxy: 다음 요청도 같은 IP 유지<br/>(sticky session)
+    Caller->>Proxy: videoId
+    Proxy->>YT: GET (한국 IP)
+    YT-->>Proxy: HTTP 429 / 403 (차단)
+    Note over Proxy: in-flight swap<br/>→ JP 로 즉시 교체
+    Proxy->>YT: GET (일본 IP)
+    YT-->>Proxy: HTTP 200
+    Proxy-->>Caller: 자막
+```
+
+**프록시 풀 우선순위** (한국 영상이 주력 콘텐츠라 한국 IP 우선):
+
+```
+KR (2개) → JP (1개) → TW (2개) → MY (1개) → 나머지 (총 10개 sticky)
+```
+
+- **Sticky session**: 같은 IP 를 계속 사용. 매번 새 IP 로 교체하면 라운드로빈 효율보다 초기화 비용이 큼
+- **429 / 403 시 즉시 swap**: 차단 응답을 받자마자 in-flight 요청을 다음 IP 로 교체. 한 번 차단된 IP 는 같은 요청 처리에서 다시 안 씀
+- **`IOException` catch + 60초 request timeout**: 프록시 측 hang 시 무한 대기 방지
+
+### 모호 실패 분류 (sentinel ping)
+
+라이브러리가 던지는 단일 예외 (`TranscriptRetrievalException`) 만으로는 다음을 구별할 수 없습니다:
+
+| 실패 원인 | 재시도 가치 | 적합한 status |
+|---|---|---|
+| 영상 자체에 자막 없음 / 영상 비공개 | ❌ 재시도 무의미 | `INVALID` (영구 종료) |
+| 일시적 IP 차단 / 전 프록시 일시 차단 | ✅ 시간 지나면 회복 | `PENDING` (5분 후 재시도) |
+
+→ **자막이 항상 존재하는 sentinel 영상** (`TVM6Nswlfbg`) 으로 ping 을 날려 분류:
+
+```mermaid
+flowchart TD
+    A[자막 추출 시도] --> B{HTTP 응답?}
+    B -->|200| C[자막 추출 성공 ✓]
+    B -->|429 / 403| D[다음 프록시 swap<br/>위 라운드로빈으로 회귀]
+    B -->|TranscriptRetrievalException<br/>원인 모호| E[sentinel 영상 ping]
+    E --> F{sentinel 응답?}
+    F -->|HTTP 200 정상<br/>우리 프록시는 살아있음| G["영상 고유 문제<br/>(자막 없음 / 비공개)<br/>status = INVALID<br/>재시도 안 함"]
+    F -->|sentinel 도 실패| H["전 프록시 IP 동시 차단 확정<br/>status = PENDING<br/>5분 후 VideoAnalysisRetryJob 이 재 enqueue"]
+
+    style C fill:#d4edda,stroke:#155724
+    style G fill:#f8d7da,stroke:#721c24
+    style H fill:#fff3cd,stroke:#856404
+```
+
+### 이중 안전망 효과
+
+```
+1차 — 프록시 라운드로빈
+     단일 IP 차단을 자동 우회. 사용자에게 실패가 안 보임.
+
+2차 — sentinel ping
+     라운드로빈으로도 회복 안 되는 상황에서
+     "영상 문제 vs 전 프록시 차단" 구분 → 재시도 정책 결정.
+```
+
+→ IP 차단으로 인한 재시도 가능 실패와 자막 부재로 인한 영구 실패가 섞이지 않게 됨. 결과: `PENDING` row 가 정확히 "회복 가능" 한 건만 남음.
 
 ---
 
