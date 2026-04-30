@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.domain.quota.ApiQuotaGuardService
 import com.linktrip.application.domain.trip.TripPlanRequest
 import com.linktrip.application.domain.trip.TripPlanService
 import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
@@ -50,6 +51,9 @@ class VideoAnalysisQueueConsumerTest {
     @Mock
     lateinit var rateLimitBucketStore: RateLimitBucketStore
 
+    @Mock
+    lateinit var apiQuotaGuardService: ApiQuotaGuardService
+
     private fun createConsumer() =
         VideoAnalysisQueueConsumer(
             videoAnalysisQueuePort = videoAnalysisQueuePort,
@@ -61,6 +65,7 @@ class VideoAnalysisQueueConsumerTest {
             tripPlanRequestPort = tripPlanRequestPort,
             tripPlanService = tripPlanService,
             rateLimitBucketStore = rateLimitBucketStore,
+            apiQuotaGuardService = apiQuotaGuardService,
         )
 
     @Test
