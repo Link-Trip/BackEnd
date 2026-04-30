@@ -19,5 +19,9 @@ CREATE TABLE IF NOT EXISTS `trip_plan_request` (
 
     -- 분석 완료된 task 에 대한 미처리 요청 batch 조회.
     -- TripPlanRequestQuerydslRepository 의 후속 처리 로직이 사용.
-    KEY `idx_trip_plan_request_task_processed` (`video_analysis_task_id`, `processed`)
+    KEY `idx_trip_plan_request_task_processed` (`video_analysis_task_id`, `processed`),
+
+    -- 멤버별 일일 요청 카운트 (어뷰징 방지) 시 created_at 기준 range scan.
+    -- TripPlanRequestQuerydslRepository.countByMemberIdAndDate 가 사용.
+    KEY `idx_trip_plan_request_member_created` (`member_id`, `created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

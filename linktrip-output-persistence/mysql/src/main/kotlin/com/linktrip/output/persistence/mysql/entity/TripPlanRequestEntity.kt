@@ -22,6 +22,10 @@ import jakarta.persistence.UniqueConstraint
             name = "idx_trip_plan_request_task_processed",
             columnList = "video_analysis_task_id, processed",
         ),
+        Index(
+            name = "idx_trip_plan_request_member_created",
+            columnList = "member_id, created_at",
+        ),
     ],
 )
 class TripPlanRequestEntity(
