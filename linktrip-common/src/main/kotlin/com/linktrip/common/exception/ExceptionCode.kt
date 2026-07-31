@@ -10,6 +10,7 @@ enum class ExceptionCode(
     BAD_REQUEST_ITINERARY_ITEMS(400, "유효하지 않은 여행 일정 항목입니다."),
     BAD_REQUEST_DISCOVER_QUERY(400, "country와 region은 동시에 사용할 수 없습니다."),
     BAD_REQUEST_MISSING_IDEMPOTENCY_KEY(400, "Idempotency-Key 헤더는 필수입니다."),
+    BAD_REQUEST_PLATFORM(400, "지원하지 않는 플랫폼입니다."),
 
     // 401
     UNAUTHORIZED_TOKEN_EXPIRED(401, "만료된 토큰입니다."),
@@ -23,6 +24,7 @@ enum class ExceptionCode(
     // 404
     NOT_FOUND_VIDEO_ANALYSIS_TASK(404, "영상 분석 작업을 찾을 수 없습니다."),
     NOT_FOUND_TRIP_PLAN(404, "여행 계획을 찾을 수 없습니다."),
+    NOT_FOUND_MEMBER(404, "회원을 찾을 수 없습니다."),
 
     // 409
     DUPLICATE_REQUEST(409, "이미 요청한 값입니다."),
