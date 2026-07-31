@@ -3,12 +3,14 @@ package com.linktrip.input.http.controller.docs
 import com.linktrip.input.http.controller.dto.request.FcmTokenRequest
 import com.linktrip.input.http.controller.dto.request.NotificationSettingRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
+import com.linktrip.input.http.controller.dto.response.ExceptionResponse
 import com.linktrip.input.http.controller.dto.response.NotificationSettingResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -42,13 +44,29 @@ interface MemberDocs {
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "400",
-                description = "잘못된 요청 (fcmToken/platform 누락 또는 지원하지 않는 플랫폼)",
+                description = "잘못된 요청",
                 content = [
                     Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
                         examples = [
                             ExampleObject(
+                                name = "fcmToken 누락 (validation 실패)",
+                                value =
+                                    """{"code":"BAD_REQUEST_VALIDATION","message":"요청 형식이 잘못되었습니다.",""" +
+                                        """"cause":"fcmToken: FCM 토큰은 필수입니다.","timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
                                 name = "지원하지 않는 플랫폼",
-                                value = """{"code":"BAD_REQUEST_PLATFORM","message":"지원하지 않는 플랫폼입니다."}""",
+                                value =
+                                    """{"code":"BAD_REQUEST_PLATFORM","message":"지원하지 않는 플랫폼입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
+                                name = "멱등성 키 누락",
+                                value =
+                                    """{"code":"BAD_REQUEST_MISSING_IDEMPOTENCY_KEY",""" +
+                                        """"message":"Idempotency-Key 헤더는 필수입니다.","timestamp":1785390616431}""",
                             ),
                         ],
                     ),
@@ -56,11 +74,84 @@ interface MemberDocs {
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "401",
-                description = "인증 실패",
+                description = "인증 실패 (토큰 없음/만료/위조)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "토큰 없음",
+                                value =
+                                    """{"code":"UNAUTHORIZED_AUTHENTICATION_FAILED","message":"인증 정보가 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
+                                name = "토큰 만료",
+                                value =
+                                    """{"code":"UNAUTHORIZED_TOKEN_EXPIRED","message":"만료된 토큰입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
+                                name = "유효하지 않은 토큰",
+                                value =
+                                    """{"code":"UNAUTHORIZED_TOKEN_INVALID","message":"유효하지 않은 토큰입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "404",
                 description = "회원을 찾을 수 없음",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"NOT_FOUND_MEMBER","message":"회원을 찾을 수 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "409",
+                description = "동일한 멱등성 키의 요청이 이미 처리 중인 경우",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"DUPLICATE_REQUEST","message":"이미 요청한 값입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "429",
+                description = "요청 횟수 초과 (rate limit)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"TOO_MANY_REQUESTS",""" +
+                                        """"message":"요청이 너무 많습니다. 잠시 후 다시 시도해주세요.","timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
         ],
     )
@@ -73,6 +164,7 @@ interface MemberDocs {
         summary = "알림 수신 설정 변경 (ON/OFF)",
         description = """
             로그인한 회원의 푸시 알림 수신 여부를 변경합니다.
+            응답으로 변경 후 설정값을 반환합니다.
 
             **멱등성:** `Idempotency-Key` 헤더가 필수입니다.
         """,
@@ -95,15 +187,102 @@ interface MemberDocs {
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "400",
-                description = "잘못된 요청 (enabled 누락)",
+                description = "잘못된 요청",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "enabled 누락 (validation 실패)",
+                                value =
+                                    """{"code":"BAD_REQUEST_VALIDATION","message":"요청 형식이 잘못되었습니다.",""" +
+                                        """"cause":"enabled: 알림 수신 여부는 필수입니다.","timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
+                                name = "멱등성 키 누락",
+                                value =
+                                    """{"code":"BAD_REQUEST_MISSING_IDEMPOTENCY_KEY",""" +
+                                        """"message":"Idempotency-Key 헤더는 필수입니다.","timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "401",
-                description = "인증 실패",
+                description = "인증 실패 (토큰 없음/만료/위조)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "토큰 없음",
+                                value =
+                                    """{"code":"UNAUTHORIZED_AUTHENTICATION_FAILED","message":"인증 정보가 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
+                                name = "토큰 만료",
+                                value =
+                                    """{"code":"UNAUTHORIZED_TOKEN_EXPIRED","message":"만료된 토큰입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "404",
                 description = "회원을 찾을 수 없음",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"NOT_FOUND_MEMBER","message":"회원을 찾을 수 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "409",
+                description = "동일한 멱등성 키의 요청이 이미 처리 중인 경우",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"DUPLICATE_REQUEST","message":"이미 요청한 값입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "429",
+                description = "요청 횟수 초과 (rate limit)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"TOO_MANY_REQUESTS",""" +
+                                        """"message":"요청이 너무 많습니다. 잠시 후 다시 시도해주세요.","timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
             ),
         ],
     )

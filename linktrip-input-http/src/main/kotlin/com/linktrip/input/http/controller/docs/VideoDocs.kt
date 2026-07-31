@@ -6,12 +6,14 @@ import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
 import com.linktrip.input.http.controller.dto.response.DiscoverCountryResponses
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
+import com.linktrip.input.http.controller.dto.response.ExceptionResponse
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 
@@ -255,7 +257,57 @@ interface VideoDocs {
         description = """
             사용자들이 생성한 일정 수 기준 상위 10개 나라를 조회합니다.
             일정이 많은 순으로 정렬되어 내려가며, 클라이언트는 이 중 랜덤으로 노출할 수 있습니다.
+            생성된 일정이 없으면 빈 목록을 반환합니다.
         """,
+    )
+    @ApiResponses(
+        value = [
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "200",
+                description = "조회 성공 (일정이 없으면 빈 목록)",
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "401",
+                description = "인증 실패 (토큰 없음/만료/위조)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "토큰 없음",
+                                value =
+                                    """{"code":"UNAUTHORIZED_AUTHENTICATION_FAILED","message":"인증 정보가 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                            ExampleObject(
+                                name = "토큰 만료",
+                                value =
+                                    """{"code":"UNAUTHORIZED_TOKEN_EXPIRED","message":"만료된 토큰입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "429",
+                description = "요청 횟수 초과 (rate limit)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"TOO_MANY_REQUESTS",""" +
+                                        """"message":"요청이 너무 많습니다. 잠시 후 다시 시도해주세요.","timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun getTopCountries(): ApiResponse<DiscoverCountryResponses>
 
