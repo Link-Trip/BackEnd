@@ -1,5 +1,6 @@
 package com.linktrip.output.persistence.mysql.repository
 
+import com.linktrip.application.port.output.persistence.DestinationTripPlanCount
 import com.linktrip.output.persistence.mysql.entity.QTravelItineraryItemEntity
 import com.linktrip.output.persistence.mysql.entity.QTripPlanEntity
 import com.linktrip.output.persistence.mysql.entity.QTripPlanItemEntity
@@ -72,4 +73,27 @@ class TripPlanQuerydslRepository(
                 )
             }
     }
+
+    fun countGroupedByDestination(): List<DestinationTripPlanCount> =
+        queryFactory
+            .select(videoAnalysisTask.destination, tripPlan.id.count())
+            .from(tripPlan)
+            .join(videoAnalysisTask).on(
+                tripPlan.videoAnalysisTaskId.eq(videoAnalysisTask.id),
+                videoAnalysisTask.deleted.isFalse,
+            )
+            .where(
+                tripPlan.deleted.isFalse,
+                videoAnalysisTask.destination.isNotNull,
+            )
+            .groupBy(videoAnalysisTask.destination)
+            .fetch()
+            .mapNotNull { tuple ->
+                tuple.get(videoAnalysisTask.destination)?.let { destination ->
+                    DestinationTripPlanCount(
+                        destination = destination,
+                        count = tuple.get(tripPlan.id.count()) ?: 0L,
+                    )
+                }
+            }
 }

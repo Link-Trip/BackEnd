@@ -1,6 +1,7 @@
 package com.linktrip.output.persistence.mysql.adapter
 
 import com.linktrip.application.domain.trip.TripPlan
+import com.linktrip.application.port.output.persistence.DestinationTripPlanCount
 import com.linktrip.application.port.output.persistence.TripPlanPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanSummaryRow
 import com.linktrip.common.exception.ExceptionCode
@@ -65,4 +66,7 @@ class TripPlanPersistenceAdapter(
                 ?: throw LinktripException(ExceptionCode.NOT_FOUND_TRIP_PLAN)
         entity.title = title
     }
+
+    override fun countGroupedByDestination(): List<DestinationTripPlanCount> =
+        tripPlanQuerydslRepository.countGroupedByDestination()
 }

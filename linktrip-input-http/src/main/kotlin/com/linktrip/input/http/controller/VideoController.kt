@@ -3,6 +3,7 @@ package com.linktrip.input.http.controller
 import com.linktrip.application.domain.video.Source
 import com.linktrip.application.domain.video.VideoAnalysisTaskStatus
 import com.linktrip.application.port.input.DiscoverChannelUseCase
+import com.linktrip.application.port.input.DiscoverCountryUseCase
 import com.linktrip.application.port.input.DiscoverVideoUseCase
 import com.linktrip.application.port.input.TripPlanUseCase
 import com.linktrip.application.port.input.VideoAnalyzeUseCase
@@ -15,6 +16,7 @@ import com.linktrip.input.http.controller.docs.VideoDocs
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
+import com.linktrip.input.http.controller.dto.response.DiscoverCountryResponses
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
@@ -35,6 +37,7 @@ class VideoController(
     private val videoScheduleUseCase: VideoScheduleUseCase,
     private val discoverVideoUseCase: DiscoverVideoUseCase,
     private val discoverChannelUseCase: DiscoverChannelUseCase,
+    private val discoverCountryUseCase: DiscoverCountryUseCase,
     private val tripPlanUseCase: TripPlanUseCase,
 ) : VideoDocs {
     @PostMapping("/analyze")
@@ -108,6 +111,12 @@ class VideoController(
     override fun getChannels(): ApiResponse<DiscoverChannelResponses> {
         val channels = discoverChannelUseCase.getChannels()
         return ApiResponse.ok(DiscoverChannelResponses.from(channels))
+    }
+
+    @GetMapping("/discover/countries")
+    override fun getTopCountries(): ApiResponse<DiscoverCountryResponses> {
+        val countries = discoverCountryUseCase.getTopCountries()
+        return ApiResponse.ok(DiscoverCountryResponses.from(countries))
     }
 
     @GetMapping("/discover/theme")

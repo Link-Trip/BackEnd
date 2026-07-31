@@ -26,7 +26,14 @@ interface TripPlanPersistencePort {
         id: String,
         title: String,
     )
+
+    fun countGroupedByDestination(): List<DestinationTripPlanCount>
 }
+
+data class DestinationTripPlanCount(
+    val destination: String,
+    val count: Long,
+)
 
 data class TripPlanSummaryRow(
     val tripPlan: TripPlan,

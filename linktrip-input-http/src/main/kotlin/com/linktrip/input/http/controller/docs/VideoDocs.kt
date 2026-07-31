@@ -3,6 +3,7 @@ package com.linktrip.input.http.controller.docs
 import com.linktrip.input.http.controller.dto.request.VideoAnalyzeRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverChannelResponses
+import com.linktrip.input.http.controller.dto.response.DiscoverCountryResponses
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoCursorResponse
 import com.linktrip.input.http.controller.dto.response.DiscoverVideoResponses
 import com.linktrip.input.http.controller.dto.response.VideoAnalyzeResponse
@@ -248,6 +249,15 @@ interface VideoDocs {
         description = "큐레이션된 여행 유튜브 채널 목록과 각 채널의 최신 영상을 조회합니다.",
     )
     fun getChannels(): ApiResponse<DiscoverChannelResponses>
+
+    @Operation(
+        summary = "대표 여행지(나라) TOP 10 조회",
+        description = """
+            사용자들이 생성한 일정 수 기준 상위 10개 나라를 조회합니다.
+            일정이 많은 순으로 정렬되어 내려가며, 클라이언트는 이 중 랜덤으로 노출할 수 있습니다.
+        """,
+    )
+    fun getTopCountries(): ApiResponse<DiscoverCountryResponses>
 
     @Operation(
         summary = "테마별 영상 목록 조회 (커서 페이지네이션)",
