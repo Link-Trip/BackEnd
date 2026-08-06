@@ -13,8 +13,10 @@ import com.linktrip.application.port.output.persistence.TripPlanPersistencePort
 import com.linktrip.application.port.output.persistence.TripPlanRequestPersistencePort
 import com.linktrip.common.exception.ExceptionCode
 import com.linktrip.common.exception.LinktripException
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -24,6 +26,8 @@ class TripPlanService(
     private val itineraryItemPort: TravelItineraryItemPersistencePort,
     private val requestPort: TripPlanRequestPersistencePort,
     private val hashtagPort: HashtagPersistencePort,
+    @Value("\${member.daily-video-analyze-limit:10}")
+    private val dailyVideoAnalyzeLimit: Long,
 ) : TripPlanUseCase {
     @Transactional
     override fun registerRequest(
@@ -31,7 +35,19 @@ class TripPlanService(
         videoAnalysisTaskId: String,
     ) {
         if (requestPort.existsByMemberIdAndVideoAnalysisTaskId(memberId, videoAnalysisTaskId)) return
+        ensureDailyVideoAnalyzeLimitNotExceeded(memberId)
         requestPort.save(TripPlanRequest.create(memberId, videoAnalysisTaskId))
+    }
+
+    private fun ensureDailyVideoAnalyzeLimitNotExceeded(memberId: String) {
+        val today = LocalDate.now()
+        val count = requestPort.countByMemberIdAndDate(memberId, today)
+        if (count >= dailyVideoAnalyzeLimit) {
+            throw LinktripException(
+                ExceptionCode.TOO_MANY_REQUESTS_VIDEO_ANALYZE_DAILY,
+                "오늘 영상 분석 요청 한도($count/$dailyVideoAnalyzeLimit) 초과",
+            )
+        }
     }
 
     @Transactional

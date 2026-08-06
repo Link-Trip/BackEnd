@@ -31,11 +31,13 @@ enum class ExceptionCode(
 
     // 429
     TOO_MANY_REQUESTS(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
+    TOO_MANY_REQUESTS_VIDEO_ANALYZE_DAILY(429, "오늘 요청 가능한 영상 분석 한도를 초과했습니다. 내일 다시 시도해주세요."),
 
     // 500
     INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
     INTERNAL_IMMUTABLE_DATA_DELETE(500, "불변 데이터는 삭제할 수 없습니다."),
     INTERNAL_IMMUTABLE_DATA_UPDATE(500, "불변 데이터는 수정할 수 없습니다."),
+    INTERNAL_QUOTA_POLICY_NOT_CONFIGURED(500, "외부 API 일일 한도 정책이 설정되지 않았습니다."),
     INTERNAL_ERROR_TEST(500, "에러 테스트용 예외입니다."),
 
     // 502

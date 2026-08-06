@@ -1,5 +1,6 @@
 package com.linktrip.application.domain.video
 
+import com.linktrip.application.domain.quota.ApiQuotaGuardService
 import com.linktrip.application.domain.trip.TripPlanService
 import com.linktrip.application.port.output.external.VideoAnalysisNotificationPort
 import com.linktrip.application.port.output.external.VideoAnalyzePort
@@ -26,6 +27,7 @@ class VideoAnalysisQueueConsumer(
     private val tripPlanRequestPort: TripPlanRequestPersistencePort,
     private val tripPlanService: TripPlanService,
     private val rateLimitBucketStore: RateLimitBucketStore,
+    private val apiQuotaGuardService: ApiQuotaGuardService,
 ) {
     fun startConsuming() {
         Thread({ consumeLoop() }, "VideoAnalysisQueueConsumer").apply {
@@ -38,6 +40,11 @@ class VideoAnalysisQueueConsumer(
     private fun consumeLoop() {
         while (!Thread.currentThread().isInterrupted) {
             try {
+                if (apiQuotaGuardService.isAnyApiExceeded()) {
+                    logger.warn { "외부 API 일일 한도 초과 — ${QUOTA_BACKOFF_MS / 1000}초 대기" }
+                    Thread.sleep(QUOTA_BACKOFF_MS)
+                    continue
+                }
                 val event = videoAnalysisQueuePort.dequeue() ?: continue
                 processAnalysis(event)
             } catch (_: InterruptedException) {
@@ -209,5 +216,8 @@ class VideoAnalysisQueueConsumer(
 
     companion object {
         private const val RATE_LIMIT_KEY = "gemini-api"
+
+        /** API 한도 초과 시 다음 가드 체크까지 대기 시간. 자정 후 재개 지연 / 로그 노이즈 절충. */
+        private const val QUOTA_BACKOFF_MS = 60_000L
     }
 }

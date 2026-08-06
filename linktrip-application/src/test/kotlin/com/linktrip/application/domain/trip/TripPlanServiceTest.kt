@@ -17,15 +17,16 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -47,8 +48,21 @@ class TripPlanServiceTest {
     @Mock
     lateinit var hashtagPort: HashtagPersistencePort
 
-    @InjectMocks
-    lateinit var service: TripPlanService
+    private lateinit var service: TripPlanService
+
+    @BeforeEach
+    fun setUp() {
+        // @InjectMocks 는 Long 같은 단순 타입을 주입 못 하므로 명시 생성.
+        service =
+            TripPlanService(
+                planPort = planPort,
+                planItemPort = planItemPort,
+                itineraryItemPort = itineraryItemPort,
+                requestPort = requestPort,
+                hashtagPort = hashtagPort,
+                dailyVideoAnalyzeLimit = 10L,
+            )
+    }
 
     @Nested
     inner class RegisterRequest {
@@ -71,6 +85,32 @@ class TripPlanServiceTest {
             verify(requestPort).save(captor.capture())
             assertEquals("m1", captor.firstValue.memberId)
             assertEquals("t1", captor.firstValue.videoAnalysisTaskId)
+        }
+
+        @Test
+        fun `오늘 분석 요청이 한도 10건에 도달한 멤버가 새 영상을 요청하면_TOO_MANY_REQUESTS_VIDEO_ANALYZE_DAILY 예외가 발생하고 저장하지 않는다`() {
+            // 어뷰징 방지 가드: 한도 도달 시 외부 API 호출도, DB 저장도 일어나지 않아야 한다.
+            whenever(requestPort.existsByMemberIdAndVideoAnalysisTaskId("m1", "t1")).thenReturn(false)
+            whenever(requestPort.countByMemberIdAndDate(eq("m1"), any())).thenReturn(10L)
+
+            val exception =
+                assertThrows<LinktripException> {
+                    service.registerRequest("m1", "t1")
+                }
+            assertEquals(ExceptionCode.TOO_MANY_REQUESTS_VIDEO_ANALYZE_DAILY, exception.exceptionCode)
+            verify(requestPort, never()).save(any())
+        }
+
+        @Test
+        fun `이미 등록된 요청은 한도 카운트 조회 자체를 거치지 않는다 (dedup 우선 - 같은 영상 재요청은 카운트 영향 X)`() {
+            // 같은 영상에 대해 같은 멤버가 두 번 요청해도 trip_plan_request 의 unique 로 인해 1 row.
+            // 한도 체크는 새 row 가 생기는 경로에서만 의미가 있으므로, 이미 등록된 요청은 한도 조회를 스킵해야 한다.
+            whenever(requestPort.existsByMemberIdAndVideoAnalysisTaskId("m1", "t1")).thenReturn(true)
+
+            service.registerRequest("m1", "t1")
+
+            verify(requestPort, never()).countByMemberIdAndDate(any(), any())
+            verify(requestPort, never()).save(any())
         }
     }
 

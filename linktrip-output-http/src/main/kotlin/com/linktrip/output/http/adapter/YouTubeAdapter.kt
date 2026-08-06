@@ -1,10 +1,15 @@
 package com.linktrip.output.http.adapter
 
+import com.linktrip.application.domain.quota.ApiCallCounterService
+import com.linktrip.application.domain.quota.ApiQuotaGuardService
+import com.linktrip.application.domain.quota.ApiType
 import com.linktrip.application.domain.youtube.YouTubeChannelDetail
 import com.linktrip.application.domain.youtube.YouTubeRecentVideo
 import com.linktrip.application.domain.youtube.YouTubeSearchResult
 import com.linktrip.application.domain.youtube.YouTubeVideoMeta
 import com.linktrip.application.port.output.external.YouTubePort
+import com.linktrip.common.exception.ExceptionCode
+import com.linktrip.common.exception.LinktripException
 import com.linktrip.output.http.dto.youtube.YouTubeChannelResponse
 import com.linktrip.output.http.dto.youtube.YouTubePlaylistItemResponse
 import com.linktrip.output.http.dto.youtube.YouTubeSearchResponse
@@ -18,11 +23,14 @@ import org.springframework.web.client.body
 class YouTubeAdapter(
     private val youtubeProperties: YouTubeProperties,
     private val youtubeRestClient: RestClient,
+    private val apiQuotaGuardService: ApiQuotaGuardService,
+    private val apiCallCounterService: ApiCallCounterService,
 ) : YouTubePort {
     override fun searchVideos(
         query: String,
         maxResults: Int,
     ): List<YouTubeSearchResult> {
+        guardOrThrow()
         val response =
             youtubeRestClient.get()
                 .uri { builder ->
@@ -39,6 +47,7 @@ class YouTubeAdapter(
                 }
                 .retrieve()
                 .body<YouTubeSearchResponse>()
+        apiCallCounterService.recordSuccess(ApiType.YOUTUBE_DATA)
 
         return response?.items
             ?.filter { it.id.videoId != null }
@@ -61,6 +70,7 @@ class YouTubeAdapter(
         if (videoIds.isEmpty()) return emptyList()
 
         return videoIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
+            guardOrThrow()
             val response =
                 youtubeRestClient.get()
                     .uri { builder ->
@@ -73,6 +83,7 @@ class YouTubeAdapter(
                     }
                     .retrieve()
                     .body<YouTubeVideoResponse>()
+            apiCallCounterService.recordSuccess(ApiType.YOUTUBE_DATA)
 
             response?.items?.map { item ->
                 YouTubeVideoMeta.create(
@@ -102,6 +113,7 @@ class YouTubeAdapter(
         maxResults: Int,
         topicId: String?,
     ): List<YouTubeChannelDetail> {
+        guardOrThrow()
         val searchResponse =
             youtubeRestClient.get()
                 .uri { builder ->
@@ -121,6 +133,7 @@ class YouTubeAdapter(
                 }
                 .retrieve()
                 .body<YouTubeSearchResponse>()
+        apiCallCounterService.recordSuccess(ApiType.YOUTUBE_DATA)
 
         val channelIds =
             searchResponse?.items
@@ -134,6 +147,7 @@ class YouTubeAdapter(
         if (channelIds.isEmpty()) return emptyList()
 
         return channelIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
+            guardOrThrow()
             val response =
                 youtubeRestClient.get()
                     .uri { builder ->
@@ -146,6 +160,7 @@ class YouTubeAdapter(
                     }
                     .retrieve()
                     .body<YouTubeChannelResponse>()
+            apiCallCounterService.recordSuccess(ApiType.YOUTUBE_DATA)
 
             response?.items?.map { item ->
                 YouTubeChannelDetail(
@@ -168,6 +183,7 @@ class YouTubeAdapter(
     ): List<YouTubeRecentVideo> {
         val uploadsPlaylistId = channelId.replaceFirst("UC", "UU")
 
+        guardOrThrow()
         val response =
             youtubeRestClient.get()
                 .uri { builder ->
@@ -181,6 +197,7 @@ class YouTubeAdapter(
                 }
                 .retrieve()
                 .body<YouTubePlaylistItemResponse>()
+        apiCallCounterService.recordSuccess(ApiType.YOUTUBE_DATA)
 
         val candidates =
             response?.items?.mapNotNull { item ->
@@ -214,6 +231,7 @@ class YouTubeAdapter(
         if (videoIds.isEmpty()) return emptyMap()
 
         return videoIds.chunked(MAX_IDS_PER_REQUEST).flatMap { chunk ->
+            guardOrThrow()
             val response =
                 youtubeRestClient.get()
                     .uri { builder ->
@@ -226,12 +244,19 @@ class YouTubeAdapter(
                     }
                     .retrieve()
                     .body<YouTubeVideoResponse>()
+            apiCallCounterService.recordSuccess(ApiType.YOUTUBE_DATA)
 
             response?.items?.mapNotNull { item ->
                 val categoryId = item.snippet?.categoryId ?: return@mapNotNull null
                 item.id to categoryId
             } ?: emptyList()
         }.toMap()
+    }
+
+    private fun guardOrThrow() {
+        if (apiQuotaGuardService.isExceeded(ApiType.YOUTUBE_DATA)) {
+            throw LinktripException(ExceptionCode.BAD_GATEWAY_YOUTUBE)
+        }
     }
 
     companion object {
