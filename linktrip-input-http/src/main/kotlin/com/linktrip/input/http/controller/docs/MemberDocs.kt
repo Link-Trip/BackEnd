@@ -156,7 +156,7 @@ interface MemberDocs {
         ],
     )
     fun registerFcmToken(
-        memberId: String,
+        @Parameter(hidden = true) memberId: String,
         request: FcmTokenRequest,
     ): ApiResponse<Unit>
 
@@ -287,7 +287,7 @@ interface MemberDocs {
         ],
     )
     fun updateNotificationSetting(
-        memberId: String,
+        @Parameter(hidden = true) memberId: String,
         request: NotificationSettingRequest,
     ): ApiResponse<NotificationSettingResponse>
 }
