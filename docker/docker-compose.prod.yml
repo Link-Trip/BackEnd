@@ -1,6 +1,6 @@
 services:
   app:
-    image: 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com/linktrip:latest
+    image: 682849160720.dkr.ecr.ap-northeast-2.amazonaws.com/linktrip:latest
     container_name: linktrip-app
     restart: unless-stopped
     expose:

@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REGISTRY: 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com
+  ECR_REGISTRY: 682849160720.dkr.ecr.ap-northeast-2.amazonaws.com
   ECR_REPOSITORY: linktrip
 
 jobs:
@@ -98,7 +98,7 @@ jobs:
             fi
 
             # ECR 로그인
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 909176971481.dkr.ecr.ap-northeast-2.amazonaws.com
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 682849160720.dkr.ecr.ap-northeast-2.amazonaws.com
 
             # SCP로 전송된 파일 정리 (strip_components=0이라 docker/ 폴더 안에 들어감)
             mkdir -p $DEPLOY_DIR
