@@ -1,6 +1,7 @@
 package com.linktrip.output.http.adapter
 
 import com.linktrip.application.domain.notification.ExceptionAlertEvent
+import com.linktrip.application.domain.notification.FeedbackAlertEvent
 import com.linktrip.application.port.output.notification.NotificationPort
 import com.linktrip.output.http.properties.DiscordNotificationProperties
 import mu.KotlinLogging
@@ -30,6 +31,28 @@ class DiscordNotificationAdapter(
                 "디스코드 웹훅 전송 실패 " +
                     "(statusCode=${event.statusCode}, message=${event.message})"
             }
+        }
+    }
+
+    override fun sendFeedbackAlert(event: FeedbackAlertEvent) {
+        val message =
+            """
+            💬 [Linktrip 의견 접수]
+            🏷 유형: ${event.type}
+            📝 내용: ${event.content}
+            📱 ${event.platform} ${event.osVersion} / ${event.deviceModel} / 앱 ${event.appVersion}
+            ⏰ 접수시각: ${event.timestamp}
+            """.trimIndent()
+        val payload = mapOf("content" to message)
+        runCatching {
+            discordRestClient.post()
+                .uri(properties.webhookUrlError)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(payload)
+                .retrieve()
+                .toBodilessEntity()
+        }.onFailure { e ->
+            logger.warn(e) { "디스코드 의견 알림 전송 실패 (type=${event.type})" }
         }
     }
 

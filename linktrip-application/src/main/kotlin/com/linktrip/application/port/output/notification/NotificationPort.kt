@@ -1,6 +1,7 @@
 package com.linktrip.application.port.output.notification
 
 import com.linktrip.application.domain.notification.ExceptionAlertEvent
+import com.linktrip.application.domain.notification.FeedbackAlertEvent
 
 /**
  * 알림 전송을 위한 Output Port.
@@ -8,4 +9,6 @@ import com.linktrip.application.domain.notification.ExceptionAlertEvent
  */
 interface NotificationPort {
     fun sendExceptionAlert(event: ExceptionAlertEvent)
+
+    fun sendFeedbackAlert(event: FeedbackAlertEvent)
 }
