@@ -10,4 +10,6 @@ interface MemberPort {
     fun save(member: Member): Member
 
     fun update(member: Member): Member
+
+    fun withdraw(member: Member): Member
 }

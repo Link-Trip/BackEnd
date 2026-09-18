@@ -27,4 +27,12 @@ class MemberAdapter(
         entity.applySettings(member)
         return memberJpaRepository.save(entity).toDomain()
     }
+
+    override fun withdraw(member: Member): Member {
+        val entity =
+            memberJpaRepository.findByIdOrNull(member.id)
+                ?: throw LinktripException(ExceptionCode.NOT_FOUND_MEMBER)
+        entity.withdraw(member.serialNumber)
+        return memberJpaRepository.save(entity).toDomain()
+    }
 }

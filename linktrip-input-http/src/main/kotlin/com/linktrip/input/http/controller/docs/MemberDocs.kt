@@ -5,6 +5,7 @@ import com.linktrip.input.http.controller.dto.request.NotificationSettingRequest
 import com.linktrip.input.http.controller.dto.response.ApiResponse
 import com.linktrip.input.http.controller.dto.response.ExceptionResponse
 import com.linktrip.input.http.controller.dto.response.NotificationSettingResponse
+import com.linktrip.input.http.controller.dto.response.WithdrawMemberResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
@@ -17,6 +18,112 @@ import io.swagger.v3.oas.annotations.tags.Tag
 
 @Tag(name = "Member", description = "회원 설정 API")
 interface MemberDocs {
+    @Operation(
+        summary = "회원 탈퇴 (개인정보 파기)",
+        description = """
+            로그인한 회원을 탈퇴 처리합니다.
+
+            - 기기식별자(serialNumber)를 비가역 값으로 마스킹하여 개인정보를 파기합니다.
+            - FCM 토큰·플랫폼 정보를 제거하고, 회원의 여행 계획을 모두 소프트 삭제합니다.
+            - 하나의 트랜잭션으로 처리되어 부분 삭제 상태가 남지 않습니다.
+            - 이미 탈퇴한 회원에 다시 호출해도 200을 반환합니다 (deletedTripPlanCount=0).
+            - 탈퇴 후 동일 기기로 재로그인하면 새 회원으로 시작합니다.
+              클라이언트는 탈퇴 성공 시 보관 중인 토큰을 폐기해야 합니다.
+
+            **멱등성:** `Idempotency-Key` 헤더가 필수입니다.
+        """,
+        security = [SecurityRequirement(name = "bearerAuth")],
+        parameters = [
+            Parameter(
+                name = "Idempotency-Key",
+                description = "멱등성 키 (UUID v4 권장, non-GET 요청 필수)",
+                `in` = ParameterIn.HEADER,
+                required = true,
+                example = "550e8400-e29b-41d4-a716-446655440000",
+            ),
+        ],
+    )
+    @ApiResponses(
+        value = [
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "200",
+                description = "탈퇴 성공 (삭제된 여행 계획 수 반환)",
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "400",
+                description = "멱등성 키 누락",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"BAD_REQUEST_MISSING_IDEMPOTENCY_KEY",""" +
+                                        """"message":"Idempotency-Key 헤더는 필수입니다.","timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "401",
+                description = "인증 실패 (토큰 없음/만료/위조)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "토큰 없음",
+                                value =
+                                    """{"code":"UNAUTHORIZED_AUTHENTICATION_FAILED","message":"인증 정보가 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "404",
+                description = "회원을 찾을 수 없음",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"NOT_FOUND_MEMBER","message":"회원을 찾을 수 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "409",
+                description = "동일한 멱등성 키의 요청이 이미 처리 중인 경우",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"DUPLICATE_REQUEST","message":"이미 요청한 값입니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun withdraw(
+        @Parameter(hidden = true) memberId: String,
+    ): ApiResponse<WithdrawMemberResponse>
+
     @Operation(
         summary = "FCM 토큰 등록/갱신",
         description = """

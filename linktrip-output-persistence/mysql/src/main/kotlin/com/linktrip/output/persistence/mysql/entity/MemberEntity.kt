@@ -22,7 +22,7 @@ class MemberEntity(
     @Column(length = 36)
     val id: String,
     @Column(name = "serial_number", nullable = false, length = 255)
-    val serialNumber: String,
+    var serialNumber: String,
     @Column(name = "fcm_token", length = 512)
     var fcmToken: String? = null,
     @Enumerated(EnumType.STRING)
@@ -35,6 +35,13 @@ class MemberEntity(
         this.fcmToken = member.fcmToken
         this.platform = member.platform
         this.notificationEnabled = member.notificationEnabled
+    }
+
+    fun withdraw(maskedSerialNumber: String) {
+        this.serialNumber = maskedSerialNumber
+        this.fcmToken = null
+        this.platform = null
+        softDelete()
     }
 
     fun toDomain(): Member =
