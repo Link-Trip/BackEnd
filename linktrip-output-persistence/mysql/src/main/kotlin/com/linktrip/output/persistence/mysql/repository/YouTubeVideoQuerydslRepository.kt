@@ -4,6 +4,7 @@ import com.linktrip.application.domain.video.VideoAnalysisTask
 import com.linktrip.output.persistence.mysql.entity.QVideoAnalysisTaskEntity
 import com.linktrip.output.persistence.mysql.entity.QYouTubeVideoEntity
 import com.linktrip.output.persistence.mysql.entity.YouTubeVideoEntity
+import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
@@ -29,24 +30,33 @@ class YouTubeVideoQuerydslRepository(
             .where(video.videoId.`in`(videoIds))
             .fetch()
 
-    fun findAllOrderByViewCountDesc(): List<YouTubeVideoEntity> =
+    fun findAllOrderByViewCountDesc(limit: Int? = null): List<YouTubeVideoEntity> =
         queryFactory
             .selectFrom(video)
             .orderBy(video.viewCount.desc())
+            .applyLimit(limit)
             .fetch()
 
-    fun findAllByCountryOrderByViewCountDesc(country: String): List<YouTubeVideoEntity> =
+    fun findAllByCountryOrderByViewCountDesc(
+        country: String,
+        limit: Int? = null,
+    ): List<YouTubeVideoEntity> =
         queryFactory
             .selectFrom(video)
             .where(video.country.eq(country))
             .orderBy(video.viewCount.desc())
+            .applyLimit(limit)
             .fetch()
 
-    fun findAllByRegionOrderByViewCountDesc(region: String): List<YouTubeVideoEntity> =
+    fun findAllByRegionOrderByViewCountDesc(
+        region: String,
+        limit: Int? = null,
+    ): List<YouTubeVideoEntity> =
         queryFactory
             .selectFrom(video)
             .where(video.region.eq(region))
             .orderBy(video.viewCount.desc())
+            .applyLimit(limit)
             .fetch()
 
     fun findAllByThemeAndCreatedAtBefore(
@@ -104,3 +114,5 @@ class YouTubeVideoQuerydslRepository(
             .fetch()
     }
 }
+
+private fun <T> JPAQuery<T>.applyLimit(limit: Int?): JPAQuery<T> = if (limit != null) limit(limit.toLong()) else this

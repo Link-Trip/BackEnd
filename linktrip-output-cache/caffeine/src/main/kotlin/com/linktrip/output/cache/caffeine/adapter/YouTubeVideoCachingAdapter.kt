@@ -24,14 +24,26 @@ class YouTubeVideoCachingAdapter(
 
     override fun findExistingVideoIds(videoIds: List<String>): Set<String> = delegate.findExistingVideoIds(videoIds)
 
-    @Cacheable(value = [CacheConfig.DISCOVER_VIDEOS])
-    override fun findAll(): List<YouTubeVideoMeta> = delegate.findAll()
+    @Cacheable(value = [CacheConfig.DISCOVER_VIDEOS], key = "'all:' + (#limit != null ? #limit : 'full')")
+    override fun findAll(limit: Int?): List<YouTubeVideoMeta> = delegate.findAll(limit)
 
-    @Cacheable(value = [CacheConfig.DISCOVER_VIDEOS], key = "'country:' + #country")
-    override fun findAllByCountry(country: String): List<YouTubeVideoMeta> = delegate.findAllByCountry(country)
+    @Cacheable(
+        value = [CacheConfig.DISCOVER_VIDEOS],
+        key = "'country:' + #country + ':' + (#limit != null ? #limit : 'full')",
+    )
+    override fun findAllByCountry(
+        country: String,
+        limit: Int?,
+    ): List<YouTubeVideoMeta> = delegate.findAllByCountry(country, limit)
 
-    @Cacheable(value = [CacheConfig.DISCOVER_VIDEOS], key = "'region:' + #region")
-    override fun findAllByRegion(region: String): List<YouTubeVideoMeta> = delegate.findAllByRegion(region)
+    @Cacheable(
+        value = [CacheConfig.DISCOVER_VIDEOS],
+        key = "'region:' + #region + ':' + (#limit != null ? #limit : 'full')",
+    )
+    override fun findAllByRegion(
+        region: String,
+        limit: Int?,
+    ): List<YouTubeVideoMeta> = delegate.findAllByRegion(region, limit)
 
     override fun findAllByTheme(
         theme: String,
