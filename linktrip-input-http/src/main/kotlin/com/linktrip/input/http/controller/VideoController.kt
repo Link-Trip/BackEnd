@@ -95,18 +95,14 @@ class VideoController(
     override fun getVideos(
         @RequestParam(required = false) country: String?,
         @RequestParam(required = false) region: String?,
-        @RequestParam(required = false) size: Int?,
     ): ApiResponse<DiscoverVideoResponses> {
-        if (size != null && size < 1) {
-            throw LinktripException(ExceptionCode.BAD_REQUEST_DISCOVER_SIZE)
-        }
         val videos =
             when {
                 !country.isNullOrBlank() && !region.isNullOrBlank() ->
                     throw LinktripException(ExceptionCode.BAD_REQUEST_DISCOVER_QUERY)
-                !country.isNullOrBlank() -> discoverVideoUseCase.getVideosByCountry(country.trim(), size)
-                !region.isNullOrBlank() -> discoverVideoUseCase.getVideosByRegion(region.trim(), size)
-                else -> discoverVideoUseCase.getVideos(size)
+                !country.isNullOrBlank() -> discoverVideoUseCase.getVideosByCountry(country.trim())
+                !region.isNullOrBlank() -> discoverVideoUseCase.getVideosByRegion(region.trim())
+                else -> discoverVideoUseCase.getVideos()
             }
         return ApiResponse.ok(DiscoverVideoResponses.from(videos))
     }

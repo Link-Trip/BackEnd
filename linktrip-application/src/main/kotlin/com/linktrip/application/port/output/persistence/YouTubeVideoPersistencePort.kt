@@ -9,17 +9,11 @@ interface YouTubeVideoPersistencePort {
 
     fun findExistingVideoIds(videoIds: List<String>): Set<String>
 
-    fun findAll(limit: Int? = null): List<YouTubeVideoMeta>
+    fun findAll(): List<YouTubeVideoMeta>
 
-    fun findAllByCountry(
-        country: String,
-        limit: Int? = null,
-    ): List<YouTubeVideoMeta>
+    fun findAllByCountry(country: String): List<YouTubeVideoMeta>
 
-    fun findAllByRegion(
-        region: String,
-        limit: Int? = null,
-    ): List<YouTubeVideoMeta>
+    fun findAllByRegion(region: String): List<YouTubeVideoMeta>
 
     fun findAllByTheme(
         theme: String,

@@ -10,17 +10,13 @@ import java.time.LocalDateTime
 class DiscoverVideoService(
     private val youTubeVideoPersistencePort: YouTubeVideoPersistencePort,
 ) : DiscoverVideoUseCase {
-    override fun getVideos(size: Int?): List<YouTubeVideoMeta> = youTubeVideoPersistencePort.findAll(size)
+    override fun getVideos(): List<YouTubeVideoMeta> = youTubeVideoPersistencePort.findAll()
 
-    override fun getVideosByCountry(
-        country: String,
-        size: Int?,
-    ): List<YouTubeVideoMeta> = youTubeVideoPersistencePort.findAllByCountry(country, size)
+    override fun getVideosByCountry(country: String): List<YouTubeVideoMeta> =
+        youTubeVideoPersistencePort.findAllByCountry(country)
 
-    override fun getVideosByRegion(
-        region: String,
-        size: Int?,
-    ): List<YouTubeVideoMeta> = youTubeVideoPersistencePort.findAllByRegion(region, size)
+    override fun getVideosByRegion(region: String): List<YouTubeVideoMeta> =
+        youTubeVideoPersistencePort.findAllByRegion(region)
 
     override fun getVideosByTheme(
         theme: String,

@@ -244,8 +244,6 @@ interface VideoDocs {
         country: String?,
         @Parameter(description = "지역 필터 (예: 동남아시아, 유럽)", example = "동남아시아")
         region: String?,
-        @Parameter(description = "최대 반환 개수 (미지정 시 전체 반환, 1 이상. 추천영상 캐러셀은 8 권장)", example = "8")
-        size: Int?,
     ): ApiResponse<DiscoverVideoResponses>
 
     @Operation(

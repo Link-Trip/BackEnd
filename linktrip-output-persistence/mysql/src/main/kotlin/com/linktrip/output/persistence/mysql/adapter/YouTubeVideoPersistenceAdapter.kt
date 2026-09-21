@@ -29,24 +29,18 @@ class YouTubeVideoPersistenceAdapter(
         querydslRepository.findVideoIdsByVideoIdIn(videoIds).toSet()
 
     @Transactional(readOnly = true)
-    override fun findAll(limit: Int?): List<YouTubeVideoMeta> =
-        querydslRepository.findAllOrderByViewCountDesc(limit)
+    override fun findAll(): List<YouTubeVideoMeta> =
+        querydslRepository.findAllOrderByViewCountDesc()
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
-    override fun findAllByCountry(
-        country: String,
-        limit: Int?,
-    ): List<YouTubeVideoMeta> =
-        querydslRepository.findAllByCountryOrderByViewCountDesc(country, limit)
+    override fun findAllByCountry(country: String): List<YouTubeVideoMeta> =
+        querydslRepository.findAllByCountryOrderByViewCountDesc(country)
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)
-    override fun findAllByRegion(
-        region: String,
-        limit: Int?,
-    ): List<YouTubeVideoMeta> =
-        querydslRepository.findAllByRegionOrderByViewCountDesc(region, limit)
+    override fun findAllByRegion(region: String): List<YouTubeVideoMeta> =
+        querydslRepository.findAllByRegionOrderByViewCountDesc(region)
             .map { it.toDomain() }
 
     @Transactional(readOnly = true)

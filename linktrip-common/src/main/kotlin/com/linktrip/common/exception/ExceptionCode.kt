@@ -9,7 +9,6 @@ enum class ExceptionCode(
     BAD_REQUEST_VIDEO(400, "유효하지 않은 유튜브 영상입니다."),
     BAD_REQUEST_ITINERARY_ITEMS(400, "유효하지 않은 여행 일정 항목입니다."),
     BAD_REQUEST_DISCOVER_QUERY(400, "country와 region은 동시에 사용할 수 없습니다."),
-    BAD_REQUEST_DISCOVER_SIZE(400, "size는 1 이상이어야 합니다."),
     BAD_REQUEST_MISSING_IDEMPOTENCY_KEY(400, "Idempotency-Key 헤더는 필수입니다."),
     BAD_REQUEST_PLATFORM(400, "지원하지 않는 플랫폼입니다."),
     BAD_REQUEST_FEEDBACK_TYPE(400, "지원하지 않는 의견 유형입니다."),
