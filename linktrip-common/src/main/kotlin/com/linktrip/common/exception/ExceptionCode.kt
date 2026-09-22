@@ -12,6 +12,8 @@ enum class ExceptionCode(
     BAD_REQUEST_MISSING_IDEMPOTENCY_KEY(400, "Idempotency-Key 헤더는 필수입니다."),
     BAD_REQUEST_PLATFORM(400, "지원하지 않는 플랫폼입니다."),
     BAD_REQUEST_FEEDBACK_TYPE(400, "지원하지 않는 의견 유형입니다."),
+    BAD_REQUEST_TERMS_TYPE(400, "지원하지 않는 약관 유형입니다."),
+    BAD_REQUEST_TERMS_REQUIRED(400, "필수 약관에 모두 동의해야 합니다."),
 
     // 401
     UNAUTHORIZED_TOKEN_EXPIRED(401, "만료된 토큰입니다."),
