@@ -80,6 +80,33 @@ class MemberSettingsServiceTest {
     }
 
     @Test
+    fun `알림 설정을 조회하면_회원에 저장된 값이 그대로 반환된다`() {
+        // given - 알림을 꺼둔 회원
+        whenever(memberPort.findById("m1"))
+            .thenReturn(Member(id = "m1", serialNumber = "s1", notificationEnabled = false))
+
+        // when - 알림 설정을 조회한다
+        val result = service.getNotificationEnabled("m1")
+
+        // then - 저장된 값(false)이 반환되고 저장은 일어나지 않는다
+        assertFalse(result)
+        verify(memberPort, never()).update(any())
+    }
+
+    @Test
+    fun `존재하지 않는 회원의 알림 설정을 조회하면_NOT_FOUND_MEMBER 예외가 발생한다`() {
+        // given - 존재하지 않는 회원
+        whenever(memberPort.findById("unknown")).thenReturn(null)
+
+        // when & then - 예외가 발생한다
+        val exception =
+            assertThrows<LinktripException> {
+                service.getNotificationEnabled("unknown")
+            }
+        assertEquals(ExceptionCode.NOT_FOUND_MEMBER, exception.exceptionCode)
+    }
+
+    @Test
     fun `알림을 끄면_notificationEnabled가 false로 저장되고 변경된 값이 반환된다`() {
         // given - 알림이 켜져 있는 회원
         val member = Member(id = "m1", serialNumber = "s1", notificationEnabled = true)

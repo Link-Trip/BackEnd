@@ -268,6 +268,61 @@ interface MemberDocs {
     ): ApiResponse<Unit>
 
     @Operation(
+        summary = "알림 수신 설정 조회",
+        description = """
+            로그인한 회원의 현재 푸시 알림 수신 여부를 조회합니다.
+            마이페이지 진입 시 토글 초기 상태를 세팅하는 용도입니다.
+            (기본값은 true이며, 한 번도 변경하지 않은 회원도 true로 내려갑니다.)
+        """,
+        security = [SecurityRequirement(name = "bearerAuth")],
+    )
+    @ApiResponses(
+        value = [
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "401",
+                description = "인증 실패 (토큰 없음/만료/위조)",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"UNAUTHORIZED_AUTHENTICATION_FAILED","message":"인증 정보가 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "404",
+                description = "회원을 찾을 수 없음",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ExceptionResponse::class),
+                        examples = [
+                            ExampleObject(
+                                value =
+                                    """{"code":"NOT_FOUND_MEMBER","message":"회원을 찾을 수 없습니다.",""" +
+                                        """"timestamp":1785390616431}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun getNotificationSetting(
+        @Parameter(hidden = true) memberId: String,
+    ): ApiResponse<NotificationSettingResponse>
+
+    @Operation(
         summary = "알림 수신 설정 변경 (ON/OFF)",
         description = """
             로그인한 회원의 푸시 알림 수신 여부를 변경합니다.

@@ -9,6 +9,8 @@ interface MemberSettingsUseCase {
         platform: Platform,
     )
 
+    fun getNotificationEnabled(memberId: String): Boolean
+
     fun updateNotificationEnabled(
         memberId: String,
         enabled: Boolean,

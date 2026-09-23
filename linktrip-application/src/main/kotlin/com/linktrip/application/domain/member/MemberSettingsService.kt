@@ -21,6 +21,9 @@ class MemberSettingsService(
         memberPort.update(member.registerFcmToken(fcmToken, platform))
     }
 
+    @Transactional(readOnly = true)
+    override fun getNotificationEnabled(memberId: String): Boolean = findMember(memberId).notificationEnabled
+
     @Transactional
     override fun updateNotificationEnabled(
         memberId: String,

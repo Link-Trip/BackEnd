@@ -12,6 +12,7 @@ import com.linktrip.input.http.controller.dto.response.NotificationSettingRespon
 import com.linktrip.input.http.controller.dto.response.WithdrawMemberResponse
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -42,6 +43,14 @@ class MemberController(
             platform = Platform.from(request.platform),
         )
         return ApiResponse.ok()
+    }
+
+    @GetMapping("/notification")
+    override fun getNotificationSetting(
+        @AuthenticatedMember memberId: String,
+    ): ApiResponse<NotificationSettingResponse> {
+        val enabled = memberSettingsUseCase.getNotificationEnabled(memberId)
+        return ApiResponse.ok(NotificationSettingResponse(enabled = enabled))
     }
 
     @PutMapping("/notification")
